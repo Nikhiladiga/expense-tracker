@@ -1,7 +1,5 @@
 package com.nikhil.expensetracker;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -9,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -29,9 +26,12 @@ import com.nikhil.expensetracker.databinding.ActivityMainBinding;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.receiver.SmsReceiver;
 import com.nikhil.expensetracker.services.SMSReaderService;
+import com.nikhil.expensetracker.utils.Util;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -60,6 +60,13 @@ public class MainActivity extends AppCompatActivity {
         mainActivityWeakReference = new WeakReference<>(MainActivity.this);
         checkSmsPermissions();
         database = new Database(this, "expense.db", null, 1);
+
+        //GET total balance
+        refreshMainDashboardBalance();
+
+        //GET current month
+        Calendar calendar = Calendar.getInstance();
+        activityMainBinding.currentMonth.setText(new SimpleDateFormat("MMMM").format(calendar.getTime()));
 
         //Get transactions for this month from database
         transactions = database.getTransactions();
@@ -144,6 +151,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         transactionListAdapter.notifyDataSetChanged();
+        refreshMainDashboardBalance();
+    }
+
+    private void refreshMainDashboardBalance() {
+        activityMainBinding.currentAmount.setText("₹" + database.getBalance().toString());
     }
 
     private void registerActivities() {

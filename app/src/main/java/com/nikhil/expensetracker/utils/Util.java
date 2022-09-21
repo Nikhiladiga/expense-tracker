@@ -7,9 +7,9 @@ import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.receiver.SmsReceiver;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class Util {
-
     public static SmsReceiver smsReceiver;
 
     public static Transaction parseSMS(String message) {

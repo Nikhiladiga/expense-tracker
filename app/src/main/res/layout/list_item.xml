@@ -34,10 +34,11 @@
                 android:id="@+id/transactionName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLines="3"
                 android:fontFamily="@font/interextrabold"
-                android:text="Tea break"
+                android:text="ACCESS RESEARCH LABS"
                 android:textColor="@color/white"
-                android:textSize="15sp" />
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/transactionCategory"
@@ -46,7 +47,7 @@
                 android:fontFamily="@font/intersemibold"
                 android:text="Food"
                 android:textColor="@color/white"
-                android:textSize="13sp" />
+                android:textSize="12sp" />
 
         </LinearLayout>
 
@@ -55,9 +56,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/interextrabold"
-            android:text="$5000"
+            android:text="+ ₹96000"
             android:textColor="@color/red"
-            android:textSize="15sp" />
+            android:textSize="13sp" />
 
     </com.google.android.flexbox.FlexboxLayout>
 

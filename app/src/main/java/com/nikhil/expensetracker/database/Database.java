@@ -110,6 +110,15 @@ public class Database extends SQLiteOpenHelper {
         database.execSQL(query);
     }
 
+    public Double getBalance() {
+        SQLiteDatabase database = this.getWritableDatabase();
+        String query = "SELECT SUM(CASE WHEN type='CREDIT' THEN amount WHEN type='DEBIT' THEN -amount END) AS totalAmount FROM " + TABLE_NAME;
+        System.out.println(query);
+        Cursor cursor = database.rawQuery(query, null);
+        cursor.moveToFirst();
+        return cursor.getDouble(0);
+    }
+
 //    public boolean updateTransactionById() {
 //        SQLiteDatabase database = this.getWritableDatabase();
 //        long result = database.delete(TABLE_NAME,"");
