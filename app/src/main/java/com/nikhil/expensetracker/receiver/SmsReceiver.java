@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
+import android.widget.Toast;
 
 import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.model.Transaction;
@@ -34,10 +35,10 @@ public class SmsReceiver extends BroadcastReceiver {
                         msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                         msg_from = msgs[i].getOriginatingAddress();
                         String msgBody = msgs[i].getMessageBody();
-                        if (msg_from.equalsIgnoreCase("Axis") && (msgBody.contains("Debit") || msgBody.contains("Credit"))) {
+                        if ((msg_from.equalsIgnoreCase("Axis") || msg_from.equalsIgnoreCase("AD-AxisBk")) && (msgBody.contains("Debit") || msgBody.contains("Credit"))) {
                             Transaction transaction = Util.parseSMS(msgBody);
                             if (transaction != null) {
-                                MainActivity.database.addTransaction(transaction);
+                                MainActivity.getInstance().database.addTransaction(transaction);
                                 SystemClock.sleep(1000);
                                 MainActivity.getInstance().refreshAdapterData();
                             }

@@ -57,4 +57,36 @@ public class Util {
         return null;
     }
 
+    public static String getTransactionCategoryEmoji(String category) {
+        switch (category) {
+            case "Food":
+                return "🍔";
+            case "Entertainment":
+                return "😆";
+            case "Investment":
+                return "📈";
+            case "Sports":
+                return "🏋";
+            case "Fuel":
+                return "⛽";
+            case "General":
+                return "💁";
+            case "Holidays":
+                return "😛";
+            case "Travel":
+                return "🚍";
+            case "Gifts":
+                return "🎁";
+            case "Shopping":
+                return "🛒";
+            case "Clothes":
+                return "👕";
+            case "Movies":
+                return "🎬";
+            case "Salary":
+                return "💸";
+            default:
+                return "⚙";
+        }
+    }
 }

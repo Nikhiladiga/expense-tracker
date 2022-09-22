@@ -34,20 +34,20 @@ public class AddTransaction extends AppCompatActivity {
     private final List<String> categories = new ArrayList<>();
 
     public AddTransaction() {
-        categories.add("Food 🍔");
-        categories.add("Entertainment 😆");
-        categories.add("Investment 📈");
-        categories.add("Sports 🏋");
-        categories.add("Fuel ⛽");
-        categories.add("General 💁");
-        categories.add("Holidays 😛");
-        categories.add("Travel 🚍");
-        categories.add("Kids 👶");
-        categories.add("Gifts 🎁");
-        categories.add("Shopping 🛒");
-        categories.add("Clothes 👕");
-        categories.add("Movies 🎬");
-        categories.add("Custom ⚙");
+        categories.add("Food");
+        categories.add("Entertainment");
+        categories.add("Investment");
+        categories.add("Sports");
+        categories.add("Fuel");
+        categories.add("General");
+        categories.add("Holidays");
+        categories.add("Travel");
+        categories.add("Gifts");
+        categories.add("Shopping");
+        categories.add("Clothes");
+        categories.add("Movies");
+        categories.add("Salary");
+        categories.add("Custom");
     }
 
     @Override
@@ -161,7 +161,7 @@ public class AddTransaction extends AppCompatActivity {
                     System.currentTimeMillis(),
                     null
             );
-            MainActivity.database.addTransaction(transaction);
+            MainActivity.getInstance().database.addTransaction(transaction);
             Intent returnIntent = new Intent();
             returnIntent.putExtra("success", "true");
             setResult(Activity.RESULT_OK, returnIntent);

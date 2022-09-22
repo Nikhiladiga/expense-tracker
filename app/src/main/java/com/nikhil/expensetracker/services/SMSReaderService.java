@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.IBinder;
 import android.os.SystemClock;
 
@@ -50,6 +51,7 @@ public class SMSReaderService extends Service {
                 CHANNELID,
                 NotificationManager.IMPORTANCE_LOW
         );
+        notificationChannel.setLightColor(Color.BLUE);
         getSystemService(NotificationManager.class).createNotificationChannel(notificationChannel);
 
         Intent closeIntent = new Intent(this, NotificationReceiver.class);
@@ -60,9 +62,8 @@ public class SMSReaderService extends Service {
                 .setOngoing(true)
                 .setContentIntent(pendingIntent)
                 .addAction(R.drawable.ic_launcher_foreground, "Close", pendingIntent)
-                .setContentText("SMS Service is running")
                 .setContentTitle("Expense tracker enabled")
-                .setSmallIcon(R.drawable.ic_launcher_foreground);
+                .setSmallIcon(R.mipmap.icon);
     }
 
 }

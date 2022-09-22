@@ -119,6 +119,20 @@ public class Database extends SQLiteOpenHelper {
         return cursor.getDouble(0);
     }
 
+    public void updateTransactionById(Transaction transaction) {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        String query = "UPDATE " + TABLE_NAME
+                + " SET " + COL2 + "='" + transaction.getType() + "', "
+                + COL3 + "='" + transaction.getName() + "', "
+                + COL4 + "=" + transaction.getAmount() + ", "
+                + COL5 + "='" + transaction.getCategory() + "', "
+                + COL6 + "=" + transaction.getCreatedAt() + ", "
+                + COL7 + "=" + transaction.getUpdatedAt() + ", "
+                + COL8 + "=" + transaction.getBalance() + " "
+                + " WHERE id='" + transaction.getId() + "'";
+        sqLiteDatabase.execSQL(query);
+    }
+
 //    public boolean updateTransactionById() {
 //        SQLiteDatabase database = this.getWritableDatabase();
 //        long result = database.delete(TABLE_NAME,"");

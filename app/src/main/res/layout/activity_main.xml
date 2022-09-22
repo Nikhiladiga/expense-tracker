@@ -7,7 +7,6 @@
     android:background="@color/black"
     tools:context=".MainActivity">
 
-
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -29,7 +28,6 @@
             android:textSize="30sp"
             android:textStyle="bold" />
 
-
     </com.google.android.flexbox.FlexboxLayout>
 
     <com.google.android.material.card.MaterialCardView
@@ -39,8 +37,8 @@
         android:layout_below="@id/header"
         android:layout_margin="30dp"
         android:backgroundTint="@color/primary"
-        app:cardCornerRadius="15dp"
-        app:cardElevation="5dp">
+        android:elevation="15dp"
+        app:cardCornerRadius="15dp">
 
         <com.google.android.flexbox.FlexboxLayout
             android:layout_width="match_parent"
@@ -112,7 +110,8 @@
             style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom" />
+            android:layout_gravity="bottom"
+            android:backgroundTint="@color/secondary" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/addTransactionBtn"

@@ -17,6 +17,9 @@ import androidx.annotation.Nullable;
 
 import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.model.Transaction;
+import com.nikhil.expensetracker.utils.Util;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +41,7 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
         }
 
-        ImageView imageView = convertView.findViewById(R.id.transactionImg);
+        TextView categoryEmoji = convertView.findViewById(R.id.transactionImg);
         TextView transactionName = convertView.findViewById(R.id.transactionName);
         TextView transactionCategory = convertView.findViewById(R.id.transactionCategory);
         TextView transactionAmount = convertView.findViewById(R.id.transactionAmount);
@@ -50,7 +53,10 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
             transactionAmount.setText("- ₹" + transaction.getAmount().toString());
         }
 
-        imageView.setImageResource(ic_launcher_background);
+        System.out.println(transaction.getCategory());
+
+        categoryEmoji.setText(Util.getTransactionCategoryEmoji(transaction.getCategory()));
+
         transactionName.setText(transaction.getName());
         transactionCategory.setText(transaction.getCategory());
 

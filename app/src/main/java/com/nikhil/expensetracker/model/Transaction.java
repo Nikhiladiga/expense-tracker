@@ -92,4 +92,18 @@ public class Transaction {
         this.balance = balance;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "id='" + id + '\'' +
+                ", type='" + type + '\'' +
+                ", name='" + name + '\'' +
+                ", amount=" + amount +
+                ", category='" + category + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", balance=" + balance +
+                '}';
+    }
 }

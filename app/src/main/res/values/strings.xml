@@ -13,4 +13,9 @@
     <string name="date">Date</string>
     <string name="category">Category</string>
     <string name="category_icon">Category Icon</string>
+    <string name="edit_transaction">Edit transaction</string>
+    <string name="delete_transaction">Delete transaction</string>
+    <string name="save">Save</string>
+    <string name="clear_data">Clear data</string>
+    <string name="clear_all_app_data">Clear all app data</string>
 </resources>

@@ -7,11 +7,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -29,6 +31,7 @@ import com.nikhil.expensetracker.services.SMSReaderService;
 import com.nikhil.expensetracker.utils.Util;
 
 import java.lang.ref.WeakReference;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,22 +39,23 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static Database database;
+    public Database database;
     private TransactionListAdapter transactionListAdapter;
     private List<Transaction> transactions = new ArrayList<>();
 
-    public static WeakReference<MainActivity> mainActivityWeakReference;
+    private static WeakReference<MainActivity> mainActivityWeakReference;
 
     //Activity binding
     private ActivityMainBinding activityMainBinding;
 
-    ActivityResultLauncher<Intent> singleTransactionActivity;
-    ActivityResultLauncher<Intent> addTransactionActivity;
+    private ActivityResultLauncher<Intent> singleTransactionActivity;
+    private ActivityResultLauncher<Intent> addTransactionActivity;
 
-    RelativeLayout noTransactionsLayer;
-    ListView transactionsList;
+    private RelativeLayout noTransactionsLayer;
+    private ListView transactionsList;
 
 
+    @SuppressLint("SimpleDateFormat")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         mainActivityWeakReference = new WeakReference<>(MainActivity.this);
         checkSmsPermissions();
         database = new Database(this, "expense.db", null, 1);
+
+        //Set menu items to bottom app bar
+        setSupportActionBar(activityMainBinding.bottomAppBar);
 
         //GET total balance
         refreshMainDashboardBalance();
@@ -78,11 +85,11 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.transactionList.setOnItemClickListener((adapterView, view, i, l) -> {
             Intent intent = new Intent(this, SingleTransaction.class);
             intent.putExtra("id", transactions.get(i).getId());
-            intent.putExtra("type", transactions.get(i).getId());
-            intent.putExtra("name", transactions.get(i).getId());
-            intent.putExtra("amount", transactions.get(i).getId());
-            intent.putExtra("category", transactions.get(i).getId());
-            intent.putExtra("createdAt", transactions.get(i).getId());
+            intent.putExtra("type", transactions.get(i).getType());
+            intent.putExtra("name", transactions.get(i).getName());
+            intent.putExtra("amount", transactions.get(i).getAmount());
+            intent.putExtra("category", transactions.get(i).getCategory());
+            intent.putExtra("createdAt", transactions.get(i).getCreatedAt());
             singleTransactionActivity.launch(intent);
         });
 
@@ -125,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private void checkSmsPermissions() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -155,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refreshMainDashboardBalance() {
-        activityMainBinding.currentAmount.setText("₹" + database.getBalance().toString());
+        activityMainBinding.currentAmount.setText(MessageFormat.format("₹{0}", database.getBalance().toString()));
     }
 
     private void registerActivities() {
