@@ -22,10 +22,6 @@ public class SMSReaderService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-        Util.smsReceiver = new SmsReceiver();
-        registerReceiver(Util.smsReceiver, intentFilter);
         buildNotification();
         startForeground(1001, notification.build());
 

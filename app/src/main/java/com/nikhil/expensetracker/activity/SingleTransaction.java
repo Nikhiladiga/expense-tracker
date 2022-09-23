@@ -7,15 +7,23 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.InputType;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.databinding.ActivityTransactionBinding;
@@ -25,7 +33,9 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 public class SingleTransaction extends AppCompatActivity {
@@ -34,6 +44,8 @@ public class SingleTransaction extends AppCompatActivity {
     private boolean isEdit = false;
     private boolean isDebit = true;
     private Intent returnIntent;
+    private ArrayAdapter<String> categoryAdapter;
+    private List<String> categories;
 
     @Override
     protected void onCreate(Bundle savedInstance) {
@@ -42,6 +54,20 @@ public class SingleTransaction extends AppCompatActivity {
         setContentView(activity_transaction.getRoot());
         returnIntent = this.getIntent();
         handleFormEdit();
+
+        //Get categories
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String jsonString = sharedPreferences.getString("categories", null);
+        if (jsonString != null) {
+            try {
+                categories = new ObjectMapper()
+                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        .readValue(jsonString, new TypeReference<List<String>>() {
+                        });
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
 
         //Fill transaction details
         if (returnIntent != null) {
@@ -74,6 +100,23 @@ public class SingleTransaction extends AppCompatActivity {
             }
         });
 
+        //Set category list items
+        categoryAdapter = new ArrayAdapter<>(this, R.layout.category_item, categories);
+        activity_transaction.category.setAdapter(categoryAdapter);
+        categoryAdapter.getFilter().filter(null);
+
+        //List item click for adapter
+        activity_transaction.category.setOnItemClickListener((adapterView, view, i, l) -> {
+            System.out.println("Inside listener!");
+            System.out.println("Item:" + categories.get(i));
+            if (categories.get(i).contains("Custom")) {
+                activity_transaction.category.setInputType(InputType.TYPE_CLASS_TEXT);
+            } else {
+                activity_transaction.category.setInputType(InputType.TYPE_NULL);
+            }
+            categoryAdapter.getFilter().filter(null);
+        });
+
         //Delete transaction
         DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
             switch (which) {
@@ -101,6 +144,12 @@ public class SingleTransaction extends AppCompatActivity {
         //Update transaction
         activity_transaction.updateTransaction.setOnClickListener(view -> updateTransaction());
 
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
     }
 
     private void handleFormEdit() {
@@ -153,7 +202,7 @@ public class SingleTransaction extends AppCompatActivity {
     private void fillValues() {
         String type = returnIntent.getStringExtra("type");
         String category = returnIntent.getStringExtra("category");
-        long createdAt = returnIntent.getLongExtra("createdAt", 0);
+        String createdAt = returnIntent.getStringExtra("createdAt");
         String payeeName = returnIntent.getStringExtra("name");
         Double amountPaid = returnIntent.getDoubleExtra("amount", 0);
 
@@ -163,11 +212,7 @@ public class SingleTransaction extends AppCompatActivity {
         }
 
         activity_transaction.category.setText(category);
-
-        Date date = new Date(createdAt);
-        @SuppressLint("SimpleDateFormat") DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-
-        activity_transaction.date.setText(dateFormat.format(date));
+        activity_transaction.date.setText(createdAt);
         activity_transaction.payeeName.setText(payeeName);
         activity_transaction.amountPaid.setText(String.valueOf(amountPaid));
     }
@@ -182,33 +227,24 @@ public class SingleTransaction extends AppCompatActivity {
 
     @SuppressLint("SimpleDateFormat")
     private void updateTransaction() {
-        Transaction transaction = null;
-        try {
-            transaction = new Transaction(
-                    returnIntent.getStringExtra("id"),
-                    this.isDebit ? "DEBIT" : "CREDIT",
-                    String.valueOf(activity_transaction.payeeName.getText()),
-                    Double.valueOf(Objects.requireNonNull(activity_transaction.amountPaid.getText()).toString()),
-                    String.valueOf(activity_transaction.category.getText()),
-                    new Timestamp(Objects.requireNonNull(new SimpleDateFormat("dd/MM/yyyy").parse(String.valueOf(activity_transaction.date.getText()))).getTime()).getTime(),
-                    new Timestamp(Objects.requireNonNull(new SimpleDateFormat("dd/MM/yyyy").parse(String.valueOf(activity_transaction.date.getText()))).getTime()).getTime(),
-                    null
-            );
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        Transaction transaction = new Transaction(
+                returnIntent.getStringExtra("id"),
+                this.isDebit ? "DEBIT" : "CREDIT",
+                String.valueOf(activity_transaction.payeeName.getText()),
+                Double.valueOf(Objects.requireNonNull(activity_transaction.amountPaid.getText()).toString()),
+                String.valueOf(activity_transaction.category.getText()),
+                String.valueOf(activity_transaction.date.getText()),
+                String.valueOf(activity_transaction.date.getText()),
+                null
+        );
 
         System.out.println("UPDATED TRANSACTION:" + transaction);
 
-        if (transaction != null) {
-            MainActivity.getInstance().database.updateTransactionById(transaction);
-            Toast.makeText(this, "Transaction details updated", Toast.LENGTH_SHORT).show();
-            isEdit = false;
-            handleFormEdit();
-            MainActivity.getInstance().refreshAdapterData();
-        } else {
-            Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
-        }
+        MainActivity.getInstance().database.updateTransactionById(transaction);
+        Toast.makeText(this, "Transaction details updated", Toast.LENGTH_SHORT).show();
+        isEdit = false;
+        handleFormEdit();
+        MainActivity.getInstance().refreshAdapterData();
 
     }
 

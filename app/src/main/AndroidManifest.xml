@@ -23,9 +23,9 @@
             android:exported="false"
             android:permission="TODO" />
 
-        <receiver
-            android:name=".receiver.NotificationReceiver"
-            android:enabled="true" />
+<!--        <receiver-->
+<!--            android:name=".receiver.NotificationReceiver"-->
+<!--            android:enabled="true" />-->
 
         <activity
             android:name=".MainActivity"

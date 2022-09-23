@@ -18,4 +18,5 @@
     <string name="save">Save</string>
     <string name="clear_data">Clear data</string>
     <string name="clear_all_app_data">Clear all app data</string>
+    <string name="month">Month</string>
 </resources>

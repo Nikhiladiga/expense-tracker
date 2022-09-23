@@ -1,9 +1,12 @@
 package com.nikhil.expensetracker.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.widget.ArrayAdapter;
@@ -13,6 +16,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.Generators;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
@@ -23,6 +30,8 @@ import com.nikhil.expensetracker.databinding.AddTransactionBinding;
 import com.nikhil.expensetracker.model.Transaction;
 
 import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,30 +40,27 @@ public class AddTransaction extends AppCompatActivity {
     private AddTransactionBinding addTransactionBinding;
     private boolean isDebit = true;
     private ArrayAdapter<String> categoryAdapter;
-    private final List<String> categories = new ArrayList<>();
-
-    public AddTransaction() {
-        categories.add("Food");
-        categories.add("Entertainment");
-        categories.add("Investment");
-        categories.add("Sports");
-        categories.add("Fuel");
-        categories.add("General");
-        categories.add("Holidays");
-        categories.add("Travel");
-        categories.add("Gifts");
-        categories.add("Shopping");
-        categories.add("Clothes");
-        categories.add("Movies");
-        categories.add("Salary");
-        categories.add("Custom");
-    }
+    private List<String> categories;
 
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
         addTransactionBinding = AddTransactionBinding.inflate(getLayoutInflater());
         setContentView(addTransactionBinding.getRoot());
+
+        //Get categories
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String jsonString = sharedPreferences.getString("categories", null);
+        if (jsonString != null) {
+            try {
+                categories = new ObjectMapper()
+                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        .readValue(jsonString, new TypeReference<List<String>>() {
+                        });
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
 
         //Get transaction type
         TextView typeDebit = addTransactionBinding.typeDebit;
@@ -92,14 +98,15 @@ public class AddTransaction extends AppCompatActivity {
                 datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
                 datePicker.addOnPositiveButtonClickListener(selection -> {
                     Date date1 = new Date(selection);
-                    date.setText(date1.toString());
+                    @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+                    date.setText(df.format(date1));
                     date.clearFocus();
                 });
             }
         });
 
         //Set category list items
-        categoryAdapter = new ArrayAdapter<String>(this, R.layout.category_item, categories);
+        categoryAdapter = new ArrayAdapter<>(this, R.layout.category_item, categories);
         addTransactionBinding.category.setAdapter(categoryAdapter);
 
         //List item click for adapter
@@ -157,8 +164,8 @@ public class AddTransaction extends AppCompatActivity {
                     String.valueOf(payeeName),
                     Double.valueOf(amountPaid.toString()),
                     String.valueOf(category),
-                    System.currentTimeMillis(),
-                    System.currentTimeMillis(),
+                    String.valueOf(date.getText()),
+                    String.valueOf(date.getText()),
                     null
             );
             MainActivity.getInstance().database.addTransaction(transaction);
@@ -168,5 +175,11 @@ public class AddTransaction extends AppCompatActivity {
             finish();
         });
 
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
     }
 }

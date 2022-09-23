@@ -28,6 +28,30 @@
             android:textSize="30sp"
             android:textStyle="bold" />
 
+        <!--  Month  -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/monthLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/transactionTypeGroup"
+            android:hint="@string/month"
+            app:errorEnabled="true">
+
+            <AutoCompleteTextView
+                android:id="@+id/month"
+                android:textColor="@color/white"
+                android:layout_width="match_parent"
+                android:text="September"
+                android:textSize="12sp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/secondary"
+                android:inputType="none"
+                android:labelFor="@+id/monthLayout"
+                tools:ignore="LabelFor" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
     </com.google.android.flexbox.FlexboxLayout>
 
     <com.google.android.material.card.MaterialCardView

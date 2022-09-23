@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -81,6 +82,9 @@ public class Database extends SQLiteOpenHelper {
         contentValues.put(COL6, transaction.getCreatedAt());
         contentValues.put(COL7, transaction.getUpdatedAt());
         contentValues.put(COL8, transaction.getBalance());
+
+        Log.i("Expense Tracker", "Added new transaction " + transaction);
+
         database.insert(TABLE_NAME, null, contentValues);
     }
 
@@ -96,8 +100,8 @@ public class Database extends SQLiteOpenHelper {
                     data.getString(2),
                     data.getDouble(3),
                     data.getString(4),
-                    data.getLong(5),
-                    data.getLong(6),
+                    data.getString(5),
+                    data.getString(6),
                     data.getDouble(7)
             ));
         }
@@ -130,16 +134,30 @@ public class Database extends SQLiteOpenHelper {
                 + COL7 + "=" + transaction.getUpdatedAt() + ", "
                 + COL8 + "=" + transaction.getBalance() + " "
                 + " WHERE id='" + transaction.getId() + "'";
+
+        Log.i("Expense Tracker", "Updated transaction " + transaction);
+
         sqLiteDatabase.execSQL(query);
     }
 
-//    public boolean updateTransactionById() {
-//        SQLiteDatabase database = this.getWritableDatabase();
-//        long result = database.delete(TABLE_NAME,"");
-//    }
-//
-//    public boolean deleteTransactionById() {
-//
-//    }
+    public List<Transaction> getTransactionsByMonth(String month) {
+        SQLiteDatabase database = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_NAME;
+        @SuppressLint("Recycle") Cursor data = database.rawQuery(query, null);
+        ArrayList<Transaction> mArrayList = new ArrayList<>();
+        for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext()) {
+            mArrayList.add(new Transaction(
+                    data.getString(0),
+                    data.getString(1),
+                    data.getString(2),
+                    data.getDouble(3),
+                    data.getString(4),
+                    data.getString(5),
+                    data.getString(6),
+                    data.getDouble(7)
+            ));
+        }
+        return mArrayList;
+    }
 
 }

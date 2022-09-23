@@ -35,11 +35,12 @@ public class SmsReceiver extends BroadcastReceiver {
                         msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                         msg_from = msgs[i].getOriginatingAddress();
                         String msgBody = msgs[i].getMessageBody();
-                        if ((msg_from.equalsIgnoreCase("Axis") || msg_from.equalsIgnoreCase("AD-AxisBk")) && (msgBody.contains("Debit") || msgBody.contains("Credit"))) {
+                        if ((msg_from.contains("Axis") || msg_from.equalsIgnoreCase("AD-AxisBk")) && (msgBody.contains("Debit") || msgBody.contains("Credit"))) {
                             Transaction transaction = Util.parseSMS(msgBody);
                             if (transaction != null) {
                                 MainActivity.getInstance().database.addTransaction(transaction);
                                 SystemClock.sleep(1000);
+                                Toast.makeText(context, "Transaction added", Toast.LENGTH_SHORT).show();
                                 MainActivity.getInstance().refreshAdapterData();
                             }
                         }

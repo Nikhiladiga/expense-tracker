@@ -10,14 +10,14 @@ public class Transaction {
     private String name;
     private Double amount;
     private String category;
-    private Long createdAt;
-    private Long updatedAt;
+    private String createdAt;
+    private String updatedAt;
     private Double balance;
 
     public Transaction() {
     }
 
-    public Transaction(String id, String type, String name, Double amount, String category, Long createdAt, Long updatedAt, Double balance) {
+    public Transaction(String id, String type, String name, Double amount, String category, String createdAt, String updatedAt, Double balance) {
         this.id = id;
         this.type = type;
         this.name = name;
@@ -68,19 +68,19 @@ public class Transaction {
         this.category = category;
     }
 
-    public Long getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Long getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Long updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 
