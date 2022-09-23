@@ -32,7 +32,6 @@ import com.nikhil.expensetracker.database.Database;
 import com.nikhil.expensetracker.databinding.ActivityMainBinding;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.receiver.SmsReceiver;
-import com.nikhil.expensetracker.services.SMSReaderService;
 import com.nikhil.expensetracker.utils.Util;
 
 import java.lang.ref.WeakReference;
@@ -154,6 +153,9 @@ public class MainActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
         });
 
+        //Read all sms
+        Util.readAllSms(currentMonth);
+
     }
 
     @Override
@@ -216,9 +218,6 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.READ_SMS,
                     Manifest.permission.RECEIVE_SMS
             }, 1);
-        } else {
-            Intent intent = new Intent(getBaseContext(), SMSReaderService.class);
-            startForegroundService(intent);
         }
     }
 

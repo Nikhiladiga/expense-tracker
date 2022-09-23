@@ -18,14 +18,9 @@
         android:theme="@style/Theme.ExpenseTracker"
         tools:targetApi="31">
 
-        <service
-            android:name=".services.SMSReaderService"
-            android:exported="false"
-            android:permission="TODO" />
-
-<!--        <receiver-->
-<!--            android:name=".receiver.NotificationReceiver"-->
-<!--            android:enabled="true" />-->
+        <receiver
+            android:name=".receiver.NotificationReceiver"
+            android:enabled="true" />
 
         <activity
             android:name=".MainActivity"

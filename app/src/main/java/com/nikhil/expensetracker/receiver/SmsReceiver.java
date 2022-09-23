@@ -27,6 +27,7 @@ public class SmsReceiver extends BroadcastReceiver {
             Bundle bundle = intent.getExtras();
             SmsMessage[] msgs = null;
             String msg_from;
+            long msgAt;
             if (bundle != null) {
                 try {
                     Object[] pdus = (Object[]) bundle.get("pdus");
@@ -34,9 +35,10 @@ public class SmsReceiver extends BroadcastReceiver {
                     for (int i = 0; i < msgs.length; i++) {
                         msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                         msg_from = msgs[i].getOriginatingAddress();
+                        msgAt = msgs[i].getTimestampMillis();
                         String msgBody = msgs[i].getMessageBody();
                         if ((msg_from.contains("Axis") || msg_from.equalsIgnoreCase("AD-AxisBk")) && (msgBody.contains("Debit") || msgBody.contains("Credit"))) {
-                            Transaction transaction = Util.parseSMS(msgBody);
+                            Transaction transaction = Util.parseSMS(msgBody, msgAt);
                             if (transaction != null) {
                                 MainActivity.getInstance().database.addTransaction(transaction);
                                 SystemClock.sleep(1000);

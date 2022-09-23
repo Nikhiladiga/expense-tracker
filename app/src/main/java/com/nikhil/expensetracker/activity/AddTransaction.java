@@ -28,8 +28,10 @@ import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.databinding.AddTransactionBinding;
 import com.nikhil.expensetracker.model.Transaction;
+import com.nikhil.expensetracker.utils.Util;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -111,8 +113,6 @@ public class AddTransaction extends AppCompatActivity {
 
         //List item click for adapter
         addTransactionBinding.category.setOnItemClickListener((adapterView, view, i, l) -> {
-            System.out.println("Inside listener!");
-            System.out.println("Item:" + categories.get(i));
             if (categories.get(i).contains("Custom")) {
                 addTransactionBinding.category.setInputType(InputType.TYPE_CLASS_TEXT);
             } else {
@@ -157,6 +157,9 @@ public class AddTransaction extends AppCompatActivity {
 
             Toast.makeText(this, "Transaction added!", Toast.LENGTH_SHORT).show();
 
+            //Get transaction date in timestamp
+            Timestamp createdAt = Util.convertStringToTimestamp(String.valueOf(date.getText()));
+
             //Save transaction to database
             Transaction transaction = new Transaction(
                     Generators.timeBasedGenerator().generate().toString(),
@@ -164,8 +167,8 @@ public class AddTransaction extends AppCompatActivity {
                     String.valueOf(payeeName),
                     Double.valueOf(amountPaid.toString()),
                     String.valueOf(category),
-                    String.valueOf(date.getText()),
-                    String.valueOf(date.getText()),
+                    createdAt.getTime(),
+                    createdAt.getTime(),
                     null
             );
             MainActivity.getInstance().database.addTransaction(transaction);

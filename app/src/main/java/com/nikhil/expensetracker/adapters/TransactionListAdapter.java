@@ -50,10 +50,9 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
             transactionAmount.setTextColor(Color.GREEN);
             transactionAmount.setText("+ ₹" + transaction.getAmount().toString());
         } else {
+            transactionAmount.setTextColor(Color.RED);
             transactionAmount.setText("- ₹" + transaction.getAmount().toString());
         }
-
-        System.out.println(transaction.getCategory());
 
         categoryEmoji.setText(Util.getTransactionCategoryEmoji(transaction.getCategory()));
 

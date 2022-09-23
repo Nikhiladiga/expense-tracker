@@ -12,7 +12,9 @@ import androidx.annotation.Nullable;
 
 import com.nikhil.expensetracker.model.Transaction;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Database extends SQLiteOpenHelper {
@@ -43,6 +45,7 @@ public class Database extends SQLiteOpenHelper {
 
     public Database(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
+        deleteAllTransactions();
     }
 
     @Override
@@ -54,8 +57,8 @@ public class Database extends SQLiteOpenHelper {
                     + COL3 + " TEXT,"
                     + COL4 + " REAL,"
                     + COL5 + " TEXT,"
-                    + COL6 + " TEXT,"
-                    + COL7 + " TEXT,"
+                    + COL6 + " REAL,"
+                    + COL7 + " REAL,"
                     + COL8 + " REAL)";
             System.out.println("Creating table:" + createTableQuery);
             sqLiteDatabase.execSQL(createTableQuery);
@@ -100,8 +103,8 @@ public class Database extends SQLiteOpenHelper {
                     data.getString(2),
                     data.getDouble(3),
                     data.getString(4),
-                    data.getString(5),
-                    data.getString(6),
+                    data.getLong(5),
+                    data.getLong(6),
                     data.getDouble(7)
             ));
         }
@@ -130,34 +133,68 @@ public class Database extends SQLiteOpenHelper {
                 + COL3 + "='" + transaction.getName() + "', "
                 + COL4 + "=" + transaction.getAmount() + ", "
                 + COL5 + "='" + transaction.getCategory() + "', "
-                + COL6 + "=" + transaction.getCreatedAt() + ", "
-                + COL7 + "=" + transaction.getUpdatedAt() + ", "
+                + COL6 + "='" + transaction.getCreatedAt() + "', "
+                + COL7 + "='" + transaction.getUpdatedAt() + "', "
                 + COL8 + "=" + transaction.getBalance() + " "
                 + " WHERE id='" + transaction.getId() + "'";
 
         Log.i("Expense Tracker", "Updated transaction " + transaction);
 
+        System.out.println("QUERY:" + query);
         sqLiteDatabase.execSQL(query);
     }
 
+    @SuppressLint("SimpleDateFormat")
     public List<Transaction> getTransactionsByMonth(String month) {
         SQLiteDatabase database = this.getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_NAME;
+        String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY createdAt DESC";
         @SuppressLint("Recycle") Cursor data = database.rawQuery(query, null);
         ArrayList<Transaction> mArrayList = new ArrayList<>();
         for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext()) {
-            mArrayList.add(new Transaction(
-                    data.getString(0),
-                    data.getString(1),
-                    data.getString(2),
-                    data.getDouble(3),
-                    data.getString(4),
-                    data.getString(5),
-                    data.getString(6),
-                    data.getDouble(7)
-            ));
+            String recordMonth = new SimpleDateFormat("MMMM").format(new Date(data.getLong(5)));
+            System.out.println("RECORD MONTH:" + month);
+            if (recordMonth.equalsIgnoreCase(month)) {
+                mArrayList.add(new Transaction(
+                        data.getString(0),
+                        data.getString(1),
+                        data.getString(2),
+                        data.getDouble(3),
+                        data.getString(4),
+                        data.getLong(5),
+                        data.getLong(6),
+                        data.getDouble(7)
+                ));
+            }
         }
         return mArrayList;
+    }
+
+    public void deleteAllTransactions() {
+        SQLiteDatabase database = this.getWritableDatabase();
+        String query = "DELETE FROM " + TABLE_NAME;
+        System.out.println(query);
+        database.execSQL(query);
+    }
+
+    public Long getLatestTransactionDate() {
+        SQLiteDatabase database = this.getWritableDatabase();
+        String query = "SELECT createdAt FROM " + TABLE_NAME + " ORDER BY createdAt DESC LIMIT 1";
+        System.out.println(query);
+        @SuppressLint("Recycle")
+        Cursor cursor = database.rawQuery(query, null);
+        cursor.moveToFirst();
+
+        Long latestDate = null;
+        try {
+            latestDate = cursor.getLong(0);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        if (latestDate != null) {
+            return latestDate;
+        } else {
+            return 0L;
+        }
     }
 
 }

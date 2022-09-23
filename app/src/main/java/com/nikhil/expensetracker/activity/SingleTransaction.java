@@ -24,17 +24,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.textfield.TextInputEditText;
 import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.databinding.ActivityTransactionBinding;
 import com.nikhil.expensetracker.model.Transaction;
+import com.nikhil.expensetracker.utils.Util;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -77,6 +80,31 @@ public class SingleTransaction extends AppCompatActivity {
             finish();
         }
 
+        //Set datepicker
+        TextInputEditText date = activity_transaction.date;
+
+        //Fix to hide keyboard
+        date.setInputType(InputType.TYPE_NULL);
+        date.setKeyListener(null);
+
+        date.setOnFocusChangeListener((v, b) -> {
+            if (b) {
+                MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder
+                        .datePicker()
+                        .setTitleText("Transaction date")
+                        .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                        .build();
+
+                datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
+                datePicker.addOnPositiveButtonClickListener(selection -> {
+                    Date date1 = new Date(selection);
+                    @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+                    date.setText(df.format(date1));
+                    date.clearFocus();
+                });
+            }
+        });
+
         //Edit transaction details
         activity_transaction.editTransaction.setOnClickListener(view -> {
             isEdit = !isEdit;
@@ -107,8 +135,6 @@ public class SingleTransaction extends AppCompatActivity {
 
         //List item click for adapter
         activity_transaction.category.setOnItemClickListener((adapterView, view, i, l) -> {
-            System.out.println("Inside listener!");
-            System.out.println("Item:" + categories.get(i));
             if (categories.get(i).contains("Custom")) {
                 activity_transaction.category.setInputType(InputType.TYPE_CLASS_TEXT);
             } else {
@@ -202,7 +228,7 @@ public class SingleTransaction extends AppCompatActivity {
     private void fillValues() {
         String type = returnIntent.getStringExtra("type");
         String category = returnIntent.getStringExtra("category");
-        String createdAt = returnIntent.getStringExtra("createdAt");
+        Long createdAt = returnIntent.getLongExtra("createdAt", 0);
         String payeeName = returnIntent.getStringExtra("name");
         Double amountPaid = returnIntent.getDoubleExtra("amount", 0);
 
@@ -212,7 +238,7 @@ public class SingleTransaction extends AppCompatActivity {
         }
 
         activity_transaction.category.setText(category);
-        activity_transaction.date.setText(createdAt);
+        activity_transaction.date.setText(Util.convertTimestampToDate(createdAt));
         activity_transaction.payeeName.setText(payeeName);
         activity_transaction.amountPaid.setText(String.valueOf(amountPaid));
     }
@@ -227,18 +253,19 @@ public class SingleTransaction extends AppCompatActivity {
 
     @SuppressLint("SimpleDateFormat")
     private void updateTransaction() {
+
+        Timestamp createdAt = Util.convertStringToTimestamp(String.valueOf(activity_transaction.date.getText()));
+
         Transaction transaction = new Transaction(
                 returnIntent.getStringExtra("id"),
                 this.isDebit ? "DEBIT" : "CREDIT",
                 String.valueOf(activity_transaction.payeeName.getText()),
                 Double.valueOf(Objects.requireNonNull(activity_transaction.amountPaid.getText()).toString()),
                 String.valueOf(activity_transaction.category.getText()),
-                String.valueOf(activity_transaction.date.getText()),
-                String.valueOf(activity_transaction.date.getText()),
+                createdAt.getTime(),
+                createdAt.getTime(),
                 null
         );
-
-        System.out.println("UPDATED TRANSACTION:" + transaction);
 
         MainActivity.getInstance().database.updateTransactionById(transaction);
         Toast.makeText(this, "Transaction details updated", Toast.LENGTH_SHORT).show();

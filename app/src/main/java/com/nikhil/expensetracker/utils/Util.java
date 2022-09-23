@@ -1,24 +1,29 @@
 package com.nikhil.expensetracker.utils;
 
+import android.annotation.SuppressLint;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
+import android.net.Uri;
+import android.os.SystemClock;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.fasterxml.uuid.Generators;
+import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.receiver.SmsReceiver;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Objects;
 
 public class Util {
     public static SmsReceiver smsReceiver;
 
-    public static Transaction parseSMS(String message) {
+    public static Transaction parseSMS(String message, Long createdAt) {
         try {
 
             Transaction transaction = new Transaction();
@@ -41,9 +46,7 @@ public class Util {
             transaction.setAmount(Double.parseDouble(message.substring(transSepPos + transactionSeparator.length()).split("\n")[0]));
 
             //Fill transaction date and time
-            LocalDate today = LocalDate.now();
-            String formattedDate = today.format(DateTimeFormatter.ofPattern("dd-MMM-yy"));
-            transaction.setCreatedAt(formattedDate);
+            transaction.setCreatedAt(createdAt);
 
             //Get payee name
             String payeeString = message.split("\n")[4];
@@ -54,8 +57,6 @@ public class Util {
             String balanceSeparator = "Bal INR ";
             int balSepPor = message.indexOf(balanceSeparator);
             transaction.setBalance(Double.parseDouble(message.substring(balSepPor + balanceSeparator.length()).split("\n")[0]));
-
-            System.out.println("EXPENSE TRACKER" + transaction);
 
             return transaction;
 
@@ -100,5 +101,62 @@ public class Util {
         } else {
             return "⚙";
         }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public static void readAllSms(String currentMonth) {
+        Long latestTransactionDate = MainActivity.getInstance().database.getLatestTransactionDate();
+        StringBuilder smsBuilder = new StringBuilder();
+        final String SMS_URI_INBOX = "content://sms/inbox";
+        try {
+            Uri uri = Uri.parse(SMS_URI_INBOX);
+            String[] projection = new String[]{"_id", "address", "person", "body", "date", "type"};
+            Cursor cur = MainActivity.getInstance().getContentResolver().query(uri, projection, "address='AD-AxisBk'", null, "date desc");
+            if (cur.moveToFirst()) {
+                int index_Body = cur.getColumnIndex("body");
+                int dateIndex = cur.getColumnIndex("date");
+                do {
+                    String msgBody = cur.getString(index_Body);
+                    long msgDate = cur.getLong(dateIndex);
+                    if ((msgBody.contains("Debit") || msgBody.contains("Credit"))) {
+                        Transaction transaction = Util.parseSMS(msgBody, msgDate);
+                        if (transaction != null
+                                && transaction.getCreatedAt() > latestTransactionDate
+                                && new SimpleDateFormat("MMMM").format(new Date(transaction.getCreatedAt())).equalsIgnoreCase(currentMonth)
+                        ) {
+                            MainActivity.getInstance().database.addTransaction(transaction);
+                        }
+                    }
+                } while (cur.moveToNext());
+
+                if (!cur.isClosed()) {
+                    cur.close();
+                    cur = null;
+                }
+            } else {
+                smsBuilder.append("no result!");
+            } // end if
+        } catch (SQLiteException ex) {
+            Log.d("SQLiteException", ex.getMessage());
+        }
+        MainActivity.getInstance().refreshAdapterData();
+    }
+
+    public static Timestamp convertStringToTimestamp(String strDate) {
+        try {
+            @SuppressLint("SimpleDateFormat")
+            DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+            // you can change format of date
+            Date date = formatter.parse(strDate);
+            return new Timestamp(Objects.requireNonNull(date).getTime());
+        } catch (ParseException e) {
+            System.out.println("Exception :" + e);
+            return null;
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public static String convertTimestampToDate(Long timestamp) {
+        return new SimpleDateFormat("dd-MM-yyyy").format(new Date(timestamp));
     }
 }
