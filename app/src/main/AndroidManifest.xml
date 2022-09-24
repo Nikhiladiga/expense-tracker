@@ -31,15 +31,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.SingleTransaction"
             android:exported="true" />
-
         <activity
             android:name=".activity.AddTransaction"
             android:exported="true" />
-
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:exported="true" />
+        <activity
+        android:name=".activity.UsernameActivity"
+        android:exported="false" />
     </application>
 
 </manifest>

@@ -119,7 +119,8 @@ public class Util {
                     String msgBody = cur.getString(index_Body);
                     long msgDate = cur.getLong(dateIndex);
                     if ((msgBody.contains("Debit") || msgBody.contains("Credit"))) {
-                        Transaction transaction = Util.parseSMS(msgBody, msgDate);
+//                        Transaction transaction = Util.parseSMS(msgBody, msgDate);
+                        Transaction transaction = MessageParser.parseMessage("axis", msgBody, msgDate);
                         if (transaction != null
                                 && transaction.getCreatedAt() > latestTransactionDate
                                 && new SimpleDateFormat("MMMM").format(new Date(transaction.getCreatedAt())).equalsIgnoreCase(currentMonth)

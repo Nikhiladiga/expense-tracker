@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.model.Transaction;
+import com.nikhil.expensetracker.utils.MessageParser;
 import com.nikhil.expensetracker.utils.Util;
 
 import java.util.Objects;
@@ -38,7 +39,23 @@ public class SmsReceiver extends BroadcastReceiver {
                         msgAt = msgs[i].getTimestampMillis();
                         String msgBody = msgs[i].getMessageBody();
                         if ((msg_from.contains("Axis") || msg_from.equalsIgnoreCase("AD-AxisBk")) && (msgBody.contains("Debit") || msgBody.contains("Credit"))) {
-                            Transaction transaction = Util.parseSMS(msgBody, msgAt);
+                            Transaction transaction = MessageParser.parseMessage("axis", msgBody, msgAt);
+                            if (transaction != null) {
+                                MainActivity.getInstance().database.addTransaction(transaction);
+                                SystemClock.sleep(1000);
+                                Toast.makeText(context, "Transaction added", Toast.LENGTH_SHORT).show();
+                                MainActivity.getInstance().refreshAdapterData();
+                            }
+                        } else if (msg_from.contains("sbi")) {
+                            Transaction transaction = MessageParser.parseMessage("sbi", msgBody, msgAt);
+                            if (transaction != null) {
+                                MainActivity.getInstance().database.addTransaction(transaction);
+                                SystemClock.sleep(1000);
+                                Toast.makeText(context, "Transaction added", Toast.LENGTH_SHORT).show();
+                                MainActivity.getInstance().refreshAdapterData();
+                            }
+                        } else if (msg_from.contains("hdfc")) {
+                            Transaction transaction = MessageParser.parseMessage("hdfc", msgBody, msgAt);
                             if (transaction != null) {
                                 MainActivity.getInstance().database.addTransaction(transaction);
                                 SystemClock.sleep(1000);

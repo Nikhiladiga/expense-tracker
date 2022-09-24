@@ -10,11 +10,15 @@
         <entry key="app/src/main/res/drawable/app_icon_foreground.xml" value="0.3035" />
         <entry key="app/src/main/res/layout-v28/activity_main.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_settings.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/activity_transaction.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_username.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/add_transaction.xml" value="0.33" />
         <entry key="app/src/main/res/layout/category_item.xml" value="0.346875" />
         <entry key="app/src/main/res/layout/list_item.xml" value="0.5" />
+        <entry key="app/src/main/res/menu/bottom_bar_items.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/menu/menu_items.xml" value="0.34791666666666665" />
+        <entry key="app/src/main/res/menu/months.xml" value="0.346875" />
         <entry key="app/src/main/res/menu/sidebar_menu.xml" value="0.346875" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/app+launcher.xml" value="0.3035" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/app+launcher_round.xml" value="0.3035" />

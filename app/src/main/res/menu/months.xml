@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <item
+        android:title="January"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+
+    <item
+        android:title="February"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+    <item
+        android:title="March"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+    <item
+        android:title="April"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+    <item
+        android:title="May"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+    <item
+        android:title="June"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+    <item
+        android:title="July"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+    <item
+        android:title="August"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+    <item
+        android:title="September"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+    <item
+        android:title="October"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+    <item
+        android:title="November"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+    <item
+        android:title="December"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+
+</menu>

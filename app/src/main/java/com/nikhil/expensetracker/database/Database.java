@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public class Database extends SQLiteOpenHelper {
 
@@ -195,6 +196,22 @@ public class Database extends SQLiteOpenHelper {
         } else {
             return 0L;
         }
+    }
+
+    public Double getAmountSpent(String month) {
+        List<Transaction> transactions = this.getTransactionsByMonth(month);
+        Double amountSpent = (double) 0;
+        if (transactions != null) {
+            Optional<Double> optionalDouble = transactions
+                    .stream()
+                    .filter(transaction -> transaction.getType().equalsIgnoreCase("DEBIT"))
+                    .map(Transaction::getAmount)
+                    .reduce(Double::sum);
+            if (optionalDouble.isPresent()) {
+                amountSpent = optionalDouble.get();
+            }
+        }
+        return amountSpent;
     }
 
 }

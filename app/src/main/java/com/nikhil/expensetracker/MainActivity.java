@@ -15,9 +15,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -26,7 +28,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.nikhil.expensetracker.activity.AddTransaction;
+import com.nikhil.expensetracker.activity.SettingsActivity;
 import com.nikhil.expensetracker.activity.SingleTransaction;
+import com.nikhil.expensetracker.activity.UsernameActivity;
 import com.nikhil.expensetracker.adapters.TransactionListAdapter;
 import com.nikhil.expensetracker.database.Database;
 import com.nikhil.expensetracker.databinding.ActivityMainBinding;
@@ -49,42 +53,32 @@ public class MainActivity extends AppCompatActivity {
 
     private static WeakReference<MainActivity> mainActivityWeakReference;
 
-    //Activity binding
     private ActivityMainBinding activityMainBinding;
 
     private ActivityResultLauncher<Intent> singleTransactionActivity;
     private ActivityResultLauncher<Intent> addTransactionActivity;
+    private ActivityResultLauncher<Intent> settingsActivity;
+    private ActivityResultLauncher<Intent> usernameActivity;
 
     private RelativeLayout noTransactionsLayer;
     private ListView transactionsList;
 
-    private ArrayAdapter<String> monthAdapter;
-    private List<String> months = new ArrayList<>();
     private String currentMonth;
 
-    public MainActivity() {
-        months.add("January");
-        months.add("February");
-        months.add("March");
-        months.add("April");
-        months.add("May");
-        months.add("June");
-        months.add("July");
-        months.add("August");
-        months.add("September");
-        months.add("October");
-        months.add("November");
-        months.add("December");
-    }
-
-    @SuppressLint("SimpleDateFormat")
+    @SuppressLint({"SimpleDateFormat", "NonConstantResourceId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         mainActivityWeakReference = new WeakReference<>(MainActivity.this);
-        checkSmsPermissions();
+
+        //Register launchers for all activities
+        registerActivities();
+
+        //Check if username is present and show/hide activity
+        showUsernameActivity();
+
         database = new Database(this, "expense.db", null, 1);
 
         //Store categories in shared prefs
@@ -99,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(activityMainBinding.bottomAppBar);
 
         //GET total balance
-        refreshMainDashboardBalance();
+        refreshMainDashboardData();
 
         //GET current month
         Calendar calendar = Calendar.getInstance();
@@ -107,13 +101,18 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.currentMonth.setText(currentMonth);
 
         //Set months in dropdown
-        monthAdapter = new ArrayAdapter<String>(this, R.layout.category_item, this.months);
-        activityMainBinding.month.setAdapter(monthAdapter);
-        activityMainBinding.month.setText(currentMonth);
-        monthAdapter.getFilter().filter(null);
-        activityMainBinding.month.setOnItemClickListener((adapterView, view, i, l) -> {
-            currentMonth = this.months.get(i);
+        PopupMenu popupMenu = new PopupMenu(this, activityMainBinding.currentMonthIcon);
+        popupMenu.inflate(R.menu.months);
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            currentMonth = menuItem.getTitle().toString();
+            activityMainBinding.currentMonth.setText(currentMonth);
             refreshAdapterData();
+            return true;
+        });
+
+        //Show month dropdown on icon click
+        activityMainBinding.currentMonthIcon.setOnClickListener(view -> {
+            popupMenu.show();
         });
 
         //Get transactions for this month from database
@@ -135,8 +134,6 @@ public class MainActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
         });
 
-        registerActivities();
-
         if (transactions != null && transactions.size() < 1) {
             noTransactionsLayer.setVisibility(View.VISIBLE);
             transactionsList.setVisibility(View.GONE);
@@ -155,6 +152,14 @@ public class MainActivity extends AppCompatActivity {
 
         //Read all sms
         Util.readAllSms(currentMonth);
+
+        //Add listener to bottom app bar items
+        activityMainBinding.bottomAppBar.setOnMenuItemClickListener(item -> {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            settingsActivity.launch(intent);
+            overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
+            return true;
+        });
 
     }
 
@@ -176,6 +181,13 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please give sms permission", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.bottom_bar_items, menu);
+        return true;
     }
 
     private void storeCategories() {
@@ -234,13 +246,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         transactionListAdapter.notifyDataSetChanged();
-        refreshMainDashboardBalance();
+        refreshMainDashboardData();
     }
 
-    private void refreshMainDashboardBalance() {
+    private void refreshMainDashboardData() {
         activityMainBinding.currentAmount.setText(MessageFormat.format("₹{0}", database.getBalance().toString()));
+        activityMainBinding.amountSpent.setText(MessageFormat.format("₹{0}", String.valueOf(database.getAmountSpent(currentMonth))));
     }
 
+    @SuppressLint("SetTextI18n")
     private void registerActivities() {
         //Activity register for single transaction class
         singleTransactionActivity = registerForActivityResult(
@@ -270,6 +284,42 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        //Activity register for settings activity class
+        settingsActivity = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    //Do nothing for now
+                }
+        );
+
+        //Activity register for username activity class
+        usernameActivity = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        boolean success = Boolean.parseBoolean(data != null ? data.getStringExtra("success") : "false");
+                        if (success) {
+                            checkSmsPermissions();
+                            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+                            String username = sharedPreferences.getString("username", null);
+                            activityMainBinding.greeting.setText("Hello " + username);
+                        }
+                    }
+                }
+        );
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void showUsernameActivity() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sharedPreferences.getString("username", null) == null) {
+            Intent intent = new Intent(this, UsernameActivity.class);
+            usernameActivity.launch(intent);
+        } else {
+            String username = sharedPreferences.getString("username", null);
+            activityMainBinding.greeting.setText("Hello " + username);
+        }
     }
 
     public static MainActivity getInstance() {
