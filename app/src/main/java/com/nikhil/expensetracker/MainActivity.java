@@ -14,6 +14,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ListView;
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         mainActivityWeakReference = new WeakReference<>(MainActivity.this);
 
         //Create shared prefs helper class
-        SharedPrefHelper.initSharedPrefHelper();
+        SharedPrefHelper.initSharedPrefHelper(PreferenceManager.getDefaultSharedPreferences(this));
 
         //Register launchers for all activities
         registerActivities();
@@ -160,9 +161,6 @@ public class MainActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
         });
 
-        //Read all sms
-        Util.readAllSms(currentMonth);
-
         //Add listener to bottom app bar items
         activityMainBinding.bottomAppBar.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
@@ -210,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             if (isPermissionGranted) {
+                Util.readAllSms(currentMonth);
                 IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
                 registerReceiver(new SmsReceiver(), intentFilter);
             } else {
@@ -262,6 +261,8 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.READ_SMS,
                     Manifest.permission.RECEIVE_SMS
             }, 1);
+        } else {
+            Util.readAllSms(currentMonth);
         }
     }
 
@@ -290,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
         //Set current balance
         Long balance = (Math.round(this.balance) * 100) / 100;
         activityMainBinding.currentAmount.setText(MessageFormat.format("₹{0}", balance));
-        if (balance < Long.parseLong(SharedPrefHelper.getBalanceLimit())) {
+        if (balance < Long.parseLong(SharedPrefHelper.getBalanceLimit() == null ? String.valueOf(0) : SharedPrefHelper.getBalanceLimit())) {
             activityMainBinding.currentAmount.setTextColor(Color.RED);
         } else {
             activityMainBinding.currentAmount.setTextColor(Color.WHITE);
@@ -300,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
         //Set expense amount
         Long expense = (Math.round(this.expense) * 100) / 100;
         activityMainBinding.amountSpent.setText(MessageFormat.format("₹{0}", expense));
-        if (expense > Long.parseLong(SharedPrefHelper.getExpenseLimit())) {
+        if (expense > Long.parseLong(SharedPrefHelper.getExpenseLimit() == null ? String.valueOf(0) : SharedPrefHelper.getExpenseLimit())) {
             activityMainBinding.amountSpent.setTextColor(Color.RED);
         } else {
             activityMainBinding.amountSpent.setTextColor(Color.WHITE);

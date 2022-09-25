@@ -39,7 +39,7 @@ public class UsernameActivity extends AppCompatActivity {
             }
 
             //Save username to shared prefs
-            SharedPrefHelper.setUsername(String.valueOf(activityUsernameBinding.userName.getText()));
+            SharedPrefHelper.setUsername(String.valueOf(activityUsernameBinding.userName.getText()),this);
 
             //Return success intent
             Intent returnIntent = new Intent();

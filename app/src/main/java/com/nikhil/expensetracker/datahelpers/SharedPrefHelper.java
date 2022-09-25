@@ -1,6 +1,7 @@
 package com.nikhil.expensetracker.datahelpers;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -10,16 +11,18 @@ public class SharedPrefHelper {
 
     private static SharedPreferences sharedPreferences;
 
-    public static void initSharedPrefHelper() {
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.getInstance().getBaseContext());
+    public static void initSharedPrefHelper(SharedPreferences sharedPreferences) {
+        SharedPrefHelper.sharedPreferences = sharedPreferences;
     }
 
     public static String getUsername() {
         return sharedPreferences.getString("username", null);
     }
 
-    public static void setUsername(String username) {
-        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPreferences.edit();
+    public static void setUsername(String username, Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        System.out.println("SHAREDPREF:" + sp);
+        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sp.edit();
         editor.putString("username", username);
         editor.apply();
     }
@@ -38,7 +41,7 @@ public class SharedPrefHelper {
         return sharedPreferences.getString("balanceLimit", null);
     }
 
-    public static void setBalanceLimit(String balanceLimit){
+    public static void setBalanceLimit(String balanceLimit) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("balanceLimit", balanceLimit);
         editor.apply();
@@ -48,7 +51,7 @@ public class SharedPrefHelper {
         return sharedPreferences.getString("expenseLimit", null);
     }
 
-    public static void setExpenseLimit(String expenseLimit){
+    public static void setExpenseLimit(String expenseLimit) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("expenseLimit", expenseLimit);
         editor.apply();

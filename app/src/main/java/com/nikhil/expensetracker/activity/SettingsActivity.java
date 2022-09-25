@@ -113,7 +113,7 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
     @Override
     public void applyValues(String customInputValue, String customInputTitle) {
         if (customInputTitle.equalsIgnoreCase("Username")) {
-            SharedPrefHelper.setUsername(customInputValue);
+            SharedPrefHelper.setUsername(customInputValue,this);
             settingsListAdapter.notifyDataSetChanged();
         } else if (customInputTitle.equalsIgnoreCase("Balance Limit")) {
             SharedPrefHelper.setBalanceLimit(customInputValue);
