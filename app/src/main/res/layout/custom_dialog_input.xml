@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    app:boxBackgroundColor="@color/secondary"
+    app:errorEnabled="true"
+    android:padding="16dp"
+    app:hintTextColor="@color/white"
+    app:startIconDrawable="@drawable/ic_baseline_person_24"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/customInputLayout"
+    android:hint="@string/user_name">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/customInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textCapWords" />
+
+
+</com.google.android.material.textfield.TextInputLayout>

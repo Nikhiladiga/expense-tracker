@@ -1,4 +1,4 @@
-package com.nikhil.expensetracker.database;
+package com.nikhil.expensetracker.datahelpers;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -46,7 +46,6 @@ public class Database extends SQLiteOpenHelper {
 
     public Database(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
-        deleteAllTransactions();
     }
 
     @Override
@@ -153,7 +152,6 @@ public class Database extends SQLiteOpenHelper {
         ArrayList<Transaction> mArrayList = new ArrayList<>();
         for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext()) {
             String recordMonth = new SimpleDateFormat("MMMM").format(new Date(data.getLong(5)));
-            System.out.println("RECORD MONTH:" + month);
             if (recordMonth.equalsIgnoreCase(month)) {
                 mArrayList.add(new Transaction(
                         data.getString(0),

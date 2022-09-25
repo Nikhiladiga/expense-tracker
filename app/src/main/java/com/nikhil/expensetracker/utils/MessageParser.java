@@ -19,7 +19,6 @@ public class MessageParser {
 
     private static Transaction handleAxisBankTransactionMessage(String message, Long createdAt) {
         try {
-
             Transaction transaction = new Transaction();
 
             //Set transaction id
@@ -28,29 +27,55 @@ public class MessageParser {
             //Get transaction type
             if (message.contains("Debit")) {
                 transaction.setType("DEBIT");
-            } else if (message.contains("Credit")) {
+
+                //Get transaction amount
+                String transactionSeparator = "INR ";
+                int transSepPos = message.indexOf(transactionSeparator);
+                transaction.setAmount(Double.parseDouble(message.substring(transSepPos + transactionSeparator.length()).split("\n")[0]));
+
+                //Fill transaction date and time
+                transaction.setCreatedAt(createdAt);
+
+                //Get payee name
+                String payeeString = message.split("\n")[4];
+                String payeeName;
+                try {
+                    payeeName = payeeString.split("/")[3];
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    payeeName = payeeString.split("/")[2];
+                }
+                transaction.setName(payeeName);
+
+                //Get remaining balance in account after transaction
+                String balanceSeparator = "Bal INR ";
+                int balSepPor = message.indexOf(balanceSeparator);
+                transaction.setBalance(Double.parseDouble(message.substring(balSepPor + balanceSeparator.length()).split("\n")[0]));
+
+            } else if (message.contains("credited to")) {
                 transaction.setType("CREDIT");
+
+                //Get transaction amount
+                String transactionAmtPrefixSeparator = "INR";
+                String transactionAmtSuffixSeparator = "credited";
+                int transactionAmtSepPrefixPos = message.indexOf(transactionAmtPrefixSeparator);
+                int transactionAmtSepSuffixPos = message.indexOf(transactionAmtSuffixSeparator);
+                transaction.setAmount(Double.valueOf(message.substring(transactionAmtSepPrefixPos + 3, transactionAmtSepSuffixPos).trim()));
+
+                //Fill transaction date and time
+                transaction.setCreatedAt(createdAt);
+
+                //Get payee name
+                String payeeNamePrefixSeparator = "Info-";
+                int payeeNameSepPrefixPos = message.indexOf(payeeNamePrefixSeparator);
+                transaction.setName(message.substring(payeeNameSepPrefixPos + 5).split("/")[0].trim());
+
+                //Check if company and set category (Only for me)
+                if (message.contains("ACCESS RESEARCH")) {
+                    transaction.setCategory("Salary");
+                }
             } else {
                 transaction.setType("UNKNOWN");
             }
-
-            //Get transaction amount
-            String transactionSeparator = "INR ";
-            int transSepPos = message.indexOf(transactionSeparator);
-            transaction.setAmount(Double.parseDouble(message.substring(transSepPos + transactionSeparator.length()).split("\n")[0]));
-
-            //Fill transaction date and time
-            transaction.setCreatedAt(createdAt);
-
-            //Get payee name
-            String payeeString = message.split("\n")[4];
-            String payeeName = payeeString.split("/")[3];
-            transaction.setName(payeeName);
-
-            //Get remaining balance in account after transaction
-            String balanceSeparator = "Bal INR ";
-            int balSepPor = message.indexOf(balanceSeparator);
-            transaction.setBalance(Double.parseDouble(message.substring(balSepPor + balanceSeparator.length()).split("\n")[0]));
 
             return transaction;
 

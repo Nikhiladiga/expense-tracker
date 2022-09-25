@@ -1,7 +1,5 @@
 package com.nikhil.expensetracker.adapters;
 
-import static com.nikhil.expensetracker.R.drawable.ic_launcher_background;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
@@ -9,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,9 +16,6 @@ import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.utils.Util;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,6 +39,7 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
         TextView transactionName = convertView.findViewById(R.id.transactionName);
         TextView transactionCategory = convertView.findViewById(R.id.transactionCategory);
         TextView transactionAmount = convertView.findViewById(R.id.transactionAmount);
+        TextView transactionDate = convertView.findViewById(R.id.transactionDate);
 
         if (Objects.equals(transaction.getType(), "CREDIT")) {
             transactionAmount.setTextColor(Color.GREEN);
@@ -58,6 +53,7 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
 
         transactionName.setText(transaction.getName());
         transactionCategory.setText(transaction.getCategory());
+        transactionDate.setText(Util.convertTimestampToDate(transaction.getCreatedAt()));
 
         return convertView;
     }

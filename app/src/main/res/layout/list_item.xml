@@ -4,26 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:alignItems="center"
     android:padding="10dp"
+    app:alignItems="center"
     app:flexDirection="row"
     app:justifyContent="space_between">
-
-<!--    <de.hdodenhof.circleimageview.CircleImageView-->
-<!--        android:id="@+id/transactionImg"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="10dp"-->
-<!--        android:src="@drawable/ic_launcher_background"-->
-<!--        tools:ignore="ContentDescription" />-->
 
     <TextView
         android:id="@+id/transactionImg"
         android:layout_width="90dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:textSize="25sp"
         android:text="🍔"
+        android:textSize="25sp"
         tools:ignore="ContentDescription" />
 
     <com.google.android.flexbox.FlexboxLayout
@@ -43,8 +35,8 @@
                 android:id="@+id/transactionName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="3"
                 android:fontFamily="@font/interextrabold"
+                android:maxLines="3"
                 android:text="ACCESS RESEARCH LABS"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
@@ -60,14 +52,31 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/transactionAmount"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/interextrabold"
-            android:text="+ ₹96000"
-            android:textColor="@color/red"
-            android:textSize="13sp" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/transactionAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/interextrabold"
+                android:text="+ ₹96000"
+                android:textColor="@color/red"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/transactionDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/intermedium"
+                android:textSize="11sp"
+                android:textColor="@color/tertiary"
+                android:text="23/9/2022"/>
+
+
+        </LinearLayout>
 
     </com.google.android.flexbox.FlexboxLayout>
 

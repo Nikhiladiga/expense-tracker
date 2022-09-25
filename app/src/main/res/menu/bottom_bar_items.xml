@@ -9,4 +9,11 @@
         android:title="@string/settings"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/reportTab"
+        android:contentDescription="@string/reports"
+        android:icon="@drawable/ic_baseline_bar_chart_24"
+        android:title="@string/reports"
+        app:showAsAction="ifRoom" />
+
 </menu>

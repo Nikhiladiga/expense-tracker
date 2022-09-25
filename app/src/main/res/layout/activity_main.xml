@@ -49,10 +49,10 @@
         android:layout_below="@id/header"
         android:layout_margin="20dp"
         android:backgroundTint="@color/secondary"
-        app:strokeWidth="5dp"
-        app:strokeColor="@color/primary"
         android:elevation="15dp"
-        app:cardCornerRadius="15dp">
+        app:cardCornerRadius="15dp"
+        app:strokeColor="@color/primary"
+        app:strokeWidth="5dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -64,14 +64,13 @@
                 android:id="@+id/currentMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="September"
-                android:textAllCaps="true"
-                android:textSize="15sp"
-                android:textColor="@color/white"
-                android:fontFamily="@font/intersemibold"
-                android:textAlignment="center"
                 android:layout_marginTop="10dp"
-                />
+                android:fontFamily="@font/intersemibold"
+                android:text="September"
+                android:textAlignment="center"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
 
             <com.google.android.flexbox.FlexboxLayout
                 android:layout_width="match_parent"
@@ -168,17 +167,24 @@
 
     </RelativeLayout>
 
-    <ListView
-        android:id="@+id/transactionList"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refreshTransactionList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/dashboardCard"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="90dp"
-        android:visibility="visible"
-        tools:listitem="@layout/list_item" />
+        android:layout_marginBottom="90dp">
+
+        <ListView
+            android:id="@+id/transactionList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="5dp"
+            android:visibility="visible"
+            tools:listitem="@layout/list_item" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

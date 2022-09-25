@@ -11,13 +11,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
@@ -27,13 +25,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.nikhil.expensetracker.activity.AddTransaction;
 import com.nikhil.expensetracker.activity.SettingsActivity;
 import com.nikhil.expensetracker.activity.SingleTransaction;
 import com.nikhil.expensetracker.activity.UsernameActivity;
 import com.nikhil.expensetracker.adapters.TransactionListAdapter;
-import com.nikhil.expensetracker.database.Database;
+import com.nikhil.expensetracker.datahelpers.Database;
 import com.nikhil.expensetracker.databinding.ActivityMainBinding;
+import com.nikhil.expensetracker.datahelpers.SharedPrefHelper;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.receiver.SmsReceiver;
 import com.nikhil.expensetracker.utils.Util;
@@ -72,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         mainActivityWeakReference = new WeakReference<>(MainActivity.this);
+
+        //Create shared prefs helper class
+        SharedPrefHelper.initSharedPrefHelper();
 
         //Register launchers for all activities
         registerActivities();
@@ -155,10 +158,35 @@ public class MainActivity extends AppCompatActivity {
 
         //Add listener to bottom app bar items
         activityMainBinding.bottomAppBar.setOnMenuItemClickListener(item -> {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            settingsActivity.launch(intent);
-            overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
+            switch (item.getItemId()) {
+                case R.id.settingsTab:
+                    Intent intent = new Intent(this, SettingsActivity.class);
+                    settingsActivity.launch(intent);
+                    overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
+                    break;
+
+                case R.id.reportTab:
+                    break;
+
+                default:
+                    break;
+
+            }
             return true;
+        });
+
+
+        //Refresh transaction list
+        activityMainBinding.refreshTransactionList.setOnRefreshListener(() -> {
+            Util.readAllSms(currentMonth);
+            activityMainBinding.refreshTransactionList.setRefreshing(false);
+            Snackbar.make(
+                            activityMainBinding.transactionList,
+                            "Transactions have been refreshed",
+                            Snackbar.LENGTH_SHORT
+                    ).setBackgroundTint(Color.BLACK)
+                    .setTextColor(Color.WHITE)
+                    .show();
         });
 
     }
@@ -191,8 +219,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void storeCategories() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.getString("categories", null) == null) {
+        if (SharedPrefHelper.getCategories() == null) {
             List<String> categories = new ArrayList<>();
             categories.add("Food");
             categories.add("Entertainment");
@@ -214,9 +241,7 @@ public class MainActivity extends AppCompatActivity {
                         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         .writeValueAsString(categories);
 
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("categories", jsonString);
-                editor.apply();
+                SharedPrefHelper.setCategories(jsonString);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -249,9 +274,28 @@ public class MainActivity extends AppCompatActivity {
         refreshMainDashboardData();
     }
 
+    @SuppressLint("SetTextI18n")
     private void refreshMainDashboardData() {
-        activityMainBinding.currentAmount.setText(MessageFormat.format("₹{0}", database.getBalance().toString()));
-        activityMainBinding.amountSpent.setText(MessageFormat.format("₹{0}", String.valueOf(database.getAmountSpent(currentMonth))));
+        //Set current balance
+        Long balance = (Math.round(database.getBalance() * 100) / 100);
+        activityMainBinding.currentAmount.setText(MessageFormat.format("₹{0}", balance));
+        if (balance < Long.parseLong(SharedPrefHelper.getBalanceLimit())) {
+            activityMainBinding.currentAmount.setTextColor(Color.RED);
+        } else {
+            activityMainBinding.currentAmount.setTextColor(Color.WHITE);
+        }
+
+
+        //Set expense amount
+        Long expense = (Math.round(database.getAmountSpent(currentMonth) * 100) / 100);
+        activityMainBinding.amountSpent.setText(MessageFormat.format("₹{0}", expense));
+        if (expense > Long.parseLong(SharedPrefHelper.getExpenseLimit())) {
+            activityMainBinding.amountSpent.setTextColor(Color.RED);
+        } else {
+            activityMainBinding.amountSpent.setTextColor(Color.WHITE);
+        }
+
+        activityMainBinding.greeting.setText("Hello " + SharedPrefHelper.getUsername());
     }
 
     @SuppressLint("SetTextI18n")
@@ -301,8 +345,7 @@ public class MainActivity extends AppCompatActivity {
                         boolean success = Boolean.parseBoolean(data != null ? data.getStringExtra("success") : "false");
                         if (success) {
                             checkSmsPermissions();
-                            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-                            String username = sharedPreferences.getString("username", null);
+                            String username = SharedPrefHelper.getUsername();
                             activityMainBinding.greeting.setText("Hello " + username);
                         }
                     }
@@ -312,12 +355,11 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     private void showUsernameActivity() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.getString("username", null) == null) {
+        String username = SharedPrefHelper.getUsername();
+        if (username == null) {
             Intent intent = new Intent(this, UsernameActivity.class);
             usernameActivity.launch(intent);
         } else {
-            String username = sharedPreferences.getString("username", null);
             activityMainBinding.greeting.setText("Hello " + username);
         }
     }

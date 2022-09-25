@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 
 import com.nikhil.expensetracker.databinding.ActivityUsernameBinding;
+import com.nikhil.expensetracker.datahelpers.SharedPrefHelper;
 
 public class UsernameActivity extends AppCompatActivity {
 
@@ -38,10 +39,7 @@ public class UsernameActivity extends AppCompatActivity {
             }
 
             //Save username to shared prefs
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("username", String.valueOf(activityUsernameBinding.userName.getText()));
-            editor.apply();
+            SharedPrefHelper.setUsername(String.valueOf(activityUsernameBinding.userName.getText()));
 
             //Return success intent
             Intent returnIntent = new Intent();

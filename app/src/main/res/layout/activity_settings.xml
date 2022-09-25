@@ -7,9 +7,10 @@
     tools:context=".activity.SettingsActivity">
 
     <ListView
-        android:id="@+id/settingsItems"
+        android:id="@+id/settingsItemList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        tools:listitem="@layout/settings_list_item"
         />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

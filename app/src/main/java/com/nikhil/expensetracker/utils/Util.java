@@ -111,17 +111,19 @@ public class Util {
         try {
             Uri uri = Uri.parse(SMS_URI_INBOX);
             String[] projection = new String[]{"_id", "address", "person", "body", "date", "type"};
-            Cursor cur = MainActivity.getInstance().getContentResolver().query(uri, projection, "address='AD-AxisBk'", null, "date desc");
+            String axisStringPattern = "%Axis%";
+            Cursor cur = MainActivity.getInstance().getContentResolver().query(uri, projection, "address LIKE ?", new String[]{axisStringPattern}, "date desc");
+//            Cursor cur = MainActivity.getInstance().getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
             if (cur.moveToFirst()) {
                 int index_Body = cur.getColumnIndex("body");
                 int dateIndex = cur.getColumnIndex("date");
                 do {
                     String msgBody = cur.getString(index_Body);
                     long msgDate = cur.getLong(dateIndex);
-                    if ((msgBody.contains("Debit") || msgBody.contains("Credit"))) {
-//                        Transaction transaction = Util.parseSMS(msgBody, msgDate);
+
+                    if ((msgBody.contains("Debit") || msgBody.contains("credited to"))) {
                         Transaction transaction = MessageParser.parseMessage("axis", msgBody, msgDate);
-                        if (transaction != null
+                        if (transaction != null && transaction.getCreatedAt() != null
                                 && transaction.getCreatedAt() > latestTransactionDate
                                 && new SimpleDateFormat("MMMM").format(new Date(transaction.getCreatedAt())).equalsIgnoreCase(currentMonth)
                         ) {

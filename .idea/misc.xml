@@ -16,6 +16,8 @@
         <entry key="app/src/main/res/layout/add_transaction.xml" value="0.33" />
         <entry key="app/src/main/res/layout/category_item.xml" value="0.346875" />
         <entry key="app/src/main/res/layout/list_item.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/settings_list_item.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/username_input.xml" value="0.346875" />
         <entry key="app/src/main/res/menu/bottom_bar_items.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/menu/menu_items.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/menu/months.xml" value="0.346875" />
