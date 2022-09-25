@@ -34,6 +34,7 @@ import com.nikhil.expensetracker.adapters.TransactionListAdapter;
 import com.nikhil.expensetracker.datahelpers.Database;
 import com.nikhil.expensetracker.databinding.ActivityMainBinding;
 import com.nikhil.expensetracker.datahelpers.SharedPrefHelper;
+import com.nikhil.expensetracker.model.DashboardData;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.receiver.SmsReceiver;
 import com.nikhil.expensetracker.utils.Util;
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     private ListView transactionsList;
 
     private String currentMonth;
+    private Double balance = (double) 0;
+    private Double expense = (double) 0;
 
     @SuppressLint({"SimpleDateFormat", "NonConstantResourceId"})
     @Override
@@ -95,13 +98,13 @@ public class MainActivity extends AppCompatActivity {
         //Set menu items to bottom app bar
         setSupportActionBar(activityMainBinding.bottomAppBar);
 
-        //GET total balance
-        refreshMainDashboardData();
-
         //GET current month
         Calendar calendar = Calendar.getInstance();
         currentMonth = new SimpleDateFormat("MMMM").format(calendar.getTime());
         activityMainBinding.currentMonth.setText(currentMonth);
+
+        //GET total balance
+        refreshMainDashboardData();
 
         //Set months in dropdown
         PopupMenu popupMenu = new PopupMenu(this, activityMainBinding.currentMonthIcon);
@@ -118,8 +121,12 @@ public class MainActivity extends AppCompatActivity {
             popupMenu.show();
         });
 
-        //Get transactions for this month from database
-        transactions = database.getTransactionsByMonth(currentMonth);
+        //Get transactions,balance and expense for this month from database
+        DashboardData dashboardData = database.getTransactionsByMonth(currentMonth);
+        transactions = dashboardData.getTransactions();
+        balance = dashboardData.getBalance();
+        expense = dashboardData.getExpense();
+
         transactionListAdapter = new TransactionListAdapter(this, transactions);
         noTransactionsLayer = activityMainBinding.noTransactionsLayer;
         transactionsList = activityMainBinding.transactionList;
@@ -260,7 +267,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void refreshAdapterData() {
         transactions.clear();
-        transactions.addAll(database.getTransactionsByMonth(currentMonth));
+
+        DashboardData dashboardData = database.getTransactionsByMonth(currentMonth);
+        transactions.addAll(dashboardData.getTransactions());
+        balance = dashboardData.getBalance();
+        expense = dashboardData.getExpense();
 
         if (transactions.size() > 0) {
             transactionsList.setVisibility(View.VISIBLE);
@@ -277,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void refreshMainDashboardData() {
         //Set current balance
-        Long balance = (Math.round(database.getBalance() * 100) / 100);
+        Long balance = (Math.round(this.balance) * 100) / 100;
         activityMainBinding.currentAmount.setText(MessageFormat.format("₹{0}", balance));
         if (balance < Long.parseLong(SharedPrefHelper.getBalanceLimit())) {
             activityMainBinding.currentAmount.setTextColor(Color.RED);
@@ -287,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Set expense amount
-        Long expense = (Math.round(database.getAmountSpent(currentMonth) * 100) / 100);
+        Long expense = (Math.round(this.expense) * 100) / 100;
         activityMainBinding.amountSpent.setText(MessageFormat.format("₹{0}", expense));
         if (expense > Long.parseLong(SharedPrefHelper.getExpenseLimit())) {
             activityMainBinding.amountSpent.setTextColor(Color.RED);

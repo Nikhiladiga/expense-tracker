@@ -112,7 +112,9 @@ public class Util {
             Uri uri = Uri.parse(SMS_URI_INBOX);
             String[] projection = new String[]{"_id", "address", "person", "body", "date", "type"};
             String axisStringPattern = "%Axis%";
-            Cursor cur = MainActivity.getInstance().getContentResolver().query(uri, projection, "address LIKE ?", new String[]{axisStringPattern}, "date desc");
+            String sbiStringPattern = "%SBIUPI%";
+            String hdfcStringPattern = "%HDFCBK%";
+            Cursor cur = MainActivity.getInstance().getContentResolver().query(uri, projection, "address LIKE ? OR address LIKE ? OR address LIKE?", new String[]{axisStringPattern, sbiStringPattern, hdfcStringPattern}, "date desc");
 //            Cursor cur = MainActivity.getInstance().getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
             if (cur.moveToFirst()) {
                 int index_Body = cur.getColumnIndex("body");

@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.nikhil.expensetracker.model.DashboardData;
 import com.nikhil.expensetracker.model.Transaction;
 
 import java.text.SimpleDateFormat;
@@ -117,15 +118,6 @@ public class Database extends SQLiteOpenHelper {
         database.execSQL(query);
     }
 
-    public Double getBalance() {
-        SQLiteDatabase database = this.getWritableDatabase();
-        String query = "SELECT SUM(CASE WHEN type='CREDIT' THEN amount WHEN type='DEBIT' THEN -amount END) AS totalAmount FROM " + TABLE_NAME;
-        System.out.println(query);
-        Cursor cursor = database.rawQuery(query, null);
-        cursor.moveToFirst();
-        return cursor.getDouble(0);
-    }
-
     public void updateTransactionById(Transaction transaction) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         String query = "UPDATE " + TABLE_NAME
@@ -145,7 +137,7 @@ public class Database extends SQLiteOpenHelper {
     }
 
     @SuppressLint("SimpleDateFormat")
-    public List<Transaction> getTransactionsByMonth(String month) {
+    public DashboardData getTransactionsByMonth(String month) {
         SQLiteDatabase database = this.getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY createdAt DESC";
         @SuppressLint("Recycle") Cursor data = database.rawQuery(query, null);
@@ -165,7 +157,37 @@ public class Database extends SQLiteOpenHelper {
                 ));
             }
         }
-        return mArrayList;
+
+        //Get balance left in current month
+        Double balance = (double) 0;
+        for (Transaction transaction : mArrayList) {
+            if (transaction.getType().equalsIgnoreCase("CREDIT")) {
+                balance += transaction.getAmount();
+            } else {
+                balance -= transaction.getAmount();
+            }
+        }
+
+        //Get amount spent in current month
+        Double expense = (double) 0;
+        Optional<Double> optionalDouble = mArrayList
+                .stream()
+                .filter(transaction -> transaction.getType().equalsIgnoreCase("DEBIT"))
+                .map(Transaction::getAmount)
+                .reduce(Double::sum);
+        if (optionalDouble.isPresent()) {
+            expense = optionalDouble.get();
+        }
+
+        DashboardData dashboardData = new DashboardData(
+                mArrayList,
+                balance,
+                expense
+        );
+
+        System.out.println("Dashboard data:" + dashboardData);
+
+        return dashboardData;
     }
 
     public void deleteAllTransactions() {
@@ -189,27 +211,16 @@ public class Database extends SQLiteOpenHelper {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+
+        System.out.println("LATEST TRANSACTION DATE:" + latestDate);
+
         if (latestDate != null) {
             return latestDate;
         } else {
             return 0L;
         }
+
     }
 
-    public Double getAmountSpent(String month) {
-        List<Transaction> transactions = this.getTransactionsByMonth(month);
-        Double amountSpent = (double) 0;
-        if (transactions != null) {
-            Optional<Double> optionalDouble = transactions
-                    .stream()
-                    .filter(transaction -> transaction.getType().equalsIgnoreCase("DEBIT"))
-                    .map(Transaction::getAmount)
-                    .reduce(Double::sum);
-            if (optionalDouble.isPresent()) {
-                amountSpent = optionalDouble.get();
-            }
-        }
-        return amountSpent;
-    }
 
 }

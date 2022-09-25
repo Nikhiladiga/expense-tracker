@@ -14,7 +14,6 @@ import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,11 +32,8 @@ import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.utils.Util;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,7 +42,7 @@ public class SingleTransaction extends AppCompatActivity {
     ActivityTransactionBinding activity_transaction;
     private boolean isEdit = false;
     private boolean isDebit = true;
-    private Intent returnIntent;
+    private Intent intent;
     private ArrayAdapter<String> categoryAdapter;
     private List<String> categories;
 
@@ -55,7 +51,7 @@ public class SingleTransaction extends AppCompatActivity {
         super.onCreate(savedInstance);
         activity_transaction = ActivityTransactionBinding.inflate(getLayoutInflater());
         setContentView(activity_transaction.getRoot());
-        returnIntent = this.getIntent();
+        intent = this.getIntent();
         handleFormEdit();
 
         //Get categories
@@ -73,7 +69,7 @@ public class SingleTransaction extends AppCompatActivity {
         }
 
         //Fill transaction details
-        if (returnIntent != null) {
+        if (intent != null) {
             fillValues();
         } else {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
@@ -148,7 +144,7 @@ public class SingleTransaction extends AppCompatActivity {
             switch (which) {
                 case DialogInterface.BUTTON_POSITIVE:
                     //Delete transaction
-                    if (returnIntent != null) {
+                    if (intent != null) {
                         deleteTransaction();
                     } else {
                         Toast.makeText(this, "Unable to delete transaction", Toast.LENGTH_SHORT).show();
@@ -226,11 +222,11 @@ public class SingleTransaction extends AppCompatActivity {
     }
 
     private void fillValues() {
-        String type = returnIntent.getStringExtra("type");
-        String category = returnIntent.getStringExtra("category");
-        Long createdAt = returnIntent.getLongExtra("createdAt", 0);
-        String payeeName = returnIntent.getStringExtra("name");
-        Double amountPaid = returnIntent.getDoubleExtra("amount", 0);
+        String type = intent.getStringExtra("type");
+        String category = intent.getStringExtra("category");
+        Long createdAt = intent.getLongExtra("createdAt", 0);
+        String payeeName = intent.getStringExtra("name");
+        Double amountPaid = intent.getDoubleExtra("amount", 0);
 
         if (type != null) {
             isDebit = !type.equals("CREDIT");
@@ -244,7 +240,7 @@ public class SingleTransaction extends AppCompatActivity {
     }
 
     private void deleteTransaction() {
-        MainActivity.getInstance().database.deleteTransaction(returnIntent.getStringExtra("id"));
+        MainActivity.getInstance().database.deleteTransaction(intent.getStringExtra("id"));
         Intent resultIntent = new Intent();
         resultIntent.putExtra("success", "true");
         setResult(Activity.RESULT_OK, resultIntent);
@@ -253,17 +249,28 @@ public class SingleTransaction extends AppCompatActivity {
 
     @SuppressLint("SimpleDateFormat")
     private void updateTransaction() {
+        Long createdAt;
+        Long currentTransactionTs = intent.getLongExtra("createdAt", 0);
 
-        Timestamp createdAt = Util.convertStringToTimestamp(String.valueOf(activity_transaction.date.getText()));
+        System.out.println("CURRENT TRANSACTION TIMESTAMP:" + currentTransactionTs);
+
+        System.out.println("ACTIVITY DATE:" + activity_transaction.date.getText());
+        System.out.println("CURRENT TS DATE:" + Util.convertTimestampToDate(currentTransactionTs));
+
+        if (activity_transaction.date.getText().toString().equalsIgnoreCase(Util.convertTimestampToDate(currentTransactionTs))) {
+            createdAt = currentTransactionTs;
+        } else {
+            createdAt = Util.convertStringToTimestamp(String.valueOf(activity_transaction.date.getText())).getTime();
+        }
 
         Transaction transaction = new Transaction(
-                returnIntent.getStringExtra("id"),
+                intent.getStringExtra("id"),
                 this.isDebit ? "DEBIT" : "CREDIT",
                 String.valueOf(activity_transaction.payeeName.getText()),
                 Double.valueOf(Objects.requireNonNull(activity_transaction.amountPaid.getText()).toString()),
                 String.valueOf(activity_transaction.category.getText()),
-                createdAt.getTime(),
-                createdAt.getTime(),
+                createdAt,
+                createdAt,
                 null
         );
 
