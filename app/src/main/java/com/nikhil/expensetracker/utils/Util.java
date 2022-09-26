@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.Objects;
 
 public class Util {
-    public static SmsReceiver smsReceiver;
+//    public static SmsReceiver smsReceiver;
 
     public static Transaction parseSMS(String message, Long createdAt) {
         try {
@@ -119,18 +119,32 @@ public class Util {
             if (cur.moveToFirst()) {
                 int index_Body = cur.getColumnIndex("body");
                 int dateIndex = cur.getColumnIndex("date");
+                int addressIndex = cur.getColumnIndex("address");
                 do {
                     String msgBody = cur.getString(index_Body);
                     long msgDate = cur.getLong(dateIndex);
+                    String address = cur.getString(addressIndex);
 
-                    if ((msgBody.contains("Debit") || msgBody.contains("credited to"))) {
-                        Transaction transaction = MessageParser.parseMessage("axis", msgBody, msgDate);
-                        if (transaction != null && transaction.getCreatedAt() != null
-                                && transaction.getCreatedAt() > latestTransactionDate
-                                && new SimpleDateFormat("MMMM").format(new Date(transaction.getCreatedAt())).equalsIgnoreCase(currentMonth)
-                        ) {
-                            MainActivity.getInstance().database.addTransaction(transaction);
+                    Transaction transaction = null;
+                    if (address.contains("Axis")) {
+                        if ((msgBody.contains("Debit") || msgBody.contains("credited to"))) {
+                            transaction = MessageParser.parseMessage("axis", msgBody, msgDate);
                         }
+                    } else if (address.contains("SBIUPI")) {
+                        if ((msgBody.contains("debited by") || msgBody.contains("credited by"))) {
+                            transaction = MessageParser.parseMessage("sbi", msgBody, msgDate);
+                        }
+                    } else if (address.contains("HDFCBK")) {
+                        if (msgBody.contains("debited from") || msgBody.contains("credited to")) {
+                            transaction = MessageParser.parseMessage("hdfc", msgBody, msgDate);
+                        }
+                    }
+
+                    if (transaction != null && transaction.getCreatedAt() != null
+                            && transaction.getCreatedAt() > latestTransactionDate
+                            && new SimpleDateFormat("MMMM").format(new Date(transaction.getCreatedAt())).equalsIgnoreCase(currentMonth)
+                    ) {
+                        MainActivity.getInstance().database.addTransaction(transaction);
                     }
                 } while (cur.moveToNext());
 

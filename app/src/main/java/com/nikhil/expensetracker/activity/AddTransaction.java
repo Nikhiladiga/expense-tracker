@@ -169,6 +169,7 @@ public class AddTransaction extends AppCompatActivity {
                     String.valueOf(category),
                     createdAt.getTime(),
                     createdAt.getTime(),
+                    null,
                     null
             );
             MainActivity.getInstance().database.addTransaction(transaction);

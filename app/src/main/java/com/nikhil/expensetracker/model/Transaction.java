@@ -13,11 +13,12 @@ public class Transaction {
     private Long createdAt;
     private Long updatedAt;
     private Double balance;
+    private String bank;
 
     public Transaction() {
     }
 
-    public Transaction(String id, String type, String name, Double amount, String category, Long createdAt, Long updatedAt, Double balance) {
+    public Transaction(String id, String type, String name, Double amount, String category, Long createdAt, Long updatedAt, Double balance, String bank) {
         this.id = id;
         this.type = type;
         this.name = name;
@@ -26,6 +27,7 @@ public class Transaction {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.balance = balance;
+        this.bank = bank;
     }
 
     public String getId() {
@@ -92,6 +94,14 @@ public class Transaction {
         this.balance = balance;
     }
 
+    public String getBank() {
+        return bank;
+    }
+
+    public void setBank(String bank) {
+        this.bank = bank;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -104,6 +114,7 @@ public class Transaction {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", balance=" + balance +
+                ", bank='" + bank + '\'' +
                 '}';
     }
 }

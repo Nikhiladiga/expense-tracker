@@ -44,7 +44,7 @@ public class DashboardData {
     @Override
     public String toString() {
         return "DashboardData{" +
-                "transactions=" + transactions.size() +
+                "transactions=" + transactions +
                 ", balance=" + balance +
                 ", expense=" + expense +
                 '}';

@@ -9,9 +9,10 @@ public class MessageParser {
         if (bank.toLowerCase().contains("axis")) {
             return handleAxisBankTransactionMessage(message, createdAt);
         } else if (bank.toLowerCase().contains("hdfc")) {
-            return handleHdfcBankTransactionMessage(message,createdAt);
+            return handleHdfcBankTransactionMessage(message, createdAt);
         } else if (bank.toLowerCase().contains("sbi")) {
-            return handleSbiTransactionMessage(message,createdAt);
+            System.out.println("SBI TRANSACTION MESSAGE RECEIVED");
+            return handleSbiTransactionMessage(message, createdAt);
         } else {
             return null;
         }
@@ -20,6 +21,9 @@ public class MessageParser {
     private static Transaction handleAxisBankTransactionMessage(String message, Long createdAt) {
         try {
             Transaction transaction = new Transaction();
+
+            //Set bank name
+            transaction.setBank("Axis Bank");
 
             //Set transaction id
             transaction.setId(Generators.timeBasedGenerator().generate().toString());
@@ -88,6 +92,9 @@ public class MessageParser {
         try {
             Transaction transaction = new Transaction();
 
+            //Set bank name
+            transaction.setBank("SBI");
+
             //Set transaction id
             transaction.setId(Generators.timeBasedGenerator().generate().toString());
 
@@ -127,6 +134,7 @@ public class MessageParser {
             //Fill transaction date and time
             transaction.setCreatedAt(createdAt);
 
+            System.out.println("SBI TRANSACTION:" + transaction);
             return transaction;
 
         } catch (Exception e) {
@@ -138,6 +146,9 @@ public class MessageParser {
     private static Transaction handleHdfcBankTransactionMessage(String message, Long createdAt) {
         try {
             Transaction transaction = new Transaction();
+
+            //Set bank name
+            transaction.setBank("HDFC Bank");
 
             //Set transaction id
             transaction.setId(Generators.timeBasedGenerator().generate().toString());
@@ -163,8 +174,12 @@ public class MessageParser {
             } else if (message.contains("credited to")) {
                 transaction.setType("CREDIT");
 
-                //Set name as unknown
-                transaction.setName("Unknown");
+                //Set payee name
+                String payeeNamePrefixSeparator = "VPA";
+                String payeeNameSuffixSeparator = "@";
+                int payeeNameSepPrefixPos = message.indexOf(payeeNamePrefixSeparator);
+                int payeeNameSepSuffixPos = message.indexOf(payeeNameSuffixSeparator);
+                transaction.setName(message.substring(payeeNameSepPrefixPos + 3, payeeNameSepSuffixPos).trim());
 
                 //Get amount credited
                 String amountCreditedPrefixSeparator = "Rs. ";

@@ -30,6 +30,7 @@ public class Database extends SQLiteOpenHelper {
     private static final String COL6 = "createdAt";
     private static final String COL7 = "updatedAt";
     private static final String COL8 = "balance";
+    private static final String COL9 = "bank";
 
     private boolean checkDatabase() {
         SQLiteDatabase checkDB = null;
@@ -60,11 +61,12 @@ public class Database extends SQLiteOpenHelper {
                     + COL5 + " TEXT,"
                     + COL6 + " REAL,"
                     + COL7 + " REAL,"
-                    + COL8 + " REAL)";
+                    + COL8 + " REAL,"
+                    + COL9 + " TEXT)";
             System.out.println("Creating table:" + createTableQuery);
             sqLiteDatabase.execSQL(createTableQuery);
         } else {
-            System.out.println("ALL TRANSACTIONS:" + getTransactions());
+
         }
     }
 
@@ -86,6 +88,7 @@ public class Database extends SQLiteOpenHelper {
         contentValues.put(COL6, transaction.getCreatedAt());
         contentValues.put(COL7, transaction.getUpdatedAt());
         contentValues.put(COL8, transaction.getBalance());
+        contentValues.put(COL9, transaction.getBank());
 
         Log.i("Expense Tracker", "Added new transaction " + transaction);
 
@@ -106,7 +109,8 @@ public class Database extends SQLiteOpenHelper {
                     data.getString(4),
                     data.getLong(5),
                     data.getLong(6),
-                    data.getDouble(7)
+                    data.getDouble(7),
+                    data.getString(8)
             ));
         }
         return mArrayList;
@@ -127,7 +131,8 @@ public class Database extends SQLiteOpenHelper {
                 + COL5 + "='" + transaction.getCategory() + "', "
                 + COL6 + "='" + transaction.getCreatedAt() + "', "
                 + COL7 + "='" + transaction.getUpdatedAt() + "', "
-                + COL8 + "=" + transaction.getBalance() + " "
+                + COL8 + "=" + transaction.getBalance() + ", "
+                + COL9 + "=" + transaction.getBank() + " "
                 + " WHERE id='" + transaction.getId() + "'";
 
         Log.i("Expense Tracker", "Updated transaction " + transaction);
@@ -153,7 +158,8 @@ public class Database extends SQLiteOpenHelper {
                         data.getString(4),
                         data.getLong(5),
                         data.getLong(6),
-                        data.getDouble(7)
+                        data.getDouble(7),
+                        data.getString(8)
                 ));
             }
         }

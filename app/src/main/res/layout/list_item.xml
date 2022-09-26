@@ -50,6 +50,15 @@
                 android:textColor="@color/white"
                 android:textSize="12sp" />
 
+            <TextView
+                android:id="@+id/transactionBank"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/intermedium"
+                android:text="Axis Bank"
+                android:textColor="@color/tertiary"
+                android:textSize="11sp" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -71,9 +80,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/intermedium"
-                android:textSize="11sp"
+                android:text="23/9/2022"
                 android:textColor="@color/tertiary"
-                android:text="23/9/2022"/>
+                android:textSize="11sp" />
 
 
         </LinearLayout>

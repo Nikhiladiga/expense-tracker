@@ -15,11 +15,17 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.ActionMode;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -92,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
         storeCategories();
 
         //Register receiver for reading SMS
-        IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-        Util.smsReceiver = new SmsReceiver();
-        getBaseContext().registerReceiver(Util.smsReceiver, intentFilter);
+//        IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+//        Util.smsReceiver = new SmsReceiver();
+//        getBaseContext().registerReceiver(Util.smsReceiver, intentFilter);
 
         //Set menu items to bottom app bar
         setSupportActionBar(activityMainBinding.bottomAppBar);
@@ -103,9 +109,6 @@ public class MainActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         currentMonth = new SimpleDateFormat("MMMM").format(calendar.getTime());
         activityMainBinding.currentMonth.setText(currentMonth);
-
-        //GET total balance
-        refreshMainDashboardData();
 
         //Set months in dropdown
         PopupMenu popupMenu = new PopupMenu(this, activityMainBinding.currentMonthIcon);
@@ -127,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
         transactions = dashboardData.getTransactions();
         balance = dashboardData.getBalance();
         expense = dashboardData.getExpense();
+
+        //GET total balance
+        refreshMainDashboardData();
 
         transactionListAdapter = new TransactionListAdapter(this, transactions);
         noTransactionsLayer = activityMainBinding.noTransactionsLayer;
@@ -209,8 +215,8 @@ public class MainActivity extends AppCompatActivity {
             }
             if (isPermissionGranted) {
                 Util.readAllSms(currentMonth);
-                IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-                registerReceiver(new SmsReceiver(), intentFilter);
+//                IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+//                registerReceiver(new SmsReceiver(), intentFilter);
             } else {
                 Toast.makeText(this, "Please give sms permission", Toast.LENGTH_SHORT).show();
             }
@@ -297,7 +303,6 @@ public class MainActivity extends AppCompatActivity {
             activityMainBinding.currentAmount.setTextColor(Color.WHITE);
         }
 
-
         //Set expense amount
         Long expense = (Math.round(this.expense) * 100) / 100;
         activityMainBinding.amountSpent.setText(MessageFormat.format("₹{0}", expense));
@@ -307,7 +312,11 @@ public class MainActivity extends AppCompatActivity {
             activityMainBinding.amountSpent.setTextColor(Color.WHITE);
         }
 
-        activityMainBinding.greeting.setText("Hello " + SharedPrefHelper.getUsername());
+        if (SharedPrefHelper.getUsername() != null) {
+            activityMainBinding.greeting.setText("Hello " + SharedPrefHelper.getUsername());
+        } else {
+            activityMainBinding.greeting.setText("Hello");
+        }
     }
 
     @SuppressLint("SetTextI18n")

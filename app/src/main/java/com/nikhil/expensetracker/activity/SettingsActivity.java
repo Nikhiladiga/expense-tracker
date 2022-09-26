@@ -82,6 +82,7 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
                                 editor.clear();
                                 editor.apply();
                                 Toast.makeText(this, "App data cleared", Toast.LENGTH_SHORT).show();
+                                settingsListAdapter.notifyDataSetChanged();
                                 MainActivity.getInstance().refreshAdapterData();
                             })
                             .setNegativeButton("No", (dialogInterface, i12) -> {
@@ -113,7 +114,7 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
     @Override
     public void applyValues(String customInputValue, String customInputTitle) {
         if (customInputTitle.equalsIgnoreCase("Username")) {
-            SharedPrefHelper.setUsername(customInputValue,this);
+            SharedPrefHelper.setUsername(customInputValue, this);
             settingsListAdapter.notifyDataSetChanged();
         } else if (customInputTitle.equalsIgnoreCase("Balance Limit")) {
             SharedPrefHelper.setBalanceLimit(customInputValue);

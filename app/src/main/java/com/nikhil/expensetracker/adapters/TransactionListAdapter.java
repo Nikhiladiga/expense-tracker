@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,8 +22,15 @@ import java.util.Objects;
 
 public class TransactionListAdapter extends ArrayAdapter<Transaction> {
 
+    private boolean isLongPressed = false;
+
     public TransactionListAdapter(@NonNull Context context, List<Transaction> transactions) {
         super(context, R.layout.list_item, transactions);
+    }
+
+    public void showCheckBox() {
+        isLongPressed = true;
+        notifyDataSetChanged();
     }
 
     @SuppressLint("SetTextI18n")
@@ -40,6 +48,7 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
         TextView transactionCategory = convertView.findViewById(R.id.transactionCategory);
         TextView transactionAmount = convertView.findViewById(R.id.transactionAmount);
         TextView transactionDate = convertView.findViewById(R.id.transactionDate);
+        TextView transactionBank = convertView.findViewById(R.id.transactionBank);
 
         if (Objects.equals(transaction.getType(), "CREDIT")) {
             transactionAmount.setTextColor(Color.GREEN);
@@ -54,6 +63,9 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
         transactionName.setText(transaction.getName());
         transactionCategory.setText(transaction.getCategory());
         transactionDate.setText(Util.convertTimestampToDate(transaction.getCreatedAt()));
+        transactionBank.setText(transaction.getBank());
+
+        System.out.println(transaction.getBank());
 
         return convertView;
     }

@@ -46,23 +46,25 @@ public class SmsReceiver extends BroadcastReceiver {
                                 Toast.makeText(context, "Transaction added", Toast.LENGTH_SHORT).show();
                                 MainActivity.getInstance().refreshAdapterData();
                             }
-                        } else if (msg_from.contains("sbi")) {
-                            Transaction transaction = MessageParser.parseMessage("sbi", msgBody, msgAt);
-                            if (transaction != null) {
-                                MainActivity.getInstance().database.addTransaction(transaction);
-                                SystemClock.sleep(1000);
-                                Toast.makeText(context, "Transaction added", Toast.LENGTH_SHORT).show();
-                                MainActivity.getInstance().refreshAdapterData();
-                            }
-                        } else if (msg_from.contains("hdfc")) {
-                            Transaction transaction = MessageParser.parseMessage("hdfc", msgBody, msgAt);
-                            if (transaction != null) {
-                                MainActivity.getInstance().database.addTransaction(transaction);
-                                SystemClock.sleep(1000);
-                                Toast.makeText(context, "Transaction added", Toast.LENGTH_SHORT).show();
-                                MainActivity.getInstance().refreshAdapterData();
-                            }
                         }
+//                        } else if (msg_from.contains("SBIUPI")) {
+//                            Transaction transaction = MessageParser.parseMessage("sbi", msgBody, msgAt);
+//                            if (transaction != null) {
+//                                System.out.println("SAVING TRANSACTION INSIDE RECEIVER...");
+//                                MainActivity.getInstance().database.addTransaction(transaction);
+//                                SystemClock.sleep(1000);
+//                                Toast.makeText(context, "Transaction added", Toast.LENGTH_SHORT).show();
+//                                MainActivity.getInstance().refreshAdapterData();
+//                            }
+//                        } else if (msg_from.contains("HDFCBK")) {
+//                            Transaction transaction = MessageParser.parseMessage("hdfc", msgBody, msgAt);
+//                            if (transaction != null) {
+//                                MainActivity.getInstance().database.addTransaction(transaction);
+//                                SystemClock.sleep(1000);
+//                                Toast.makeText(context, "Transaction added", Toast.LENGTH_SHORT).show();
+//                                MainActivity.getInstance().refreshAdapterData();
+//                            }
+//                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

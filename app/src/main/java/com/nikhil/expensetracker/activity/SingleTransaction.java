@@ -271,6 +271,7 @@ public class SingleTransaction extends AppCompatActivity {
                 String.valueOf(activity_transaction.category.getText()),
                 createdAt,
                 createdAt,
+                null,
                 null
         );
 
