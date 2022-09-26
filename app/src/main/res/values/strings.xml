@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ExpenseTracker</string>
+    <string name="app_name">Expense Tracker</string>
     <string name="add_transaction">Add transaction</string>
     <string name="hello_nikhil">Hello, Nikhil</string>
     <string name="food">Food</string>
@@ -30,4 +30,5 @@
     <string name="current_month">Current month</string>
     <string name="january">January</string>
     <string name="reports">Reports</string>
+    <string name="update_transaction">Update transaction</string>
 </resources>

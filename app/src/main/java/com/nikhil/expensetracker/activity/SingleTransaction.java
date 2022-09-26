@@ -3,6 +3,7 @@ package com.nikhil.expensetracker.activity;
 import static com.nikhil.expensetracker.R.drawable.ic_baseline_close_24;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -179,6 +180,7 @@ public class SingleTransaction extends AppCompatActivity {
             activity_transaction.editTransaction.setImageDrawable(ContextCompat.getDrawable(this, ic_baseline_close_24));
             activity_transaction.category.setEnabled(true);
             activity_transaction.category.setTextColor(Color.WHITE);
+            activity_transaction.category.setDropDownHeight(ActionBar.LayoutParams.WRAP_CONTENT);
 
             activity_transaction.date.setEnabled(true);
             activity_transaction.date.setTextColor(Color.WHITE);
@@ -195,6 +197,7 @@ public class SingleTransaction extends AppCompatActivity {
             activity_transaction.editTransaction.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_edit_24));
             activity_transaction.category.setEnabled(false);
             activity_transaction.category.setTextColor(Color.rgb(235, 235, 228));
+            activity_transaction.category.setDropDownHeight(0);
 
             activity_transaction.date.setEnabled(false);
             activity_transaction.date.setTextColor(Color.rgb(235, 235, 228));

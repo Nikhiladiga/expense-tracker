@@ -12,7 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.R;
+import com.nikhil.expensetracker.datahelpers.Database;
 import com.nikhil.expensetracker.datahelpers.SharedPrefHelper;
 
 import java.util.List;
@@ -58,6 +60,9 @@ public class SettingsListAdapter extends ArrayAdapter<String> {
                 settingsTitle.setText(setting);
                 settingsValue.setText(SharedPrefHelper.getExpenseLimit());
                 break;
+            case "Total Balance":
+                settingsTitle.setText(setting);
+                settingsValue.setText("₹" + Math.floor(MainActivity.getInstance().database.getTotalBalance() * 100) / 100);
 
             default:
                 break;

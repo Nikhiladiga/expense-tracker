@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/black">
+    android:background="@color/secondary">
 
     <!--  Edit/Delete transaction button  -->
     <com.google.android.flexbox.FlexboxLayout
@@ -14,28 +14,44 @@
         android:layout_height="wrap_content"
         android:padding="15dp"
         android:layout_marginBottom="30dp"
-        android:background="@color/secondary"
+        android:background="@color/black"
         app:alignItems="center"
-        app:justifyContent="flex_end">
+        app:justifyContent="space_between">
 
-        <ImageButton
-            android:id="@+id/deleteTransaction"
-            android:layout_width="50dp"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="25dp"
-            android:backgroundTint="@color/red"
-            android:contentDescription="@string/delete_transaction"
-            android:src="@drawable/ic_baseline_delete_24" />
+            android:text="@string/update_transaction"
+            android:drawablePadding="10dp"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:fontFamily="@font/intermedium"
+            />
 
-        <ImageButton
-            android:id="@+id/editTransaction"
-            android:layout_width="50dp"
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:contentDescription="@string/edit_transaction"
-            android:src="@drawable/ic_baseline_edit_24"
-            android:textColor="@color/white" />
+            app:justifyContent="flex_end">
 
+            <ImageButton
+                android:id="@+id/deleteTransaction"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:backgroundTint="@color/red"
+                android:contentDescription="@string/delete_transaction"
+                android:src="@drawable/ic_baseline_delete_24" />
+
+            <ImageButton
+                android:id="@+id/editTransaction"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/primary"
+                android:contentDescription="@string/edit_transaction"
+                android:src="@drawable/ic_baseline_edit_24"
+                android:textColor="@color/white" />
+
+        </com.google.android.flexbox.FlexboxLayout>
 
     </com.google.android.flexbox.FlexboxLayout>
 
@@ -92,7 +108,7 @@
             android:id="@+id/category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/secondary"
+            android:backgroundTint="@color/black"
             android:inputType="none"
             android:labelFor="@+id/categoryLayout"
             tools:ignore="LabelFor" />
@@ -110,7 +126,7 @@
         android:layout_marginEnd="30dp"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:hint="@string/date"
-        app:boxBackgroundColor="@color/secondary"
+        app:boxBackgroundColor="@color/black"
         app:errorEnabled="true"
         app:hintTextColor="@color/white"
         app:startIconDrawable="@drawable/ic_round_calendar_today_24">
@@ -134,7 +150,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginEnd="30dp"
         android:hint="@string/payee_name"
-        app:boxBackgroundColor="@color/secondary"
+        app:boxBackgroundColor="@color/black"
         app:errorEnabled="true"
         app:hintTextColor="@color/white"
         app:startIconDrawable="@drawable/ic_baseline_person_24">
@@ -158,7 +174,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginEnd="30dp"
         android:hint="@string/amount_paid"
-        app:boxBackgroundColor="@color/secondary"
+        app:boxBackgroundColor="@color/black"
         app:errorEnabled="true"
         app:hintTextColor="@color/white"
         app:startIconDrawable="@drawable/ic_baseline_account_balance_wallet_24">

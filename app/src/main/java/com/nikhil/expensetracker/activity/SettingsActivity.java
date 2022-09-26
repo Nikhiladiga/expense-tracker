@@ -48,22 +48,10 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
         settingsOpt.add("Reset Data");
         settingsOpt.add("Set Balance Limit");
         settingsOpt.add("Set Expense Limit");
+        settingsOpt.add("Total Balance");
         settingsListAdapter = new SettingsListAdapter(this, settingsOpt);
         activity_settings.settingsItemList.setAdapter(settingsListAdapter);
         activity_settings.settingsItemList.setClickable(true);
-
-        //Clear app data dialogue box
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            switch (which) {
-                case DialogInterface.BUTTON_POSITIVE:
-
-                    break;
-
-                case DialogInterface.BUTTON_NEGATIVE:
-                    break;
-            }
-        };
-
 
         activity_settings.settingsItemList.setOnItemClickListener((adapterView, view, i, l) -> {
             switch (settingsOpt.get(i)) {
