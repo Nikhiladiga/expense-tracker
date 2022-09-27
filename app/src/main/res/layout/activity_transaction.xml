@@ -122,7 +122,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/categoryLayout"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="30dp"
         android:layout_marginEnd="30dp"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:hint="@string/date"
@@ -147,7 +146,6 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_below="@id/dateLayout"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="30dp"
         android:layout_marginEnd="30dp"
         android:hint="@string/payee_name"
         app:boxBackgroundColor="@color/black"
@@ -171,7 +169,6 @@
         android:layout_below="@id/payeeNameLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="30dp"
         android:layout_marginEnd="30dp"
         android:hint="@string/amount_paid"
         app:boxBackgroundColor="@color/black"
@@ -187,12 +184,35 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!--    Bank name     -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/bankNameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/amountPaidLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:hint="@string/bank_name"
+        app:boxBackgroundColor="@color/black"
+        app:errorEnabled="true"
+        app:hintTextColor="@color/white"
+        app:startIconDrawable="@drawable/ic_baseline_attach_money_24">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/bankName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
     <!--    Edit transaction     -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/updateTransaction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/amountPaidLayout"
+        android:layout_below="@+id/bankNameLayout"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:textColor="@color/white"

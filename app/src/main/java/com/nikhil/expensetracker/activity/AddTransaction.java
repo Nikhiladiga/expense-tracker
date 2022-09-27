@@ -155,6 +155,12 @@ public class AddTransaction extends AppCompatActivity {
                 categoryLayout.setError("Please select a category");
             }
 
+            //Check if bank is null
+            Editable bankName = addTransactionBinding.bankName.getText();
+            if (bankName == null || bankName.length() < 1) {
+                addTransactionBinding.bankNameLayout.setError("Please enter bank name");
+            }
+
             Toast.makeText(this, "Transaction added!", Toast.LENGTH_SHORT).show();
 
             //Get transaction date in timestamp
@@ -170,7 +176,7 @@ public class AddTransaction extends AppCompatActivity {
                     createdAt.getTime(),
                     createdAt.getTime(),
                     null,
-                    null
+                    String.valueOf(bankName)
             );
             MainActivity.getInstance().database.addTransaction(transaction);
             Intent returnIntent = new Intent();

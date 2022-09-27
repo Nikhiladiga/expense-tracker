@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.fasterxml.uuid.Generators;
 import com.nikhil.expensetracker.MainActivity;
+import com.nikhil.expensetracker.datahelpers.SharedPrefHelper;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.receiver.SmsReceiver;
 
@@ -17,7 +18,11 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 public class Util {
@@ -177,5 +182,81 @@ public class Util {
     @SuppressLint("SimpleDateFormat")
     public static String convertTimestampToDate(Long timestamp) {
         return new SimpleDateFormat("dd-MM-yyyy").format(new Date(timestamp));
+    }
+
+    public static Boolean fallsUnderCurrentMonth(Long createdAt, String currentMonth) {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            Month month = Month.valueOf(currentMonth.toUpperCase(Locale.ROOT));
+            int monthIndex = month.getValue();
+            int currentYear = calendar.get(Calendar.YEAR);
+            int noOfDaysInMonth = month.length(checkIfLeapYear(currentYear));
+            int monthStartDay = Integer.parseInt(SharedPrefHelper.getMonthStartDay());
+
+            LocalDate start = null;
+            LocalDate end = null;
+
+            //Check if startofMonthDate is more than number of days in current month
+            if (monthStartDay > noOfDaysInMonth) {
+
+                if (monthIndex == 11) { //Check if november
+                    //Start date
+                    start = LocalDate.of(currentYear, monthIndex + 1, monthStartDay - noOfDaysInMonth);
+                    //End date
+                    end = LocalDate.of(currentYear + 1, 1, monthStartDay - noOfDaysInMonth);
+                } else if (monthIndex == 12) { //Check if december
+                    //Start date
+                    start = LocalDate.of(currentYear + 1, 1, monthStartDay - noOfDaysInMonth);
+                    //End date
+                    end = LocalDate.of(currentYear + 1, 2, monthStartDay - noOfDaysInMonth);
+                } else { //Other months
+                    //Start date
+                    start = LocalDate.of(currentYear, monthIndex + 1, monthStartDay - noOfDaysInMonth);
+                    //End date
+                    end = LocalDate.of(currentYear, monthIndex + 2, monthStartDay - noOfDaysInMonth);
+                }
+            } else {
+                if (monthIndex == 12 || monthIndex == 11) {
+                    start = LocalDate.of(currentYear + 1, monthIndex, monthStartDay);
+                    end = LocalDate.of(currentYear + 1, 1, monthStartDay);
+                } else {
+                    start = LocalDate.of(currentYear, monthIndex, monthStartDay);
+                    if (monthIndex == 1 && (Month.of(monthIndex + 2).length(checkIfLeapYear(currentYear)) < monthStartDay)) { //January
+                        if (checkIfLeapYear(currentYear)) {
+                            end = LocalDate.of(currentYear, monthIndex + 2, monthStartDay - 29);
+                        } else {
+                            end = LocalDate.of(currentYear, monthIndex + 2, monthStartDay - 28);
+                        }
+                    } else if (Month.of(monthIndex + 1).length(checkIfLeapYear(currentYear)) < monthStartDay) {
+                        end = LocalDate.of(currentYear, monthIndex + 2, monthStartDay - Month.of(monthIndex + 1).length(checkIfLeapYear(currentYear)));
+                    } else {
+                        end = LocalDate.of(currentYear, monthIndex + 1, monthStartDay);
+                    }
+                }
+            }
+
+//            System.out.println("#############################################################################");
+//            System.out.println();
+//            System.out.println("START DATE:" + start);
+//            System.out.println("END DATE:" + end);
+//            System.out.println();
+//            System.out.println("#############################################################################");
+
+            String date = Util.convertTimestampToDate(createdAt);
+            LocalDate today = LocalDate.of(
+                    Integer.parseInt(date.split("-")[2]),
+                    Integer.parseInt(date.split("-")[1]),
+                    Integer.parseInt(date.split("-")[0])
+            );
+            return (!today.isBefore(start)) && (today.isBefore(end));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean checkIfLeapYear(int year) {
+        return (year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0));
     }
 }

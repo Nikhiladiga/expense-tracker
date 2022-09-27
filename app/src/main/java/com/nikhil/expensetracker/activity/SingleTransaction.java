@@ -191,6 +191,9 @@ public class SingleTransaction extends AppCompatActivity {
             activity_transaction.amountPaid.setEnabled(true);
             activity_transaction.amountPaid.setTextColor(Color.WHITE);
 
+            activity_transaction.bankName.setEnabled(true);
+            activity_transaction.bankName.setTextColor(Color.WHITE);
+
             activity_transaction.updateTransaction.setVisibility(View.VISIBLE);
 
         } else {
@@ -207,6 +210,9 @@ public class SingleTransaction extends AppCompatActivity {
 
             activity_transaction.amountPaid.setEnabled(false);
             activity_transaction.amountPaid.setTextColor(Color.rgb(235, 235, 228));
+
+            activity_transaction.bankName.setEnabled(false);
+            activity_transaction.bankName.setTextColor(Color.rgb(235, 235, 228));
 
             activity_transaction.updateTransaction.setVisibility(View.GONE);
         }
@@ -230,6 +236,7 @@ public class SingleTransaction extends AppCompatActivity {
         Long createdAt = intent.getLongExtra("createdAt", 0);
         String payeeName = intent.getStringExtra("name");
         Double amountPaid = intent.getDoubleExtra("amount", 0);
+        String bankName = intent.getStringExtra("bankName");
 
         if (type != null) {
             isDebit = !type.equals("CREDIT");
@@ -240,6 +247,7 @@ public class SingleTransaction extends AppCompatActivity {
         activity_transaction.date.setText(Util.convertTimestampToDate(createdAt));
         activity_transaction.payeeName.setText(payeeName);
         activity_transaction.amountPaid.setText(String.valueOf(amountPaid));
+        activity_transaction.bankName.setText(bankName);
     }
 
     private void deleteTransaction() {
@@ -275,7 +283,7 @@ public class SingleTransaction extends AppCompatActivity {
                 createdAt,
                 createdAt,
                 null,
-                null
+                String.valueOf(activity_transaction.bankName.getText())
         );
 
         MainActivity.getInstance().database.updateTransactionById(transaction);

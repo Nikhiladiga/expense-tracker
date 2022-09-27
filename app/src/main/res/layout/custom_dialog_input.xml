@@ -6,7 +6,6 @@
     app:errorEnabled="true"
     android:padding="16dp"
     app:hintTextColor="@color/white"
-    app:startIconDrawable="@drawable/ic_baseline_person_24"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/customInputLayout"

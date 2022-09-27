@@ -12,11 +12,13 @@ import androidx.annotation.Nullable;
 
 import com.nikhil.expensetracker.model.DashboardData;
 import com.nikhil.expensetracker.model.Transaction;
+import com.nikhil.expensetracker.utils.Util;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class Database extends SQLiteOpenHelper {
@@ -132,7 +134,7 @@ public class Database extends SQLiteOpenHelper {
                 + COL6 + "='" + transaction.getCreatedAt() + "', "
                 + COL7 + "='" + transaction.getUpdatedAt() + "', "
                 + COL8 + "=" + transaction.getBalance() + ", "
-                + COL9 + "=" + transaction.getBank() + " "
+                + COL9 + "='" + transaction.getBank() + "' "
                 + " WHERE id='" + transaction.getId() + "'";
 
         Log.i("Expense Tracker", "Updated transaction " + transaction);
@@ -148,8 +150,7 @@ public class Database extends SQLiteOpenHelper {
         @SuppressLint("Recycle") Cursor data = database.rawQuery(query, null);
         ArrayList<Transaction> mArrayList = new ArrayList<>();
         for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext()) {
-            String recordMonth = new SimpleDateFormat("MMMM").format(new Date(data.getLong(5)));
-            if (recordMonth.equalsIgnoreCase(month)) {
+            if (Util.fallsUnderCurrentMonth(data.getLong(5), month)) {
                 mArrayList.add(new Transaction(
                         data.getString(0),
                         data.getString(1),
@@ -190,9 +191,6 @@ public class Database extends SQLiteOpenHelper {
                 balance,
                 expense
         );
-
-        System.out.println("Dashboard data:" + dashboardData);
-
         return dashboardData;
     }
 

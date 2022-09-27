@@ -46,8 +46,9 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
         //Set adapter to settings list element
         settingsOpt.add("Account");
         settingsOpt.add("Reset Data");
-        settingsOpt.add("Set Balance Limit");
-        settingsOpt.add("Set Expense Limit");
+        settingsOpt.add("Month Start Day");
+        settingsOpt.add("Balance Limit");
+        settingsOpt.add("Expense Limit");
         settingsOpt.add("Total Balance");
         settingsListAdapter = new SettingsListAdapter(this, settingsOpt);
         activity_settings.settingsItemList.setAdapter(settingsListAdapter);
@@ -79,12 +80,17 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
                             .show();
                     break;
 
-                case "Set Balance Limit":
+                case "Month Start Day":
+                    CustomDialog monthStartDayDialog = new CustomDialog(SharedPrefHelper.getMonthStartDay(), "Month Start Day", "Set month start day", "number");
+                    monthStartDayDialog.show(getSupportFragmentManager(), "Custom dialog");
+                    break;
+
+                case "Balance Limit":
                     CustomDialog balanceLimitDialog = new CustomDialog(SharedPrefHelper.getBalanceLimit(), "Balance Limit", "Set balance limit", "number");
                     balanceLimitDialog.show(getSupportFragmentManager(), "Custom dialog");
                     break;
 
-                case "Set Expense Limit":
+                case "Expense Limit":
                     CustomDialog expenseLimitDialog = new CustomDialog(SharedPrefHelper.getExpenseLimit(), "Expense Limit", "Set expense limit", "number");
                     expenseLimitDialog.show(getSupportFragmentManager(), "Custom dialog");
                     break;
@@ -110,6 +116,23 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
         } else if (customInputTitle.equalsIgnoreCase("Expense Limit")) {
             SharedPrefHelper.setExpenseLimit(customInputValue);
             settingsListAdapter.notifyDataSetChanged();
+        } else if (customInputTitle.equalsIgnoreCase("Month Start Day")) {
+            if (customInputValue == null) {
+                Toast.makeText(this, "Please enter a valid date", Toast.LENGTH_SHORT).show();
+                CustomDialog monthStartDayDialog = new CustomDialog(SharedPrefHelper.getMonthStartDay(), "Month Start Day", "Set month start day", "number");
+                monthStartDayDialog.show(getSupportFragmentManager(), "Custom dialog");
+            } else if ((Integer.parseInt(customInputValue) > 31) || (Integer.parseInt(customInputValue) < 1)) {
+                Toast.makeText(this, "Please enter a valid date", Toast.LENGTH_SHORT).show();
+                CustomDialog monthStartDayDialog = new CustomDialog(SharedPrefHelper.getMonthStartDay(), "Month Start Day", "Set month start day", "number");
+                monthStartDayDialog.show(getSupportFragmentManager(), "Custom dialog");
+            } else if (customInputValue.length() > 2) {
+                Toast.makeText(this, "Please enter a valid date", Toast.LENGTH_SHORT).show();
+                CustomDialog monthStartDayDialog = new CustomDialog(SharedPrefHelper.getMonthStartDay(), "Month Start Day", "Set month start day", "number");
+                monthStartDayDialog.show(getSupportFragmentManager(), "Custom dialog");
+            } else {
+                SharedPrefHelper.setMonthStartDay(customInputValue);
+                settingsListAdapter.notifyDataSetChanged();
+            }
         }
         MainActivity.getInstance().refreshAdapterData();
     }

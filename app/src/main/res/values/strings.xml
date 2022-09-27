@@ -31,4 +31,6 @@
     <string name="january">January</string>
     <string name="reports">Reports</string>
     <string name="update_transaction">Update transaction</string>
+    <string name="export_data">Export Data</string>
+    <string name="bank_name">Bank name</string>
 </resources>

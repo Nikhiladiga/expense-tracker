@@ -52,11 +52,15 @@ public class SettingsListAdapter extends ArrayAdapter<String> {
                 settingsTitle.setText(setting);
                 settingsValue.setText("");
                 break;
-            case "Set Balance Limit":
+            case "Month Start Day":
+                settingsTitle.setText(setting);
+                settingsValue.setText(SharedPrefHelper.getMonthStartDay());
+                break;
+            case "Balance Limit":
                 settingsTitle.setText(setting);
                 settingsValue.setText(SharedPrefHelper.getBalanceLimit());
                 break;
-            case "Set Expense Limit":
+            case "Expense Limit":
                 settingsTitle.setText(setting);
                 settingsValue.setText(SharedPrefHelper.getExpenseLimit());
                 break;

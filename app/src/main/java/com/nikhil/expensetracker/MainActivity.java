@@ -147,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("amount", transactions.get(i).getAmount());
             intent.putExtra("category", transactions.get(i).getCategory());
             intent.putExtra("createdAt", transactions.get(i).getCreatedAt());
+            intent.putExtra("bankName", transactions.get(i).getBank());
             singleTransactionActivity.launch(intent);
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
         });

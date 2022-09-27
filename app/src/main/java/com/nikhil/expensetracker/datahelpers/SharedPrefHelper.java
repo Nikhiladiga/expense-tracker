@@ -56,4 +56,14 @@ public class SharedPrefHelper {
         editor.putString("expenseLimit", expenseLimit);
         editor.apply();
     }
+
+    public static String getMonthStartDay() {
+        return sharedPreferences.getString("monthStartDay", "1");
+    }
+
+    public static void setMonthStartDay(String monthStartDay) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("monthStartDay", monthStartDay);
+        editor.apply();
+    }
 }
