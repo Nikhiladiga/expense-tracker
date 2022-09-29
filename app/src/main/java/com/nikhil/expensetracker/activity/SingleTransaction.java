@@ -194,6 +194,8 @@ public class SingleTransaction extends AppCompatActivity {
             activity_transaction.bankName.setEnabled(true);
             activity_transaction.bankName.setTextColor(Color.WHITE);
 
+            activity_transaction.emoji.setEnabled(true);
+
             activity_transaction.updateTransaction.setVisibility(View.VISIBLE);
 
         } else {
@@ -213,6 +215,8 @@ public class SingleTransaction extends AppCompatActivity {
 
             activity_transaction.bankName.setEnabled(false);
             activity_transaction.bankName.setTextColor(Color.rgb(235, 235, 228));
+
+            activity_transaction.emoji.setEnabled(false);
 
             activity_transaction.updateTransaction.setVisibility(View.GONE);
         }
@@ -237,6 +241,7 @@ public class SingleTransaction extends AppCompatActivity {
         String payeeName = intent.getStringExtra("name");
         Double amountPaid = intent.getDoubleExtra("amount", 0);
         String bankName = intent.getStringExtra("bankName");
+        String emoji = intent.getStringExtra("emoji");
 
         if (type != null) {
             isDebit = !type.equals("CREDIT");
@@ -248,12 +253,13 @@ public class SingleTransaction extends AppCompatActivity {
         activity_transaction.payeeName.setText(payeeName);
         activity_transaction.amountPaid.setText(String.valueOf(amountPaid));
         activity_transaction.bankName.setText(bankName);
+        activity_transaction.emoji.setText(emoji);
     }
 
     private void deleteTransaction() {
         MainActivity.getInstance().database.deleteTransaction(intent.getStringExtra("id"));
         Intent resultIntent = new Intent();
-        resultIntent.putExtra("success", "true");
+        resultIntent.putExtra("success", true);
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
@@ -283,7 +289,8 @@ public class SingleTransaction extends AppCompatActivity {
                 createdAt,
                 createdAt,
                 null,
-                String.valueOf(activity_transaction.bankName.getText())
+                String.valueOf(activity_transaction.bankName.getText()),
+                String.valueOf(activity_transaction.emoji.getText())
         );
 
         MainActivity.getInstance().database.updateTransactionById(transaction);

@@ -32,17 +32,23 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activity.ReportActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.SingleTransaction"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".activity.AddTransaction"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".activity.SettingsActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
-        android:name=".activity.UsernameActivity"
-        android:exported="false" />
+            android:name=".activity.UsernameActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.MultiTransactionUpdate"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -14,11 +14,13 @@ public class Transaction {
     private Long updatedAt;
     private Double balance;
     private String bank;
+    private String emoji;
+    private boolean isSelected = false;
 
     public Transaction() {
     }
 
-    public Transaction(String id, String type, String name, Double amount, String category, Long createdAt, Long updatedAt, Double balance, String bank) {
+    public Transaction(String id, String type, String name, Double amount, String category, Long createdAt, Long updatedAt, Double balance, String bank, String emoji) {
         this.id = id;
         this.type = type;
         this.name = name;
@@ -28,6 +30,7 @@ public class Transaction {
         this.updatedAt = updatedAt;
         this.balance = balance;
         this.bank = bank;
+        this.emoji = emoji;
     }
 
     public String getId() {
@@ -102,6 +105,22 @@ public class Transaction {
         this.bank = bank;
     }
 
+    public String getEmoji() {
+        return emoji;
+    }
+
+    public void setEmoji(String emoji) {
+        this.emoji = emoji;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -115,6 +134,7 @@ public class Transaction {
                 ", updatedAt=" + updatedAt +
                 ", balance=" + balance +
                 ", bank='" + bank + '\'' +
+                ", isSelected='" + isSelected +
                 '}';
     }
 }

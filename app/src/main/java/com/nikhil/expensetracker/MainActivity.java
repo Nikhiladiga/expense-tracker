@@ -4,28 +4,23 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.ActionMode;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.CheckBox;
-import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,8 +29,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.nikhil.expensetracker.activity.AddTransaction;
+import com.nikhil.expensetracker.activity.MultiTransactionUpdate;
+import com.nikhil.expensetracker.activity.ReportActivity;
 import com.nikhil.expensetracker.activity.SettingsActivity;
-import com.nikhil.expensetracker.activity.SingleTransaction;
 import com.nikhil.expensetracker.activity.UsernameActivity;
 import com.nikhil.expensetracker.adapters.TransactionListAdapter;
 import com.nikhil.expensetracker.datahelpers.Database;
@@ -43,7 +39,6 @@ import com.nikhil.expensetracker.databinding.ActivityMainBinding;
 import com.nikhil.expensetracker.datahelpers.SharedPrefHelper;
 import com.nikhil.expensetracker.model.DashboardData;
 import com.nikhil.expensetracker.model.Transaction;
-import com.nikhil.expensetracker.receiver.SmsReceiver;
 import com.nikhil.expensetracker.utils.Util;
 
 import java.lang.ref.WeakReference;
@@ -52,6 +47,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,15 +58,19 @@ public class MainActivity extends AppCompatActivity {
 
     private static WeakReference<MainActivity> mainActivityWeakReference;
 
-    private ActivityMainBinding activityMainBinding;
+    public ActivityMainBinding activityMainBinding;
+    private boolean isMultiSelectEnabled = false;
 
-    private ActivityResultLauncher<Intent> singleTransactionActivity;
     private ActivityResultLauncher<Intent> addTransactionActivity;
     private ActivityResultLauncher<Intent> settingsActivity;
     private ActivityResultLauncher<Intent> usernameActivity;
+    private ActivityResultLauncher<Intent> reportActivity;
+    private ActivityResultLauncher<Intent> multiEditActivity;
+    private ActivityResultLauncher<Intent> singleTransactionActivity;
+
 
     private RelativeLayout noTransactionsLayer;
-    private ListView transactionsList;
+    private RecyclerView transactionsList;
 
     private String currentMonth;
     private Double balance = (double) 0;
@@ -134,23 +135,53 @@ public class MainActivity extends AppCompatActivity {
         //GET total balance
         refreshMainDashboardData();
 
-        transactionListAdapter = new TransactionListAdapter(this, transactions);
+        //Set transactions list adapter and functionality
+        transactionListAdapter = new TransactionListAdapter(this, transactions, singleTransactionActivity);
         noTransactionsLayer = activityMainBinding.noTransactionsLayer;
         transactionsList = activityMainBinding.transactionList;
         transactionsList.setAdapter(transactionListAdapter);
-        activityMainBinding.transactionList.setClickable(true);
-        activityMainBinding.transactionList.setOnItemClickListener((adapterView, view, i, l) -> {
-            Intent intent = new Intent(this, SingleTransaction.class);
-            intent.putExtra("id", transactions.get(i).getId());
-            intent.putExtra("type", transactions.get(i).getType());
-            intent.putExtra("name", transactions.get(i).getName());
-            intent.putExtra("amount", transactions.get(i).getAmount());
-            intent.putExtra("category", transactions.get(i).getCategory());
-            intent.putExtra("createdAt", transactions.get(i).getCreatedAt());
-            intent.putExtra("bankName", transactions.get(i).getBank());
-            singleTransactionActivity.launch(intent);
-            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
+        transactionsList.setLayoutManager(new LinearLayoutManager(this));
+
+        //Show checkbox indicating multi select mode
+        activityMainBinding.multiSelect.setOnClickListener(view -> {
+            isMultiSelectEnabled = !isMultiSelectEnabled;
+            showUnshowCheckBox();
         });
+
+        //Close toolbar and undo edit mode on close btn click
+        activityMainBinding.clearMultiSelect.setOnClickListener(view -> {
+            isMultiSelectEnabled = false;
+            showUnshowCheckBox();
+        });
+
+        //TODO Open new activity if multi edit button is clicked
+        activityMainBinding.startMultiEdit.setOnClickListener(view -> {
+            Intent intent = new Intent(this, MultiTransactionUpdate.class);
+            try {
+                List<Transaction> selectedTransactions = new ArrayList<>();
+
+                //Get transactions which have been selected
+                for (int i = 0; i < transactionListAdapter.getItemCount(); i++) {
+                    System.out.println("IS SELECTED:" + transactions.get(i).isSelected());
+                    if (transactions.get(i).isSelected()) {
+                        selectedTransactions.add(transactions.get(i));
+                    }
+                }
+
+                //Stringify transactions and send it to multi edit activity
+                String selectedTransactionsJSON = new ObjectMapper().
+                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        .writeValueAsString(selectedTransactions);
+
+                intent.putExtra("selectedTransactions", selectedTransactionsJSON);
+                multiEditActivity.launch(intent);
+                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
 
         if (transactions != null && transactions.size() < 1) {
             noTransactionsLayer.setVisibility(View.VISIBLE);
@@ -178,6 +209,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case R.id.reportTab:
+                    Intent intent1 = new Intent(this, ReportActivity.class);
+                    reportActivity.launch(intent1);
+                    overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
                     break;
 
                 default:
@@ -199,7 +233,34 @@ public class MainActivity extends AppCompatActivity {
                     ).setBackgroundTint(Color.BLACK)
                     .setTextColor(Color.WHITE)
                     .show();
+            isMultiSelectEnabled = false;
+            showUnshowCheckBox();
         });
+
+        //Searchview for transaction filtering
+        activityMainBinding.transactionSearch.clearFocus();
+        activityMainBinding.transactionSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                List<Transaction> filteredItems = transactions.stream().filter(transaction -> transaction.getName().toLowerCase().contains(newText)).collect(Collectors.toList());
+
+                if (filteredItems.size() < 1) {
+                    transactionListAdapter.setFilteredTransactions(new ArrayList<>());
+                } else {
+                    transactionListAdapter.setFilteredTransactions(filteredItems);
+                }
+
+                return true;
+            }
+        });
+
+        checkSmsPermissions();
 
     }
 
@@ -216,8 +277,6 @@ public class MainActivity extends AppCompatActivity {
             }
             if (isPermissionGranted) {
                 Util.readAllSms(currentMonth);
-//                IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-//                registerReceiver(new SmsReceiver(), intentFilter);
             } else {
                 Toast.makeText(this, "Please give sms permission", Toast.LENGTH_SHORT).show();
             }
@@ -273,8 +332,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void refreshAdapterData() {
         transactions.clear();
+        isMultiSelectEnabled = false;
+        showUnshowCheckBox();
 
         DashboardData dashboardData = database.getTransactionsByMonth(currentMonth);
         transactions.addAll(dashboardData.getTransactions());
@@ -320,22 +382,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
     private void registerActivities() {
-        //Activity register for single transaction class
-        singleTransactionActivity = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        boolean success = Boolean.parseBoolean(data != null ? data.getStringExtra("success") : "false");
-                        if (success) {
-                            refreshAdapterData();
-                        }
-                    }
-                }
-        );
-
         //Activity register for add transaction class
         addTransactionActivity = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -373,6 +421,59 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        //Activity register for multi edit class
+        multiEditActivity = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        boolean success = false;
+                        if (data != null) {
+                            success = data.getBooleanExtra("success", false);
+                        }
+                        System.out.println("MULTI TRANSACTION UPDATE:" + success);
+                        if (success) {
+                            refreshAdapterData();
+                        }
+                    }
+                }
+        );
+
+
+        //Activity register for report activity class
+        reportActivity = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+//                        Intent data = result.getData();
+//                        boolean success = Boolean.parseBoolean(data != null ? data.getStringExtra("success") : "false");
+//                        if (success) {
+//                            checkSmsPermissions();
+//                            String username = SharedPrefHelper.getUsername();
+//                            activityMainBinding.greeting.setText("Hello " + username);
+//                        }
+                    }
+                }
+
+        );
+
+        singleTransactionActivity = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        boolean success = false;
+                        if (data != null) {
+                            success = data.getBooleanExtra("success", false);
+                        }
+                        if (success) {
+                            refreshAdapterData();
+                        }
+                    }
+                }
+
+        );
     }
 
     @SuppressLint("SetTextI18n")
@@ -383,6 +484,26 @@ public class MainActivity extends AppCompatActivity {
             usernameActivity.launch(intent);
         } else {
             activityMainBinding.greeting.setText("Hello " + username);
+        }
+    }
+
+    private void showUnshowCheckBox() {
+        if (isMultiSelectEnabled) {
+            activityMainBinding.multiEditToolbar.setVisibility(View.VISIBLE);
+            activityMainBinding.multiEditToolbar.animate().translationY(0).setDuration(300L).start();
+            transactionListAdapter.showCheckBox(true);
+            activityMainBinding.dashboardCard.setVisibility(View.GONE);
+            activityMainBinding.refreshTransactionList.setPadding(0, activityMainBinding.multiEditToolbar.getHeight(), 0, 0);
+            activityMainBinding.header.setVisibility(View.GONE);
+        } else {
+            if (activityMainBinding.multiEditToolbar.getVisibility() == View.VISIBLE) {
+                activityMainBinding.multiEditToolbar.animate().translationY(-112).setDuration(300L).withEndAction(() -> activityMainBinding.multiEditToolbar.setVisibility(View.GONE)).start();
+            }
+            activityMainBinding.multiSelect.setImageResource(R.drawable.ic_selectmultiple);
+            transactionListAdapter.showCheckBox(false);
+            activityMainBinding.dashboardCard.setVisibility(View.VISIBLE);
+            activityMainBinding.refreshTransactionList.setPadding(0, 0, 0, 0);
+            activityMainBinding.header.setVisibility(View.VISIBLE);
         }
     }
 

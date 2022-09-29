@@ -33,4 +33,14 @@
     <string name="update_transaction">Update transaction</string>
     <string name="export_data">Export Data</string>
     <string name="bank_name">Bank name</string>
+    <string name="update">Update</string>
+    <string name="edit_multiple_transactions">Edit multiple transactions</string>
+    <string name="select_all_transactions">Select all transactions</string>
+    <string name="delete_all_transactions">Delete all transactions</string>
+    <string name="close_multi_edit_mode">Close multi edit mode</string>
+    <string name="emoji">Emoji</string>
+    <string name="multi_select">Multi Select</string>
+    <string name="bulk_update">Bulk update</string>
+    <string name="clear_multi_select">Clear multi select</string>
+    <string name="multi_update">Multi update</string>
 </resources>

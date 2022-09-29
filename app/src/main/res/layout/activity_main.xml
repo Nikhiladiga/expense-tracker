@@ -4,8 +4,62 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:background="@color/black"
     tools:context=".MainActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/multiEditToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        android:elevation="2dp"
+        android:visibility="invisible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                app:alignItems="center"
+                app:justifyContent="space_between">
+
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/startMultiEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/secondary"
+                    android:text="@string/multi_update"
+                    android:textColor="@color/white" />
+
+                <ImageView
+                    android:id="@+id/clearMultiSelect"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/clear_multi_select"
+                    android:src="@drawable/ic_baseline_close_24" />
+
+
+            </com.google.android.flexbox.FlexboxLayout>
+
+            <androidx.appcompat.widget.SearchView
+                android:layout_marginTop="10dp"
+                android:id="@+id/transactionSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                app:queryHint="Search Transaction"
+                app:iconifiedByDefault="true" />
+
+        </LinearLayout>
+
+
+    </androidx.appcompat.widget.Toolbar>
 
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/header"
@@ -29,15 +83,29 @@
             android:textSize="30sp"
             android:textStyle="bold" />
 
-
-        <ImageView
-            android:id="@+id/currentMonthIcon"
+        <com.google.android.flexbox.FlexboxLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
-            android:contentDescription="@string/month"
-            android:src="@drawable/ic_round_calendar_today_24" />
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/multiSelect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:contentDescription="@string/multi_select"
+                android:src="@drawable/ic_selectmultiple" />
+
+            <ImageView
+                android:id="@+id/currentMonthIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@string/month"
+                android:src="@drawable/ic_round_calendar_today_24" />
+
+        </com.google.android.flexbox.FlexboxLayout>
 
 
     </com.google.android.flexbox.FlexboxLayout>
@@ -137,6 +205,15 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <Button
+        android:id="@+id/multiUpdateTransaction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dashboardCard"
+        android:layout_centerHorizontal="true"
+        android:text="@string/update"
+        android:visibility="gone" />
+
     <RelativeLayout
         android:id="@+id/noTransactionsLayer"
         android:layout_width="match_parent"
@@ -174,7 +251,7 @@
         android:layout_below="@id/dashboardCard"
         android:layout_marginBottom="90dp">
 
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/transactionList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

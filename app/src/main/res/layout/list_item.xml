@@ -9,9 +9,17 @@
     app:flexDirection="row"
     app:justifyContent="space_between">
 
+    <CheckBox
+        android:id="@+id/isSelected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/primary"
+        android:visibility="gone"
+        />
+
     <TextView
         android:id="@+id/transactionImg"
-        android:layout_width="90dp"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:text="🍔"

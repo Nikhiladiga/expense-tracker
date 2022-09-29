@@ -54,6 +54,7 @@ public class MessageParser {
                 String balanceSeparator = "Bal INR ";
                 int balSepPor = message.indexOf(balanceSeparator);
                 transaction.setBalance(Double.parseDouble(message.substring(balSepPor + balanceSeparator.length()).split("\n")[0]));
+                transaction.setCategory("General");
 
             } else if (message.contains("credited to")) {
                 transaction.setType("CREDIT");
@@ -76,6 +77,8 @@ public class MessageParser {
                 //Check if company and set category (Only for me)
                 if (message.contains("ACCESS RESEARCH")) {
                     transaction.setCategory("Salary");
+                }else{
+                    transaction.setCategory("General");
                 }
             } else {
                 transaction.setType("UNKNOWN");
@@ -133,6 +136,7 @@ public class MessageParser {
 
             //Fill transaction date and time
             transaction.setCreatedAt(createdAt);
+            transaction.setCategory("General");
 
             System.out.println("SBI TRANSACTION:" + transaction);
             return transaction;
@@ -191,6 +195,7 @@ public class MessageParser {
 
             //Fill transaction date and time
             transaction.setCreatedAt(createdAt);
+            transaction.setCategory("General");
 
             return transaction;
 

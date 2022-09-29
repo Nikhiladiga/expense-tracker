@@ -14,12 +14,13 @@ import com.nikhil.expensetracker.model.DashboardData;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.utils.Util;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Database extends SQLiteOpenHelper {
 
@@ -33,6 +34,7 @@ public class Database extends SQLiteOpenHelper {
     private static final String COL7 = "updatedAt";
     private static final String COL8 = "balance";
     private static final String COL9 = "bank";
+    private static final String COL10 = "emoji";
 
     private boolean checkDatabase() {
         SQLiteDatabase checkDB = null;
@@ -64,11 +66,10 @@ public class Database extends SQLiteOpenHelper {
                     + COL6 + " REAL,"
                     + COL7 + " REAL,"
                     + COL8 + " REAL,"
-                    + COL9 + " TEXT)";
+                    + COL9 + " TEXT,"
+                    + COL10 + " TEXT)";
             System.out.println("Creating table:" + createTableQuery);
             sqLiteDatabase.execSQL(createTableQuery);
-        } else {
-
         }
     }
 
@@ -92,6 +93,12 @@ public class Database extends SQLiteOpenHelper {
         contentValues.put(COL8, transaction.getBalance());
         contentValues.put(COL9, transaction.getBank());
 
+        if (transaction.getEmoji() == null || transaction.getEmoji().isEmpty()) {
+            contentValues.put(COL10, "💵");
+        } else {
+            contentValues.put(COL10, transaction.getEmoji());
+        }
+
         Log.i("Expense Tracker", "Added new transaction " + transaction);
 
         database.insert(TABLE_NAME, null, contentValues);
@@ -112,7 +119,8 @@ public class Database extends SQLiteOpenHelper {
                     data.getLong(5),
                     data.getLong(6),
                     data.getDouble(7),
-                    data.getString(8)
+                    data.getString(8),
+                    data.getString(9)
             ));
         }
         return mArrayList;
@@ -134,7 +142,8 @@ public class Database extends SQLiteOpenHelper {
                 + COL6 + "='" + transaction.getCreatedAt() + "', "
                 + COL7 + "='" + transaction.getUpdatedAt() + "', "
                 + COL8 + "=" + transaction.getBalance() + ", "
-                + COL9 + "='" + transaction.getBank() + "' "
+                + COL9 + "='" + transaction.getBank() + "', "
+                + COL10 + "='" + transaction.getEmoji() + "'"
                 + " WHERE id='" + transaction.getId() + "'";
 
         Log.i("Expense Tracker", "Updated transaction " + transaction);
@@ -160,7 +169,8 @@ public class Database extends SQLiteOpenHelper {
                         data.getLong(5),
                         data.getLong(6),
                         data.getDouble(7),
-                        data.getString(8)
+                        data.getString(8),
+                        data.getString(9)
                 ));
             }
         }
@@ -182,6 +192,7 @@ public class Database extends SQLiteOpenHelper {
                 .filter(transaction -> transaction.getType().equalsIgnoreCase("DEBIT"))
                 .map(Transaction::getAmount)
                 .reduce(Double::sum);
+
         if (optionalDouble.isPresent()) {
             expense = optionalDouble.get();
         }
@@ -235,5 +246,34 @@ public class Database extends SQLiteOpenHelper {
         return cursor.getDouble(0);
     }
 
+    public List<Map.Entry<String, Double>> getTransactionAmountSumByCategory(String month) {
+        SQLiteDatabase database = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY createdAt DESC";
+        @SuppressLint("Recycle") Cursor data = database.rawQuery(query, null);
+        Map<String, Double> categoryValueMap = new HashMap<>();
+        for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext()) {
+            if (Util.fallsUnderCurrentMonth(data.getLong(5), month)) {
+                String category = data.getString(4);
+                double amount = data.getDouble(3);
+                if (category != null) {
+                    if (categoryValueMap.containsKey(category)) {
+                        Double totalAmount = categoryValueMap.get(category);
+                        totalAmount += amount;
+                        categoryValueMap.put(category, totalAmount);
+                    } else {
+                        categoryValueMap.put(category, amount);
+                    }
+                }
+            }
+        }
+        return categoryValueMap
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(5)
+                .collect(Collectors.toList());
+    }
 
+    public void deleteMultipleTransactions(List<String> ids) {
+    }
 }

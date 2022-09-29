@@ -34,8 +34,8 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
+
 
 public class AddTransaction extends AppCompatActivity {
 
@@ -63,6 +63,9 @@ public class AddTransaction extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+
+        //Set emoji action
+
 
         //Get transaction type
         TextView typeDebit = addTransactionBinding.typeDebit;
@@ -161,6 +164,8 @@ public class AddTransaction extends AppCompatActivity {
                 addTransactionBinding.bankNameLayout.setError("Please enter bank name");
             }
 
+            Editable emoji = addTransactionBinding.emoji.getText();
+
             Toast.makeText(this, "Transaction added!", Toast.LENGTH_SHORT).show();
 
             //Get transaction date in timestamp
@@ -176,7 +181,8 @@ public class AddTransaction extends AppCompatActivity {
                     createdAt.getTime(),
                     createdAt.getTime(),
                     null,
-                    String.valueOf(bankName)
+                    String.valueOf(bankName),
+                    String.valueOf(emoji != null ? emoji : "💵")
             );
             MainActivity.getInstance().database.addTransaction(transaction);
             Intent returnIntent = new Intent();
