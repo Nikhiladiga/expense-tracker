@@ -28,8 +28,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.nikhil.expensetracker.activity.AddTransaction;
-import com.nikhil.expensetracker.activity.MultiTransactionUpdate;
+import com.nikhil.expensetracker.activity.AddTransactionActivity;
+import com.nikhil.expensetracker.activity.MultiTransactionActivity;
 import com.nikhil.expensetracker.activity.ReportActivity;
 import com.nikhil.expensetracker.activity.SettingsActivity;
 import com.nikhil.expensetracker.activity.UsernameActivity;
@@ -47,7 +47,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
@@ -97,11 +96,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Store categories in shared prefs
         storeCategories();
-
-        //Register receiver for reading SMS
-//        IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-//        Util.smsReceiver = new SmsReceiver();
-//        getBaseContext().registerReceiver(Util.smsReceiver, intentFilter);
 
         //Set menu items to bottom app bar
         setSupportActionBar(activityMainBinding.bottomAppBar);
@@ -156,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO Open new activity if multi edit button is clicked
         activityMainBinding.startMultiEdit.setOnClickListener(view -> {
-            Intent intent = new Intent(this, MultiTransactionUpdate.class);
+            Intent intent = new Intent(this, MultiTransactionActivity.class);
             try {
                 List<Transaction> selectedTransactions = new ArrayList<>();
 
@@ -194,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         //Add transaction btn
         FloatingActionButton addTransactionBtn = activityMainBinding.addTransactionBtn;
         addTransactionBtn.setOnClickListener((view) -> {
-            Intent intent = new Intent(this, AddTransaction.class);
+            Intent intent = new Intent(this, AddTransactionActivity.class);
             addTransactionActivity.launch(intent);
             overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
         });

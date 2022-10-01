@@ -28,6 +28,7 @@ import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.databinding.AddTransactionBinding;
 import com.nikhil.expensetracker.model.Transaction;
+import com.nikhil.expensetracker.utils.DateUtils;
 import com.nikhil.expensetracker.utils.Util;
 
 import java.sql.Date;
@@ -37,7 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 
-public class AddTransaction extends AppCompatActivity {
+public class AddTransactionActivity extends AppCompatActivity {
 
     private AddTransactionBinding addTransactionBinding;
     private boolean isDebit = true;
@@ -169,7 +170,7 @@ public class AddTransaction extends AppCompatActivity {
             Toast.makeText(this, "Transaction added!", Toast.LENGTH_SHORT).show();
 
             //Get transaction date in timestamp
-            Timestamp createdAt = Util.convertStringToTimestamp(String.valueOf(date.getText()));
+            Timestamp createdAt = DateUtils.convertStringToTimestamp(String.valueOf(date.getText()));
 
             //Save transaction to database
             Transaction transaction = new Transaction(

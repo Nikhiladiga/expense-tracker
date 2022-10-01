@@ -35,10 +35,10 @@
             android:name=".activity.ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.SingleTransaction"
+            android:name=".activity.SingleTransactionActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.AddTransaction"
+            android:name=".activity.AddTransactionActivity"
             android:exported="false" />
         <activity
             android:name=".activity.SettingsActivity"
@@ -47,7 +47,7 @@
             android:name=".activity.UsernameActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.MultiTransactionUpdate"
+            android:name=".activity.MultiTransactionActivity"
             android:exported="false" />
     </application>
 

@@ -24,6 +24,7 @@ import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.databinding.ActivityMultiTransactionUpdateBinding;
 import com.nikhil.expensetracker.model.Transaction;
+import com.nikhil.expensetracker.utils.DateUtils;
 import com.nikhil.expensetracker.utils.Util;
 
 import java.sql.Date;
@@ -34,7 +35,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class MultiTransactionUpdate extends AppCompatActivity {
+public class MultiTransactionActivity extends AppCompatActivity {
 
     private ActivityMultiTransactionUpdateBinding activityMultiTransactionUpdateBinding;
     private List<Transaction> selectedTransactions = new ArrayList<>();
@@ -165,7 +166,7 @@ public class MultiTransactionUpdate extends AppCompatActivity {
         if (activityMultiTransactionUpdateBinding.date.getText() == null || activityMultiTransactionUpdateBinding.date.getText().toString().isEmpty()) {
             //Do nothing
         } else {
-            createdAt = Objects.requireNonNull(Util.convertStringToTimestamp(String.valueOf(activityMultiTransactionUpdateBinding.date.getText()))).getTime();
+            createdAt = Objects.requireNonNull(DateUtils.convertStringToTimestamp(String.valueOf(activityMultiTransactionUpdateBinding.date.getText()))).getTime();
         }
 
 
@@ -193,7 +194,7 @@ public class MultiTransactionUpdate extends AppCompatActivity {
 
             //Set createdAt
 //            Long currentTransactionTs = transaction.getCreatedAt();
-//            if (!activityMultiTransactionUpdateBinding.date.getText().toString().equalsIgnoreCase(Util.convertTimestampToDate(currentTransactionTs))) {
+//            if (!activityMultiTransactionUpdateBinding.date.getText().toString().equalsIgnoreCase(DateUtils.convertTimestampToDate(currentTransactionTs))) {
 //                transaction.setCreatedAt(createdAt);
 //            }
 

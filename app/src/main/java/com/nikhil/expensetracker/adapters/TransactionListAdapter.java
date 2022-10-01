@@ -1,30 +1,24 @@
 package com.nikhil.expensetracker.adapters;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.R;
-import com.nikhil.expensetracker.activity.SingleTransaction;
+import com.nikhil.expensetracker.activity.SingleTransactionActivity;
 import com.nikhil.expensetracker.model.Transaction;
-import com.nikhil.expensetracker.utils.Util;
+import com.nikhil.expensetracker.utils.DateUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -101,7 +95,7 @@ public class TransactionListAdapter extends RecyclerView.Adapter<TransactionList
 
         holder.transactionName.setText(transaction.getName());
         holder.transactionCategory.setText(transaction.getCategory());
-        holder.transactionDate.setText(Util.convertTimestampToDate(transaction.getCreatedAt()));
+        holder.transactionDate.setText(DateUtils.convertTimestampToDate(transaction.getCreatedAt()));
         holder.transactionBank.setText(transaction.getBank());
 
         //Show/unshow checkbox
@@ -122,7 +116,7 @@ public class TransactionListAdapter extends RecyclerView.Adapter<TransactionList
 
         holder.parentView.setClickable(true);
         holder.parentView.setOnClickListener(view -> {
-            Intent intent = new Intent(this.context, SingleTransaction.class);
+            Intent intent = new Intent(this.context, SingleTransactionActivity.class);
             intent.putExtra("id", transactions.get(position).getId());
             intent.putExtra("type", transactions.get(position).getType());
             intent.putExtra("name", transactions.get(position).getName());
