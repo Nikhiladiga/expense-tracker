@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,6 +30,7 @@ import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.databinding.AddTransactionBinding;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.utils.DateUtils;
+import com.nikhil.expensetracker.utils.StringUtils;
 import com.nikhil.expensetracker.utils.Util;
 
 import java.sql.Date;
@@ -40,18 +42,31 @@ import java.util.List;
 
 public class AddTransactionActivity extends AppCompatActivity {
 
-    private AddTransactionBinding addTransactionBinding;
-    private boolean isDebit = true;
+    private AddTransactionBinding mBinding;
     private ArrayAdapter<String> categoryAdapter;
     private List<String> categories;
+    private Transaction transaction;
 
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
-        addTransactionBinding = AddTransactionBinding.inflate(getLayoutInflater());
-        setContentView(addTransactionBinding.getRoot());
+        mBinding = DataBindingUtil.setContentView(this, R.layout.add_transaction);
 
-        //Get categories
+        //Create transaction object
+        transaction = new Transaction();
+        transaction.setType("DEBIT");
+
+        //Set data binding variable values
+        mBinding.setTransaction(transaction);
+        mBinding.setIsCredit(false);
+
+        handleCategoryList();
+        handleDatePickerWidget();
+        handleTransactionType();
+        handleAddTransaction();
+    }
+
+    private void handleCategoryList() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String jsonString = sharedPreferences.getString("categories", null);
         if (jsonString != null) {
@@ -64,30 +79,26 @@ public class AddTransactionActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        categoryAdapter = new ArrayAdapter<>(this, R.layout.category_item, categories);
+        mBinding.category.setAdapter(categoryAdapter);
+        mBinding.category.setOnItemClickListener((adapterView, view, i, l) -> categoryAdapter.getFilter().filter(null));
+    }
 
-        //Set emoji action
-
-
-        //Get transaction type
-        TextView typeDebit = addTransactionBinding.typeDebit;
-        TextView typeCredit = addTransactionBinding.typeCredit;
-
-        typeDebit.setOnClickListener(v -> {
-            isDebit = true;
-            typeDebit.setBackgroundColor(Color.RED);
-            typeCredit.setBackgroundColor(Color.TRANSPARENT);
-            typeCredit.setTextColor(Color.WHITE);
+    private void handleTransactionType() {
+        mBinding.typeDebit.setOnClickListener(view -> {
+            mBinding.setIsCredit(false);
+            transaction.setType("DEBIT");
         });
 
-        typeCredit.setOnClickListener(v -> {
-            isDebit = false;
-            typeCredit.setBackgroundColor(Color.GREEN);
-            typeCredit.setTextColor(Color.BLACK);
-            typeDebit.setBackgroundColor(Color.TRANSPARENT);
+        mBinding.typeCredit.setOnClickListener(view -> {
+            mBinding.setIsCredit(true);
+            transaction.setType("CREDIT");
         });
 
-        //Set datepicker
-        TextInputEditText date = addTransactionBinding.date;
+    }
+
+    private void handleDatePickerWidget() {
+        TextInputEditText date = mBinding.date;
 
         //Fix to hide keyboard
         date.setInputType(InputType.TYPE_NULL);
@@ -103,95 +114,91 @@ public class AddTransactionActivity extends AppCompatActivity {
 
                 datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
                 datePicker.addOnPositiveButtonClickListener(selection -> {
-                    Date date1 = new Date(selection);
+                    java.util.Date date1 = new java.util.Date(selection);
                     @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
                     date.setText(df.format(date1));
                     date.clearFocus();
                 });
             }
         });
+    }
 
-        //Set category list items
-        categoryAdapter = new ArrayAdapter<>(this, R.layout.category_item, categories);
-        addTransactionBinding.category.setAdapter(categoryAdapter);
+    private void handleAddTransaction() {
+        mBinding.addTransaction.setOnClickListener(v -> {
 
-        //List item click for adapter
-        addTransactionBinding.category.setOnItemClickListener((adapterView, view, i, l) -> {
-            if (categories.get(i).contains("Custom")) {
-                addTransactionBinding.category.setInputType(InputType.TYPE_CLASS_TEXT);
-            } else {
-                addTransactionBinding.category.setInputType(InputType.TYPE_NULL);
+            if (validateTransaction()) {
+
+                //Set id
+                transaction.setId(Generators.timeBasedGenerator().generate().toString());
+
+                //TODO - learn two way binding and change this
+                transaction.setAmount(StringUtils.convertStringAmountToDouble(mBinding.amountPaid.getText().toString()));
+                transaction.setCreatedAt(DateUtils.convertStringToTimestamp(mBinding.date.getText().toString()).getTime());
+
+                //Trim values
+                transaction.setName(transaction.getName().trim());
+                transaction.setBank(transaction.getBank().trim());
+                transaction.setEmoji(transaction.getEmoji().trim());
+
+                //Save transaction to database
+                MainActivity.getInstance().database.addTransaction(transaction);
+                Toast.makeText(this, "Transaction added!", Toast.LENGTH_SHORT).show();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("success", "true");
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
             }
-            categoryAdapter.getFilter().filter(null);
         });
+    }
 
-        Button addTransactionBtn = addTransactionBinding.addTransaction;
-        addTransactionBtn.setOnClickListener(v -> {
+    private boolean validateTransaction() {
+        //Check if date is null
+        Editable dateText = mBinding.date.getText();
+        if (dateText != null && dateText.length() < 1) {
+            TextInputLayout dateLayout = mBinding.dateLayout;
+            dateLayout.setError("Please enter a valid date");
+            return false;
+        }
 
-            //Check if date is null
-            Editable dateText = addTransactionBinding.date.getText();
-            if (dateText != null && dateText.length() < 1) {
-                TextInputLayout dateLayout = addTransactionBinding.dateLayout;
-                dateLayout.setError("Please enter a valid date");
-                return;
-            }
+        //Check if payee name is null
+        Editable payeeName = mBinding.payeeName.getText();
+        if (payeeName != null && payeeName.length() < 1) {
+            TextInputLayout payeeNameLayout = mBinding.payeeNameLayout;
+            payeeNameLayout.setError("Please enter a valid payee name");
+            return false;
+        }
 
-            //Check if payee name is null
-            Editable payeeName = addTransactionBinding.payeeName.getText();
-            if (payeeName != null && payeeName.length() < 1) {
-                TextInputLayout payeeNameLayout = addTransactionBinding.payeeNameLayout;
-                payeeNameLayout.setError("Please enter a valid payee name");
-                return;
-            }
+        //Check if amount is null
+        Editable amountPaid = mBinding.amountPaid.getText();
+        if (amountPaid == null || String.valueOf(amountPaid).equals("0") || amountPaid.length() < 1) {
+            TextInputLayout amountPaidLayout = mBinding.amountPaidLayout;
+            amountPaidLayout.setError("Please enter a valid amount");
+            return false;
+        }
 
-            //Check if amount is null
-            Editable amountPaid = addTransactionBinding.amountPaid.getText();
-            if (amountPaid == null || String.valueOf(amountPaid).equals("0") || amountPaid.length() < 1) {
-                TextInputLayout amountPaidLayout = addTransactionBinding.amountPaidLayout;
-                amountPaidLayout.setError("Please enter a valid amount");
-                return;
-            }
+        //Check if category is null
+        Editable category = mBinding.category.getText();
+        if (category == null || category.length() < 1) {
+            TextInputLayout categoryLayout = mBinding.categoryLayout;
+            categoryLayout.setError("Please select a category");
+            return false;
+        }
 
-            //Check if category is null
-            Editable category = addTransactionBinding.category.getText();
-            if (category == null || category.length() < 1) {
-                TextInputLayout categoryLayout = addTransactionBinding.categoryLayout;
-                categoryLayout.setError("Please select a category");
-            }
+        //Check if bank is null
+        Editable bankName = mBinding.bankName.getText();
+        if (bankName == null || bankName.length() < 1) {
+            mBinding.bankNameLayout.setError("Please enter bank name");
+            return false;
+        }
 
-            //Check if bank is null
-            Editable bankName = addTransactionBinding.bankName.getText();
-            if (bankName == null || bankName.length() < 1) {
-                addTransactionBinding.bankNameLayout.setError("Please enter bank name");
-            }
+        //Check if emoji is null
+        Editable emoji = mBinding.emoji.getText();
+        if (emoji == null || emoji.length() < 1) {
+            mBinding.emojiLayout.setError("Please enter an emoji");
+            return false;
+        }
 
-            Editable emoji = addTransactionBinding.emoji.getText();
-
-            Toast.makeText(this, "Transaction added!", Toast.LENGTH_SHORT).show();
-
-            //Get transaction date in timestamp
-            Timestamp createdAt = DateUtils.convertStringToTimestamp(String.valueOf(date.getText()));
-
-            //Save transaction to database
-            Transaction transaction = new Transaction(
-                    Generators.timeBasedGenerator().generate().toString(),
-                    this.isDebit ? "DEBIT" : "CREDIT",
-                    String.valueOf(payeeName),
-                    Double.valueOf(amountPaid.toString()),
-                    String.valueOf(category),
-                    createdAt.getTime(),
-                    createdAt.getTime(),
-                    null,
-                    String.valueOf(bankName),
-                    String.valueOf(emoji != null ? emoji : "💵")
-            );
-            MainActivity.getInstance().database.addTransaction(transaction);
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra("success", "true");
-            setResult(Activity.RESULT_OK, returnIntent);
-            finish();
-        });
-
+        return true;
     }
 
     @Override

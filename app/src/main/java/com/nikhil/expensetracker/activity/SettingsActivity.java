@@ -53,7 +53,6 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
         settingsListAdapter = new SettingsListAdapter(this, settingsOpt);
         activity_settings.settingsItemList.setAdapter(settingsListAdapter);
         activity_settings.settingsItemList.setClickable(true);
-
         activity_settings.settingsItemList.setOnItemClickListener((adapterView, view, i, l) -> {
             switch (settingsOpt.get(i)) {
                 case "Account":

@@ -30,7 +30,11 @@ public class DateUtils {
 
     @SuppressLint("SimpleDateFormat")
     public static String convertTimestampToDate(Long timestamp) {
-        return new SimpleDateFormat("dd-MM-yyyy").format(new Date(timestamp));
+        if (timestamp != null) {
+            return new SimpleDateFormat("dd-MM-yyyy").format(new Date(timestamp));
+        } else {
+            return "";
+        }
     }
 
 }

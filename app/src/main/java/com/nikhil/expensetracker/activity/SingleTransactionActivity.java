@@ -40,7 +40,6 @@ import java.util.Objects;
 public class SingleTransactionActivity extends AppCompatActivity {
 
     ActivityTransactionBinding mBinding;
-    private boolean isDebit = true;
     private Intent intent;
     private Transaction transaction;
     List<String> categories = new ArrayList<>();
@@ -188,17 +187,17 @@ public class SingleTransactionActivity extends AppCompatActivity {
             System.out.println("ACTIVITY DATE:" + mBinding.date.getText());
             System.out.println("CURRENT TS DATE:" + DateUtils.convertTimestampToDate(currentTransactionTs));
 
-            if (mBinding.date.getText().toString().equalsIgnoreCase(DateUtils.convertTimestampToDate(currentTransactionTs))) {
+            if (Objects.requireNonNull(mBinding.date.getText()).toString().equalsIgnoreCase(DateUtils.convertTimestampToDate(currentTransactionTs))) {
                 createdAt = currentTransactionTs;
             } else {
-                createdAt = DateUtils.convertStringToTimestamp(String.valueOf(mBinding.date.getText())).getTime();
+                createdAt = Objects.requireNonNull(DateUtils.convertStringToTimestamp(String.valueOf(mBinding.date.getText()))).getTime();
             }
 
             Transaction transaction = new Transaction(
                     intent.getStringExtra("id"),
                     mBinding.getIsCredit() ? "CREDIT" : "DEBIT",
                     String.valueOf(mBinding.payeeName.getText()),
-                    StringUtils.convertStringAmountToDouble(mBinding.amountPaid.getText().toString()),
+                    StringUtils.convertStringAmountToDouble(Objects.requireNonNull(mBinding.amountPaid.getText()).toString()),
                     String.valueOf(mBinding.category.getText()),
                     createdAt,
                     createdAt,

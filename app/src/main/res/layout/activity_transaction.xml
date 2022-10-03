@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:background="@color/secondary">
+        android:background="@color/formBg">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="30dp"
-                android:background="@color/black"
+                android:background="@color/inputBg"
                 android:padding="15dp"
                 app:alignItems="center"
                 app:justifyContent="space_between">
@@ -56,7 +56,7 @@
                     android:drawablePadding="10dp"
                     android:fontFamily="@font/intermedium"
                     android:text="@string/update_transaction"
-                    android:textColor="@color/white"
+                    android:textColor="@color/hintBg"
                     android:textSize="20sp" />
 
                 <com.google.android.flexbox.FlexboxLayout
@@ -80,7 +80,7 @@
                         android:backgroundTint="@color/primary"
                         android:contentDescription="@string/edit_transaction"
                         android:src="@drawable/ic_baseline_edit_24"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/hintBg" />
 
                 </com.google.android.flexbox.FlexboxLayout>
 
@@ -119,7 +119,7 @@
                     android:fontFamily="@font/interbold"
                     android:text="@string/debit"
                     android:textAlignment="center"
-                    android:textColor="@color/white"
+                    android:textColor="@color/hintBg"
                     android:textSize="20sp" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -136,6 +136,10 @@
                 android:layout_marginEnd="30dp"
                 android:enabled="@{edit?true:false}"
                 android:hint="@string/category"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusTopStart="10dp"
                 app:errorEnabled="true"
                 app:startIconDrawable="@drawable/ic_baseline_category_24">
 
@@ -143,9 +147,10 @@
                     android:id="@+id/category"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@color/black"
+                    android:backgroundTint="@color/inputBg"
                     android:enabled="@{edit?true:false}"
                     android:focusable="false"
+                    android:textSize="12sp"
                     android:inputType="none"
                     android:labelFor="@+id/categoryLayout"
                     tools:ignore="LabelFor" />
@@ -163,15 +168,19 @@
                 android:layout_marginEnd="30dp"
                 android:enabled="@{edit?true:false}"
                 android:hint="@string/date"
-                app:boxBackgroundColor="@color/black"
+                app:boxBackgroundColor="@color/inputBg"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusTopStart="10dp"
                 app:errorEnabled="true"
-                app:hintTextColor="@color/white"
                 app:startIconDrawable="@drawable/ic_round_calendar_today_24">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="12sp"
                     android:enabled="@{edit?true:false}"
                     android:inputType="date"
                     android:text="@{DateUtils.convertTimestampToDate(transaction.createdAt)}" />
@@ -189,14 +198,18 @@
                 android:layout_marginEnd="30dp"
                 android:enabled="@{edit?true:false}"
                 android:hint="@string/payee_name"
-                app:boxBackgroundColor="@color/black"
+                app:boxBackgroundColor="@color/inputBg"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusTopStart="10dp"
                 app:errorEnabled="true"
-                app:hintTextColor="@color/white"
                 app:startIconDrawable="@drawable/ic_baseline_person_24">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/payeeName"
                     android:layout_width="match_parent"
+                    android:textSize="12sp"
                     android:layout_height="wrap_content"
                     android:enabled="@{edit?true:false}"
                     android:inputType="textCapWords"
@@ -215,15 +228,21 @@
                 android:layout_marginEnd="30dp"
                 android:enabled="@{edit?true:false}"
                 android:hint="@string/amount_paid"
-                app:boxBackgroundColor="@color/black"
+                app:boxBackgroundColor="@color/inputBg"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusTopStart="10dp"
                 app:errorEnabled="true"
-                app:hintTextColor="@color/white"
+                app:prefixText="₹"
+                app:expandedHintEnabled="false"
                 app:startIconDrawable="@drawable/ic_baseline_account_balance_wallet_24">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/amountPaid"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="12sp"
                     android:enabled="@{edit?true:false}"
                     android:inputType="numberDecimal"
                     android:text="@{StringUtils.convertDoubleToStringAmount(transaction.amount)}" />
@@ -241,9 +260,12 @@
                 android:layout_marginEnd="30dp"
                 android:enabled="@{edit?true:false}"
                 android:hint="@string/bank_name"
-                app:boxBackgroundColor="@color/black"
+                app:boxBackgroundColor="@color/inputBg"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusTopStart="10dp"
                 app:errorEnabled="true"
-                app:hintTextColor="@color/white"
                 app:startIconDrawable="@drawable/ic_baseline_attach_money_24">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -252,6 +274,7 @@
                     android:layout_height="wrap_content"
                     android:enabled="@{edit?true:false}"
                     android:inputType="textCapWords"
+                    android:textSize="12sp"
                     android:text="@{transaction.bank}" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -267,15 +290,19 @@
                 android:layout_marginEnd="30dp"
                 android:enabled="@{edit?true:false}"
                 android:hint="@string/emoji"
-                app:boxBackgroundColor="@color/black"
+                app:boxBackgroundColor="@color/inputBg"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusTopStart="10dp"
                 app:errorEnabled="true"
-                app:hintTextColor="@color/white"
                 app:startIconDrawable="@drawable/ic_baseline_emoji_emotions_24">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/emoji"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="12sp"
                     android:enabled="@{edit?true:false}"
                     android:inputType="textCapWords"
                     android:text="@{transaction.emoji}" />
@@ -285,13 +312,15 @@
             <!--    Edit transaction     -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/updateTransaction"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/emojiLayout"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginStart="30dp"
                 android:text="@string/save"
-                android:textColor="@color/white"
+                android:textColor="@color/hintBg"
                 android:visibility="@{edit?View.VISIBLE:View.GONE}" />
 
         </RelativeLayout>

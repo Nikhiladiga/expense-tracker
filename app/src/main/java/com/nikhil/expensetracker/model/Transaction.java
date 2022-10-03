@@ -134,7 +134,7 @@ public class Transaction {
                 ", updatedAt=" + updatedAt +
                 ", balance=" + balance +
                 ", bank='" + bank + '\'' +
-                ", isSelected='" + isSelected +
+                ", emoji='" + emoji + '\'' +
                 '}';
     }
 }
