@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/secondary"
+    android:background="@color/formBg"
     android:orientation="vertical"
     tools:context=".activity.SettingsActivity">
 
@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:paddingStart="10dp"
+        android:paddingStart="15dp"
         android:paddingTop="10dp"
         android:fontFamily="@font/intermedium"
         android:paddingBottom="10dp"
@@ -24,7 +24,7 @@
         app:drawableLeftCompat="@drawable/ic_baseline_settings_24"
         tools:ignore="RtlSymmetry" />
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/settingsItemList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

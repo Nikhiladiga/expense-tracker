@@ -1,7 +1,10 @@
 package com.nikhil.expensetracker.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -44,58 +47,16 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
         setContentView(activity_settings.getRoot());
 
         //Set adapter to settings list element
-        settingsOpt.add("Account");
-        settingsOpt.add("Reset Data");
+        settingsOpt.add("Username");
         settingsOpt.add("Month Start Day");
         settingsOpt.add("Balance Limit");
         settingsOpt.add("Expense Limit");
         settingsOpt.add("Total Balance");
-        settingsListAdapter = new SettingsListAdapter(this, settingsOpt);
+        settingsOpt.add("Reset Data");
+        settingsListAdapter = new SettingsListAdapter(this, settingsOpt, getSupportFragmentManager());
+        activity_settings.settingsItemList.setLayoutManager(new GridLayoutManager(getBaseContext(), 2));
         activity_settings.settingsItemList.setAdapter(settingsListAdapter);
         activity_settings.settingsItemList.setClickable(true);
-        activity_settings.settingsItemList.setOnItemClickListener((adapterView, view, i, l) -> {
-            switch (settingsOpt.get(i)) {
-                case "Account":
-                    CustomDialog usernameDialog = new CustomDialog(SharedPrefHelper.getUsername(), "Username", "Update your name", "text");
-                    usernameDialog.show(getSupportFragmentManager(), "Custom dialog");
-                    break;
-
-                case "Reset Data":
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setMessage("Are you sure you want to clear app data?")
-                            .setPositiveButton("Yes", (dialogInterface, i1) -> {
-                                MainActivity.getInstance().database.deleteAllTransactions();
-                                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.clear();
-                                editor.apply();
-                                Toast.makeText(this, "App data cleared", Toast.LENGTH_SHORT).show();
-                                settingsListAdapter.notifyDataSetChanged();
-                                MainActivity.getInstance().refreshAdapterData();
-                            })
-                            .setNegativeButton("No", (dialogInterface, i12) -> {
-                                //Do nothing
-                            })
-                            .show();
-                    break;
-
-                case "Month Start Day":
-                    CustomDialog monthStartDayDialog = new CustomDialog(SharedPrefHelper.getMonthStartDay(), "Month Start Day", "Set month start day", "number");
-                    monthStartDayDialog.show(getSupportFragmentManager(), "Custom dialog");
-                    break;
-
-                case "Balance Limit":
-                    CustomDialog balanceLimitDialog = new CustomDialog(SharedPrefHelper.getBalanceLimit(), "Balance Limit", "Set balance limit", "number");
-                    balanceLimitDialog.show(getSupportFragmentManager(), "Custom dialog");
-                    break;
-
-                case "Expense Limit":
-                    CustomDialog expenseLimitDialog = new CustomDialog(SharedPrefHelper.getExpenseLimit(), "Expense Limit", "Set expense limit", "number");
-                    expenseLimitDialog.show(getSupportFragmentManager(), "Custom dialog");
-                    break;
-            }
-        });
-
     }
 
     @Override
@@ -104,6 +65,7 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
         overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void applyValues(String customInputValue, String customInputTitle) {
         if (customInputTitle.equalsIgnoreCase("Username")) {
