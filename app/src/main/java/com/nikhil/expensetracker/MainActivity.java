@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> multiEditActivity;
     private ActivityResultLauncher<Intent> singleTransactionActivity;
 
-
     private RelativeLayout noTransactionsLayer;
     private RecyclerView transactionsList;
 

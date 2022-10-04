@@ -3,6 +3,7 @@ package com.nikhil.expensetracker.adapters;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
@@ -26,6 +27,7 @@ import com.nikhil.expensetracker.datahelpers.Database;
 import com.nikhil.expensetracker.datahelpers.SharedPrefHelper;
 import com.nikhil.expensetracker.utils.CustomDialog;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class SettingsListAdapter extends RecyclerView.Adapter<SettingsListAdapter.SettingsViewHolder> {
@@ -110,8 +112,15 @@ public class SettingsListAdapter extends RecyclerView.Adapter<SettingsListAdapte
                     break;
 
                 case "Month Start Day":
-                    CustomDialog monthStartDayDialog = new CustomDialog(SharedPrefHelper.getMonthStartDay(), "Month Start Day", "Set month start day", "number");
-                    monthStartDayDialog.show(supportFragmentManager, "Custom dialog");
+                    AlertDialog.Builder monthStartDayBuilder = new AlertDialog.Builder(context);
+                    monthStartDayBuilder.setTitle("Choose a date");
+                    String[] dates = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
+                    monthStartDayBuilder.setItems(dates, (DialogInterface.OnClickListener) (dialogInterface, i) -> {
+                        SharedPrefHelper.setMonthStartDay(String.valueOf(++i));
+                        notifyItemChanged(position);
+                    });
+                    AlertDialog monthDialog = monthStartDayBuilder.create();
+                    monthDialog.show();
                     break;
 
                 case "Balance Limit":

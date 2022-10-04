@@ -77,23 +77,6 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
         } else if (customInputTitle.equalsIgnoreCase("Expense Limit")) {
             SharedPrefHelper.setExpenseLimit(customInputValue);
             settingsListAdapter.notifyDataSetChanged();
-        } else if (customInputTitle.equalsIgnoreCase("Month Start Day")) {
-            if (customInputValue == null) {
-                Toast.makeText(this, "Please enter a valid date", Toast.LENGTH_SHORT).show();
-                CustomDialog monthStartDayDialog = new CustomDialog(SharedPrefHelper.getMonthStartDay(), "Month Start Day", "Set month start day", "number");
-                monthStartDayDialog.show(getSupportFragmentManager(), "Custom dialog");
-            } else if ((Integer.parseInt(customInputValue) > 31) || (Integer.parseInt(customInputValue) < 1)) {
-                Toast.makeText(this, "Please enter a valid date", Toast.LENGTH_SHORT).show();
-                CustomDialog monthStartDayDialog = new CustomDialog(SharedPrefHelper.getMonthStartDay(), "Month Start Day", "Set month start day", "number");
-                monthStartDayDialog.show(getSupportFragmentManager(), "Custom dialog");
-            } else if (customInputValue.length() > 2) {
-                Toast.makeText(this, "Please enter a valid date", Toast.LENGTH_SHORT).show();
-                CustomDialog monthStartDayDialog = new CustomDialog(SharedPrefHelper.getMonthStartDay(), "Month Start Day", "Set month start day", "number");
-                monthStartDayDialog.show(getSupportFragmentManager(), "Custom dialog");
-            } else {
-                SharedPrefHelper.setMonthStartDay(customInputValue);
-                settingsListAdapter.notifyDataSetChanged();
-            }
         }
         MainActivity.getInstance().refreshAdapterData();
     }
