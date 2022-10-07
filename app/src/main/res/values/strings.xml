@@ -43,4 +43,8 @@
     <string name="bulk_update">Bulk update</string>
     <string name="clear_multi_select">Clear multi select</string>
     <string name="multi_update">Multi update</string>
+    <string name="you_have_no_transactions_on_this_month">You have no transactions on this month</string>
+    <string name="you_have_spent_the_most_on">You have spent the most on</string>
+    <string name="about_app">About app</string>
+    <string name="share_app">Share app</string>
 </resources>

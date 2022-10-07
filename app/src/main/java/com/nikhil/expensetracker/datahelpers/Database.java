@@ -10,16 +10,21 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.model.DashboardData;
+import com.nikhil.expensetracker.model.ReportData;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.utils.Util;
 
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class Database extends SQLiteOpenHelper {
@@ -102,6 +107,7 @@ public class Database extends SQLiteOpenHelper {
         Log.i("Expense Tracker", "Added new transaction " + transaction);
 
         database.insert(TABLE_NAME, null, contentValues);
+        database.close();
     }
 
     public List<Transaction> getTransactions() {
@@ -123,6 +129,7 @@ public class Database extends SQLiteOpenHelper {
                     data.getString(9)
             ));
         }
+        database.close();
         return mArrayList;
     }
 
@@ -130,6 +137,7 @@ public class Database extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
         String query = "DELETE FROM " + TABLE_NAME + " WHERE id='" + id + "'";
         database.execSQL(query);
+        database.close();
     }
 
     public void updateTransactionById(Transaction transaction) {
@@ -150,6 +158,7 @@ public class Database extends SQLiteOpenHelper {
 
         System.out.println("QUERY:" + query);
         sqLiteDatabase.execSQL(query);
+        sqLiteDatabase.close();
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -202,6 +211,7 @@ public class Database extends SQLiteOpenHelper {
                 balance,
                 expense
         );
+        database.close();
         return dashboardData;
     }
 
@@ -210,6 +220,7 @@ public class Database extends SQLiteOpenHelper {
         String query = "DELETE FROM " + TABLE_NAME;
         System.out.println(query);
         database.execSQL(query);
+        database.close();
     }
 
     public Long getLatestTransactionDate() {
@@ -228,7 +239,7 @@ public class Database extends SQLiteOpenHelper {
         }
 
         System.out.println("LATEST TRANSACTION DATE:" + latestDate);
-
+        database.close();
         if (latestDate != null) {
             return latestDate;
         } else {
@@ -243,37 +254,35 @@ public class Database extends SQLiteOpenHelper {
         System.out.println(query);
         Cursor cursor = database.rawQuery(query, null);
         cursor.moveToFirst();
+        database.close();
         return cursor.getDouble(0);
     }
 
-    public List<Map.Entry<String, Double>> getTransactionAmountSumByCategory(String month) {
-        SQLiteDatabase database = this.getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY createdAt DESC";
+    public List<ReportData> getTransactionAmountSumByCategory(String month) {
+        List<ReportData> reportDataList = new ArrayList<>();
+        ConcurrentHashMap<String, Long> monthStartEndTs = Util.getMonthStartAndMonthEndTimestamp(month);
+        SQLiteDatabase database = this.getReadableDatabase();
+        String query = "SELECT category,createdAt,SUM(amount) AS total FROM " + TABLE_NAME + " WHERE type='DEBIT' AND createdAt >" + monthStartEndTs.get("start") + " AND createdAt <" + monthStartEndTs.get("end") + " GROUP BY category ORDER BY total DESC,createdAt DESC LIMIT 5";
+        System.out.println("QUERY:" + query);
         @SuppressLint("Recycle") Cursor data = database.rawQuery(query, null);
-        Map<String, Double> categoryValueMap = new HashMap<>();
         for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext()) {
-            if (Util.fallsUnderCurrentMonth(data.getLong(5), month)) {
-                String category = data.getString(4);
-                double amount = data.getDouble(3);
-                if (category != null) {
-                    if (categoryValueMap.containsKey(category)) {
-                        Double totalAmount = categoryValueMap.get(category);
-                        totalAmount += amount;
-                        categoryValueMap.put(category, totalAmount);
-                    } else {
-                        categoryValueMap.put(category, amount);
-                    }
-                }
-            }
+            reportDataList.add(new ReportData(data.getString(0), data.getDouble(2)));
         }
-        return categoryValueMap
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(5)
-                .collect(Collectors.toList());
+        database.close();
+        return reportDataList;
     }
 
     public void deleteMultipleTransactions(List<String> ids) {
+    }
+
+    public Double getTotalExpenseByMonth(String month) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        ConcurrentHashMap<String, Long> monthStartEndTs = Util.getMonthStartAndMonthEndTimestamp(month);
+
+        String query = "SELECT SUM(amount) FROM " + TABLE_NAME + " WHERE createdAt>" + monthStartEndTs.get("start") + " AND createdAt<" + monthStartEndTs.get("end") + " AND type='DEBIT'";
+        @SuppressLint("Recycle") Cursor data = database.rawQuery(query, null);
+        data.moveToFirst();
+        database.close();
+        return data.getDouble(0);
     }
 }

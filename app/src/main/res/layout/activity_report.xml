@@ -1,34 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/secondary"
+    android:background="@color/formBg"
     tools:context=".activity.ReportActivity">
 
     <!--    Heading-->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/heading"
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:background="@color/black"
-        android:fontFamily="@font/intermedium"
-        android:paddingStart="10dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:text="@string/reports"
+        app:flexDirection="row"
+        app:justifyContent="space_between">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/heading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/intermedium"
+            android:padding="10dp"
+            android:text="@string/reports"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:ignore="RtlSymmetry" />
+
+        <ImageView
+            android:id="@+id/currentMonthIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/month"
+            android:padding="10dp"
+            android:src="@drawable/ic_round_calendar_today_24" />
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+    <!--    Selected month -->
+    <TextView
+        android:id="@+id/currentMonth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/header"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:fontFamily="@font/interbold"
+        android:text="September"
         android:textColor="@color/white"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        tools:ignore="RtlSymmetry" />
+        android:textSize="24sp"
+        tools:ignore="HardcodedText" />
 
+    <!--  No reports available layer  -->
+    <TextView
+        android:id="@+id/noReportsAvailable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/currentMonth"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/intermedium"
+        android:text="@string/you_have_no_transactions_on_this_month"
+        android:textColor="@color/white"
+        android:visibility="gone" />
 
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/barChart"
-        android:layout_marginTop="60dp"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/reportsLayer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        android:layout_below="@id/currentMonth"
+        android:layout_marginTop="30dp"
+        android:visibility="visible">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/spentMostHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="@font/interregular"
+                android:text="@string/you_have_spent_the_most_on"
+                android:textColor="@color/tertiary"
+                android:textSize="16sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/dashboardCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/spentMostHeader"
+                android:layout_margin="20dp"
+                android:backgroundTint="@color/secondary"
+                app:cardCornerRadius="15dp"
+                app:strokeColor="@color/red"
+                app:strokeWidth="5dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/topAmountSpentByCategoriesList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:nestedScrollingEnabled="false"
+                    tools:ignore="NestedScrolling"
+                    tools:listitem="@layout/report_list_item" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/expenseComparedToLastMonthHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/dashboardCard"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/interregular"
+                android:text="Expenses compared to last month"
+                android:textColor="@color/tertiary"
+                android:textSize="16sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/expenseCompareCard"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_below="@id/expenseComparedToLastMonthHeader"
+                android:layout_margin="20dp"
+                android:backgroundTint="@color/secondary"
+                app:cardCornerRadius="15dp"
+                app:strokeColor="@color/tertiary"
+                app:strokeWidth="2dp">
+
+                <com.google.android.flexbox.FlexboxLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:alignItems="center"
+                    app:flexDirection="column"
+                    app:justifyContent="space_evenly">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <com.google.android.flexbox.FlexboxLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:flexDirection="row"
+                            app:justifyContent="space_between"
+                            >
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Last month"
+                                android:layout_marginStart="20dp"
+                                android:fontFamily="@font/interregular"
+                                android:textColor="@color/tertiary"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/prevMonthExpense"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="20dp"
+                                android:text="₹45000"
+                                android:fontFamily="@font/interbold"
+                                android:textColor="@color/red"
+                                android:textSize="14sp" />
+
+                        </com.google.android.flexbox.FlexboxLayout>
+
+                        <com.google.android.flexbox.FlexboxLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:flexDirection="row"
+                            android:layout_marginTop="30dp"
+                            app:justifyContent="space_between"
+                            >
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="This month"
+                                android:layout_marginStart="20dp"
+                                android:fontFamily="@font/interregular"
+                                android:textColor="@color/tertiary"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/currentMonthExpense"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="20dp"
+                                android:text="₹55000"
+                                android:fontFamily="@font/interbold"
+                                android:textColor="@color/red"
+                                android:textSize="14sp" />
+
+                        </com.google.android.flexbox.FlexboxLayout>
+
+
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/expenseDifference"
+                        android:layout_width="wrap_content"
+                        android:maxLines="2"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        android:textAlignment="center"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/interextrabold"
+                        android:text="You have spent ₹10000 more than last month"
+                        android:textColor="@color/red"
+                        android:textSize="14sp"
+                        tools:ignore="HardcodedText" />
+
+                </com.google.android.flexbox.FlexboxLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </RelativeLayout>
+
+
+    </androidx.core.widget.NestedScrollView>
 
 </RelativeLayout>

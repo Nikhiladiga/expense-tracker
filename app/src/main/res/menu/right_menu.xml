@@ -10,19 +10,10 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:visible="false"
         android:id="@+id/reportTab"
         android:contentDescription="@string/reports"
         android:icon="@drawable/ic_baseline_bar_chart_24"
         android:title="@string/reports"
-        app:showAsAction="ifRoom" />
-
-    <item
-        android:visible="false"
-        android:id="@+id/export"
-        android:contentDescription="@string/export_data"
-        android:title="@string/export_data"
-        android:icon="@drawable/ic_baseline_import_export_24"
         app:showAsAction="ifRoom" />
 
 </menu>

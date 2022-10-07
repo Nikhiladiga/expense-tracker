@@ -79,7 +79,7 @@
                         android:layout_height="wrap_content"
                         android:backgroundTint="@color/primary"
                         android:contentDescription="@string/edit_transaction"
-                        android:src="@drawable/ic_baseline_edit_24"
+                        android:src="@{edit?@drawable/ic_baseline_close_24:@drawable/ic_baseline_edit_24}"
                         android:textColor="@color/hintBg" />
 
                 </com.google.android.flexbox.FlexboxLayout>
@@ -150,9 +150,9 @@
                     android:backgroundTint="@color/inputBg"
                     android:enabled="@{edit?true:false}"
                     android:focusable="false"
-                    android:textSize="12sp"
                     android:inputType="none"
                     android:labelFor="@+id/categoryLayout"
+                    android:textSize="12sp"
                     tools:ignore="LabelFor" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -180,10 +180,10 @@
                     android:id="@+id/date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
                     android:enabled="@{edit?true:false}"
                     android:inputType="date"
-                    android:text="@{DateUtils.convertTimestampToDate(transaction.createdAt)}" />
+                    android:text="@{DateUtils.convertTimestampToDate(transaction.createdAt)}"
+                    android:textSize="12sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -209,11 +209,11 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/payeeName"
                     android:layout_width="match_parent"
-                    android:textSize="12sp"
                     android:layout_height="wrap_content"
                     android:enabled="@{edit?true:false}"
                     android:inputType="textCapWords"
-                    android:text="@{transaction.name}" />
+                    android:text="@{transaction.name}"
+                    android:textSize="12sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -234,18 +234,18 @@
                 app:boxCornerRadiusTopEnd="10dp"
                 app:boxCornerRadiusTopStart="10dp"
                 app:errorEnabled="true"
-                app:prefixText="₹"
                 app:expandedHintEnabled="false"
+                app:prefixText="₹"
                 app:startIconDrawable="@drawable/ic_baseline_account_balance_wallet_24">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/amountPaid"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
                     android:enabled="@{edit?true:false}"
                     android:inputType="numberDecimal"
-                    android:text="@{StringUtils.convertDoubleToStringAmount(transaction.amount)}" />
+                    android:text="@{StringUtils.convertDoubleToStringAmount(transaction.amount)}"
+                    android:textSize="12sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -274,8 +274,8 @@
                     android:layout_height="wrap_content"
                     android:enabled="@{edit?true:false}"
                     android:inputType="textCapWords"
-                    android:textSize="12sp"
-                    android:text="@{transaction.bank}" />
+                    android:text="@{transaction.bank}"
+                    android:textSize="12sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -302,10 +302,10 @@
                     android:id="@+id/emoji"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
                     android:enabled="@{edit?true:false}"
                     android:inputType="textCapWords"
-                    android:text="@{transaction.emoji}" />
+                    android:text="@{transaction.emoji}"
+                    android:textSize="12sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -316,9 +316,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/emojiLayout"
                 android:layout_centerHorizontal="true"
+                android:layout_marginStart="30dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="30dp"
-                android:layout_marginStart="30dp"
                 android:text="@string/save"
                 android:textColor="@color/hintBg"
                 android:visibility="@{edit?View.VISIBLE:View.GONE}" />

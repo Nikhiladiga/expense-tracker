@@ -94,19 +94,18 @@ public class SingleTransactionActivity extends AppCompatActivity {
         mBinding.category.setAdapter(categoryAdapter);
         mBinding.category.setText(transaction.getCategory());
         categoryAdapter.getFilter().filter(null);
-        mBinding.category.setOnItemClickListener((adapterView, view, i, l) -> categoryAdapter.getFilter().filter(null));
+        mBinding.category.setOnItemClickListener((adapterView, view, i, l) -> {
+            if (mBinding.category.getText().toString().equals("Custom")) {
+                mBinding.category.setInputType(InputType.TYPE_CLASS_TEXT);
+            } else {
+                mBinding.category.setInputType(InputType.TYPE_NULL);
+            }
+            categoryAdapter.getFilter().filter(null);
+        });
     }
 
     private void handleEdit() {
-        mBinding.editTransaction.setOnClickListener(view -> {
-            mBinding.setEdit(!mBinding.getEdit());
-            if (mBinding.getEdit()) {
-                mBinding.editTransaction.setImageResource(R.drawable.ic_baseline_close_24);
-            } else {
-                mBinding.editTransaction.setImageResource(R.drawable.ic_baseline_edit_24);
-            }
-
-        });
+        mBinding.editTransaction.setOnClickListener(view -> mBinding.setEdit(!mBinding.getEdit()));
     }
 
     private void handleTransactionType() {

@@ -81,7 +81,15 @@ public class AddTransactionActivity extends AppCompatActivity {
         }
         categoryAdapter = new ArrayAdapter<>(this, R.layout.category_item, categories);
         mBinding.category.setAdapter(categoryAdapter);
-        mBinding.category.setOnItemClickListener((adapterView, view, i, l) -> categoryAdapter.getFilter().filter(null));
+        mBinding.category.setOnItemClickListener((adapterView, view, i, l) -> {
+            if (mBinding.category.getText().toString().equals("Custom")) {
+                mBinding.category.setText("");
+                mBinding.category.setInputType(InputType.TYPE_CLASS_TEXT);
+            } else {
+                mBinding.category.setInputType(InputType.TYPE_NULL);
+            }
+            categoryAdapter.getFilter().filter(null);
+        });
     }
 
     private void handleTransactionType() {

@@ -76,7 +76,7 @@ public class TransactionListAdapter extends RecyclerView.Adapter<TransactionList
     @NonNull
     @Override //Method called when view is created for the very first time
     public TransactionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new TransactionViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false));
+        return new TransactionViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_list_item, parent, false));
     }
 
     @SuppressLint("SetTextI18n")

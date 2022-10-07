@@ -4,26 +4,24 @@ import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
-import android.os.SystemClock;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.fasterxml.uuid.Generators;
 import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.datahelpers.SharedPrefHelper;
 import com.nikhil.expensetracker.model.Transaction;
-import com.nikhil.expensetracker.receiver.SmsReceiver;
 
+import java.sql.Time;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Util {
 //    public static SmsReceiver smsReceiver;
@@ -238,4 +236,60 @@ public class Util {
         return false;
     }
 
+    public static ConcurrentHashMap<String, Long> getMonthStartAndMonthEndTimestamp(String currentMonth) {
+        Calendar calendar = Calendar.getInstance();
+        Month month = Month.valueOf(currentMonth.toUpperCase(Locale.ROOT));
+        int monthIndex = month.getValue();
+        int currentYear = calendar.get(Calendar.YEAR);
+        int noOfDaysInMonth = month.length(DateUtils.checkIfLeapYear(currentYear));
+        int monthStartDay = Integer.parseInt(SharedPrefHelper.getMonthStartDay());
+
+        LocalDate start = null;
+        LocalDate end = null;
+
+        //Check if startofMonthDate is more than number of days in current month
+        if (monthStartDay > noOfDaysInMonth) {
+
+            if (monthIndex == 11) { //Check if november
+                //Start date
+                start = LocalDate.of(currentYear, monthIndex + 1, monthStartDay - noOfDaysInMonth);
+                //End date
+                end = LocalDate.of(currentYear + 1, 1, monthStartDay - noOfDaysInMonth);
+            } else if (monthIndex == 12) { //Check if december
+                //Start date
+                start = LocalDate.of(currentYear + 1, 1, monthStartDay - noOfDaysInMonth);
+                //End date
+                end = LocalDate.of(currentYear + 1, 2, monthStartDay - noOfDaysInMonth);
+            } else { //Other months
+                //Start date
+                start = LocalDate.of(currentYear, monthIndex + 1, monthStartDay - noOfDaysInMonth);
+                //End date
+                end = LocalDate.of(currentYear, monthIndex + 2, monthStartDay - noOfDaysInMonth);
+            }
+        } else {
+            if (monthIndex == 12 || monthIndex == 11) {
+                start = LocalDate.of(currentYear + 1, monthIndex, monthStartDay);
+                end = LocalDate.of(currentYear + 1, 1, monthStartDay);
+            } else {
+                start = LocalDate.of(currentYear, monthIndex, monthStartDay);
+                if (monthIndex == 1 && (Month.of(monthIndex + 2).length(DateUtils.checkIfLeapYear(currentYear)) < monthStartDay)) { //January
+                    if (DateUtils.checkIfLeapYear(currentYear)) {
+                        end = LocalDate.of(currentYear, monthIndex + 2, monthStartDay - 29);
+                    } else {
+                        end = LocalDate.of(currentYear, monthIndex + 2, monthStartDay - 28);
+                    }
+                } else if (Month.of(monthIndex + 1).length(DateUtils.checkIfLeapYear(currentYear)) < monthStartDay) {
+                    end = LocalDate.of(currentYear, monthIndex + 2, monthStartDay - Month.of(monthIndex + 1).length(DateUtils.checkIfLeapYear(currentYear)));
+                } else {
+                    end = LocalDate.of(currentYear, monthIndex + 1, monthStartDay);
+                }
+            }
+        }
+
+        ConcurrentHashMap<String, Long> monthStartEndTs = new ConcurrentHashMap<>();
+        monthStartEndTs.put("start", start.atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000);
+        monthStartEndTs.put("end", end.atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000);
+
+        return monthStartEndTs;
+    }
 }

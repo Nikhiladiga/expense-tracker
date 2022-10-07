@@ -9,11 +9,12 @@
         <entry key="app/src/main/res/drawable/app+launcher_foreground.xml" value="0.3035" />
         <entry key="app/src/main/res/drawable/app_icon_foreground.xml" value="0.3035" />
         <entry key="app/src/main/res/drawable/ic_baseline_attach_money_24.xml" value="0.29" />
+        <entry key="app/src/main/res/drawable/ic_personal_info.xml" value="0.2945" />
         <entry key="app/src/main/res/drawable/search_bar_bg.xml" value="0.29" />
         <entry key="app/src/main/res/layout-v28/activity_main.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_multi_transaction_update.xml" value="0.34791666666666665" />
-        <entry key="app/src/main/res/layout/activity_report.xml" value="0.34791666666666665" />
+        <entry key="app/src/main/res/layout/activity_report.xml" value="0.5" />
         <entry key="app/src/main/res/layout/activity_settings.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/activity_transaction.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_username.xml" value="0.34791666666666665" />
@@ -21,11 +22,15 @@
         <entry key="app/src/main/res/layout/category_item.xml" value="0.346875" />
         <entry key="app/src/main/res/layout/custom_dialog_input.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/list_item.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/report_list_item.xml" value="0.33" />
         <entry key="app/src/main/res/layout/search_bg.xml" value="0.346875" />
         <entry key="app/src/main/res/layout/search_view_bg.xml" value="0.346875" />
         <entry key="app/src/main/res/layout/settings_list_item.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/transaction_group_item.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/username_input.xml" value="0.346875" />
         <entry key="app/src/main/res/menu/bottom_bar_items.xml" value="0.34791666666666665" />
+        <entry key="app/src/main/res/menu/bottom_bar_items_left.xml" value="0.284737067122702" />
+        <entry key="app/src/main/res/menu/left_menu.xml" value="0.284737067122702" />
         <entry key="app/src/main/res/menu/menu_items.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/menu/months.xml" value="0.346875" />
         <entry key="app/src/main/res/menu/sidebar_menu.xml" value="0.346875" />

@@ -51,13 +51,15 @@ import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final String APP_DOWNLOAD_URL = "https://github.com/Nikhiladiga/LcFX/releases/tag/v1.0.0";
+
     public Database database;
     private TransactionListAdapter transactionListAdapter;
     private List<Transaction> transactions = new ArrayList<>();
 
     private static WeakReference<MainActivity> mainActivityWeakReference;
 
-    public ActivityMainBinding activityMainBinding;
+    public ActivityMainBinding mBinding;
     private boolean isMultiSelectEnabled = false;
 
     private ActivityResultLauncher<Intent> addTransactionActivity;
@@ -74,12 +76,12 @@ public class MainActivity extends AppCompatActivity {
     private Double balance = (double) 0;
     private Double expense = (double) 0;
 
-    @SuppressLint({"SimpleDateFormat", "NonConstantResourceId"})
+    @SuppressLint({"SimpleDateFormat", "NonConstantResourceId", "ResourceType"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(activityMainBinding.getRoot());
+        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(mBinding.getRoot());
         mainActivityWeakReference = new WeakReference<>(MainActivity.this);
 
         //Create shared prefs helper class
@@ -96,26 +98,27 @@ public class MainActivity extends AppCompatActivity {
         //Store categories in shared prefs
         storeCategories();
 
-        //Set menu items to bottom app bar
-        setSupportActionBar(activityMainBinding.bottomAppBar);
+        //Set menu items to bottom app bar left and right
+        setSupportActionBar(mBinding.bottomAppBar);
+        getMenuInflater().inflate(R.menu.left_menu, mBinding.leftMenu.getMenu());
 
         //GET current month
         Calendar calendar = Calendar.getInstance();
         currentMonth = new SimpleDateFormat("MMMM").format(calendar.getTime());
-        activityMainBinding.currentMonth.setText(currentMonth);
+        mBinding.currentMonth.setText(currentMonth);
 
         //Set months in dropdown
-        PopupMenu popupMenu = new PopupMenu(this, activityMainBinding.currentMonthIcon);
+        PopupMenu popupMenu = new PopupMenu(this, mBinding.currentMonthIcon);
         popupMenu.inflate(R.menu.months);
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             currentMonth = menuItem.getTitle().toString();
-            activityMainBinding.currentMonth.setText(currentMonth);
+            mBinding.currentMonth.setText(currentMonth);
             refreshAdapterData();
             return true;
         });
 
         //Show month dropdown on icon click
-        activityMainBinding.currentMonthIcon.setOnClickListener(view -> {
+        mBinding.currentMonthIcon.setOnClickListener(view -> {
             popupMenu.show();
         });
 
@@ -130,25 +133,24 @@ public class MainActivity extends AppCompatActivity {
 
         //Set transactions list adapter and functionality
         transactionListAdapter = new TransactionListAdapter(this, transactions, singleTransactionActivity);
-        noTransactionsLayer = activityMainBinding.noTransactionsLayer;
-        transactionsList = activityMainBinding.transactionList;
+        noTransactionsLayer = mBinding.noTransactionsLayer;
+        transactionsList = mBinding.transactionList;
         transactionsList.setAdapter(transactionListAdapter);
         transactionsList.setLayoutManager(new LinearLayoutManager(this));
 
         //Show checkbox indicating multi select mode
-        activityMainBinding.multiSelect.setOnClickListener(view -> {
+        mBinding.multiSelect.setOnClickListener(view -> {
             isMultiSelectEnabled = !isMultiSelectEnabled;
             showUnshowCheckBox();
         });
 
         //Close toolbar and undo edit mode on close btn click
-        activityMainBinding.clearMultiSelect.setOnClickListener(view -> {
+        mBinding.clearMultiSelect.setOnClickListener(view -> {
             isMultiSelectEnabled = false;
             showUnshowCheckBox();
         });
 
-        //TODO Open new activity if multi edit button is clicked
-        activityMainBinding.startMultiEdit.setOnClickListener(view -> {
+        mBinding.startMultiEdit.setOnClickListener(view -> {
             Intent intent = new Intent(this, MultiTransactionActivity.class);
             try {
                 List<Transaction> selectedTransactions = new ArrayList<>();
@@ -175,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         if (transactions != null && transactions.size() < 1) {
             noTransactionsLayer.setVisibility(View.VISIBLE);
             transactionsList.setVisibility(View.GONE);
@@ -185,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Add transaction btn
-        FloatingActionButton addTransactionBtn = activityMainBinding.addTransactionBtn;
+        FloatingActionButton addTransactionBtn = mBinding.addTransactionBtn;
         addTransactionBtn.setOnClickListener((view) -> {
             Intent intent = new Intent(this, AddTransactionActivity.class);
             addTransactionActivity.launch(intent);
@@ -193,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Add listener to bottom app bar items
-        activityMainBinding.bottomAppBar.setOnMenuItemClickListener(item -> {
+        mBinding.bottomAppBar.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case R.id.settingsTab:
                     Intent intent = new Intent(this, SettingsActivity.class);
@@ -214,13 +215,30 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
+        mBinding.leftMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.shareApp:
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("text/plain");
+                    String body = "Download expense tracker here.";
+                    intent.putExtra(Intent.EXTRA_TEXT, body);
+                    intent.putExtra(Intent.EXTRA_TEXT, APP_DOWNLOAD_URL);
+                    startActivity(Intent.createChooser(intent, "Share using"));
+                    break;
+
+                default:
+                    break;
+            }
+            return true;
+        });
+
 
         //Refresh transaction list
-        activityMainBinding.refreshTransactionList.setOnRefreshListener(() -> {
+        mBinding.refreshTransactionList.setOnRefreshListener(() -> {
             Util.readAllSms(currentMonth);
-            activityMainBinding.refreshTransactionList.setRefreshing(false);
+            mBinding.refreshTransactionList.setRefreshing(false);
             Snackbar.make(
-                            activityMainBinding.transactionList,
+                            mBinding.transactionList,
                             "Transactions have been refreshed",
                             Snackbar.LENGTH_SHORT
                     ).setBackgroundTint(Color.BLACK)
@@ -231,8 +249,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Searchview for transaction filtering
-        activityMainBinding.transactionSearch.clearFocus();
-        activityMainBinding.transactionSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        mBinding.transactionSearch.clearFocus();
+        mBinding.transactionSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
@@ -254,7 +272,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         checkSmsPermissions();
-
     }
 
     @Override
@@ -279,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.bottom_bar_items, menu);
+        getMenuInflater().inflate(R.menu.right_menu, menu);
         return true;
     }
 
@@ -352,26 +369,26 @@ public class MainActivity extends AppCompatActivity {
     private void refreshMainDashboardData() {
         //Set current balance
         Long balance = (Math.round(this.balance) * 100) / 100;
-        activityMainBinding.currentAmount.setText(MessageFormat.format("₹{0}", balance));
+        mBinding.currentAmount.setText(MessageFormat.format("₹{0}", balance));
         if (balance < Long.parseLong(SharedPrefHelper.getBalanceLimit() == null ? String.valueOf(0) : SharedPrefHelper.getBalanceLimit())) {
-            activityMainBinding.currentAmount.setTextColor(Color.RED);
+            mBinding.currentAmount.setTextColor(Color.RED);
         } else {
-            activityMainBinding.currentAmount.setTextColor(Color.WHITE);
+            mBinding.currentAmount.setTextColor(Color.WHITE);
         }
 
         //Set expense amount
         Long expense = (Math.round(this.expense) * 100) / 100;
-        activityMainBinding.amountSpent.setText(MessageFormat.format("₹{0}", expense));
+        mBinding.amountSpent.setText(MessageFormat.format("₹{0}", expense));
         if (expense > Long.parseLong(SharedPrefHelper.getExpenseLimit() == null ? String.valueOf(0) : SharedPrefHelper.getExpenseLimit())) {
-            activityMainBinding.amountSpent.setTextColor(Color.RED);
+            mBinding.amountSpent.setTextColor(Color.RED);
         } else {
-            activityMainBinding.amountSpent.setTextColor(Color.WHITE);
+            mBinding.amountSpent.setTextColor(Color.WHITE);
         }
 
         if (SharedPrefHelper.getUsername() != null) {
-            activityMainBinding.greeting.setText("Hello " + SharedPrefHelper.getUsername());
+            mBinding.greeting.setText("Hello " + SharedPrefHelper.getUsername());
         } else {
-            activityMainBinding.greeting.setText("Hello");
+            mBinding.greeting.setText("Hello");
         }
     }
 
@@ -409,7 +426,7 @@ public class MainActivity extends AppCompatActivity {
                         if (success) {
                             checkSmsPermissions();
                             String username = SharedPrefHelper.getUsername();
-                            activityMainBinding.greeting.setText("Hello " + username);
+                            mBinding.greeting.setText("Hello " + username);
                         }
                     }
                 }
@@ -438,17 +455,8 @@ public class MainActivity extends AppCompatActivity {
         reportActivity = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-//                        Intent data = result.getData();
-//                        boolean success = Boolean.parseBoolean(data != null ? data.getStringExtra("success") : "false");
-//                        if (success) {
-//                            checkSmsPermissions();
-//                            String username = SharedPrefHelper.getUsername();
-//                            activityMainBinding.greeting.setText("Hello " + username);
-//                        }
-                    }
+                    //Do nothing
                 }
-
         );
 
         singleTransactionActivity = registerForActivityResult(
@@ -476,27 +484,27 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, UsernameActivity.class);
             usernameActivity.launch(intent);
         } else {
-            activityMainBinding.greeting.setText("Hello " + username);
+            mBinding.greeting.setText("Hello " + username);
         }
     }
 
     private void showUnshowCheckBox() {
         if (isMultiSelectEnabled) {
-            activityMainBinding.multiEditToolbar.setVisibility(View.VISIBLE);
-            activityMainBinding.multiEditToolbar.animate().translationY(0).setDuration(300L).start();
+            mBinding.multiEditToolbar.setVisibility(View.VISIBLE);
+            mBinding.multiEditToolbar.animate().translationY(0).setDuration(300L).start();
             transactionListAdapter.showCheckBox(true);
-            activityMainBinding.dashboardCard.setVisibility(View.GONE);
-            activityMainBinding.refreshTransactionList.setPadding(0, activityMainBinding.multiEditToolbar.getHeight(), 0, 0);
-            activityMainBinding.header.setVisibility(View.GONE);
+            mBinding.dashboardCard.setVisibility(View.GONE);
+            mBinding.refreshTransactionList.setPadding(0, mBinding.multiEditToolbar.getHeight(), 0, 0);
+            mBinding.header.setVisibility(View.GONE);
         } else {
-            if (activityMainBinding.multiEditToolbar.getVisibility() == View.VISIBLE) {
-                activityMainBinding.multiEditToolbar.animate().translationY(-112).setDuration(300L).withEndAction(() -> activityMainBinding.multiEditToolbar.setVisibility(View.GONE)).start();
+            if (mBinding.multiEditToolbar.getVisibility() == View.VISIBLE) {
+                mBinding.multiEditToolbar.animate().translationY(-112).setDuration(300L).withEndAction(() -> mBinding.multiEditToolbar.setVisibility(View.GONE)).start();
             }
-            activityMainBinding.multiSelect.setImageResource(R.drawable.ic_selectmultiple);
+            mBinding.multiSelect.setImageResource(R.drawable.ic_selectmultiple);
             transactionListAdapter.showCheckBox(false);
-            activityMainBinding.dashboardCard.setVisibility(View.VISIBLE);
-            activityMainBinding.refreshTransactionList.setPadding(0, 0, 0, 0);
-            activityMainBinding.header.setVisibility(View.VISIBLE);
+            mBinding.dashboardCard.setVisibility(View.VISIBLE);
+            mBinding.refreshTransactionList.setPadding(0, 0, 0, 0);
+            mBinding.header.setVisibility(View.VISIBLE);
         }
     }
 

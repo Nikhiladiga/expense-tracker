@@ -8,11 +8,11 @@
     tools:context=".activity.UsernameActivity">
 
     <ImageView
-        android:layout_marginTop="100dp"
-        android:layout_centerHorizontal="true"
         android:id="@+id/personalInfoImg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
         android:contentDescription="@string/user_name"
         android:src="@drawable/ic_personal_info" />
 
@@ -40,16 +40,16 @@
         android:hint="@string/your_name"
         app:boxBackgroundColor="@color/black"
         app:counterEnabled="true"
-        app:errorEnabled="true"
         app:counterMaxLength="15"
+        app:errorEnabled="true"
         app:hintTextColor="@color/white">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/userName"
             android:layout_width="match_parent"
-            android:textColor="@color/white"
             android:layout_height="wrap_content"
-            android:inputType="textCapWords" />
+            android:inputType="textCapWords"
+            android:textColor="@color/white" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
