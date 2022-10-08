@@ -42,13 +42,25 @@ public class MessageParser {
 
                 //Get payee name
                 String payeeString = message.split("\n")[4];
+                String[] payeeNameSplitString;
                 String payeeName;
+
                 try {
-                    payeeName = payeeString.split("/")[3];
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    payeeName = payeeString.split("/")[2];
+                    payeeNameSplitString = payeeString.split("/");
+                    if (payeeNameSplitString.length >= 4) {
+                        payeeName = payeeString.split("/")[3];
+                    } else if (payeeNameSplitString.length >= 3) {
+                        payeeName = payeeString.split("/")[2];
+                    } else if (payeeNameSplitString.length >= 2) {
+                        payeeName = payeeString.split("/")[1];
+                    } else {
+                        payeeName = "Unknown";
+                    }
+                    transaction.setName(payeeName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    transaction.setName("Unknown");
                 }
-                transaction.setName(payeeName);
 
                 //Get remaining balance in account after transaction
                 String balanceSeparator = "Bal INR ";
@@ -77,7 +89,7 @@ public class MessageParser {
                 //Check if company and set category (Only for me)
                 if (message.contains("ACCESS RESEARCH")) {
                     transaction.setCategory("Salary");
-                }else{
+                } else {
                     transaction.setCategory("General");
                 }
             } else {

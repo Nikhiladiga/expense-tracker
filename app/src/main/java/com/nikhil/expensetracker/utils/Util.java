@@ -118,7 +118,6 @@ public class Util {
             String sbiStringPattern = "%SBIUPI%";
             String hdfcStringPattern = "%HDFCBK%";
             Cursor cur = MainActivity.getInstance().getContentResolver().query(uri, projection, "address LIKE ? OR address LIKE ? OR address LIKE?", new String[]{axisStringPattern, sbiStringPattern, hdfcStringPattern}, "date desc");
-//            Cursor cur = MainActivity.getInstance().getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
             if (cur.moveToFirst()) {
                 int index_Body = cur.getColumnIndex("body");
                 int dateIndex = cur.getColumnIndex("date");
@@ -129,7 +128,7 @@ public class Util {
                     String address = cur.getString(addressIndex);
 
                     Transaction transaction = null;
-                    if (address.contains("Axis")) {
+                    if (address.contains("Axis") || address.contains("AXIS")) {
                         if ((msgBody.contains("Debit") || msgBody.contains("credited to"))) {
                             transaction = MessageParser.parseMessage("axis", msgBody, msgDate);
                         }
@@ -141,6 +140,15 @@ public class Util {
                         if (msgBody.contains("debited from") || msgBody.contains("credited to")) {
                             transaction = MessageParser.parseMessage("hdfc", msgBody, msgDate);
                         }
+                    }
+
+                    if (transaction != null) {
+                        System.out.println("-------------------------------------------");
+                        System.out.println("PAYEE NAME:" + transaction.getName());
+                        System.out.println("TRANSACTION CREATED AT:" + transaction.getCreatedAt());
+                        System.out.println("LATEST TRANSACTION DATE:" + latestTransactionDate);
+                        System.out.println("TRANSACTION DATE EQUALS CURRENT MONTH:" + new SimpleDateFormat("MMMM").format(new Date(transaction.getCreatedAt())).equalsIgnoreCase(currentMonth));
+                        System.out.println("-------------------------------------------");
                     }
 
                     if (transaction != null && transaction.getCreatedAt() != null
@@ -158,7 +166,7 @@ public class Util {
             } else {
                 smsBuilder.append("no result!");
             } // end if
-        } catch (SQLiteException ex) {
+        } catch (Exception ex) {
             Log.d("SQLiteException", ex.getMessage());
         }
         MainActivity.getInstance().refreshAdapterData();

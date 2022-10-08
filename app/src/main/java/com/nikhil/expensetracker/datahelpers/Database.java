@@ -235,7 +235,7 @@ public class Database extends SQLiteOpenHelper {
         try {
             latestDate = cursor.getLong(0);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
 
         System.out.println("LATEST TRANSACTION DATE:" + latestDate);
