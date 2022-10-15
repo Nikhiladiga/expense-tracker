@@ -55,6 +55,7 @@ public class AddTransactionActivity extends AppCompatActivity {
         //Create transaction object
         transaction = new Transaction();
         transaction.setType("DEBIT");
+        transaction.setCustom(1);
 
         //Set data binding variable values
         mBinding.setTransaction(transaction);
@@ -147,6 +148,12 @@ public class AddTransactionActivity extends AppCompatActivity {
                 transaction.setName(transaction.getName().trim());
                 transaction.setBank(transaction.getBank().trim());
                 transaction.setEmoji(transaction.getEmoji().trim());
+
+                if (mBinding.customExpense.isChecked()) {
+                    transaction.setCustom(1);
+                } else {
+                    transaction.setCustom(0);
+                }
 
                 //Save transaction to database
                 MainActivity.getInstance().database.addTransaction(transaction);

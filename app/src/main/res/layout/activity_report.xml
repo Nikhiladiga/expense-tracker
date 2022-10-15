@@ -111,19 +111,42 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!--      Top 5 categories barchart      -->
             <com.github.mikephil.charting.charts.BarChart
-                android:id="@+id/horizontalBarChart"
+                android:id="@+id/barChart"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:layout_below="@id/dashboardCard"
                 android:layout_centerHorizontal="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
+                android:layout_marginBottom="50dp" />
+
+            <!--      Expense timeline linechart heading      -->
+            <TextView
+                android:id="@+id/expenseTimelineHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/barChart"
+                android:fontFamily="@font/interregular"
+                android:text="Expense Timeline"
+                android:layout_marginBottom="30dp"
+                android:textColor="@color/tertiary"
+                android:textSize="16sp" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lineChart"
                 android:layout_width="match_parent"
-                android:layout_marginBottom="50dp"
-                android:layout_height="500dp"
-                android:layout_below="@id/dashboardCard"
-                />
+                android:layout_height="400dp"
+                android:layout_below="@id/expenseTimelineHeading"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="50dp" />
+
 
         </RelativeLayout>
-
 
 
     </androidx.core.widget.NestedScrollView>

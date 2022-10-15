@@ -3,12 +3,10 @@
 - Built using Java, Android Material Design library and SQLite.
 
 <br>
-<br>
 
  ## Permissions required
 - **To send and view SMS** ( <span style="color:blue">Your data is not tracked or saved in any way</span> )
 
-<br>
 <br>
 
  ## Works for 
@@ -20,12 +18,10 @@
 - Currently only UPI transactions are tracked. Future versions will support card transactions, investment SMS's etc.  
 
 <br>
-<br>
 
  ## **Download here**
 ><a id="raw-url" href="https://github.com/Nikhiladiga/expense-tracker/releases">Download APK</a>
 
-<br>
 <br>
 
 ## Screenshots
@@ -41,3 +37,6 @@
 
 ### Settings
 ![alt text](screenshots/3.jpg)
+
+### Reports
+![alt text](screenshots/5.jpg)

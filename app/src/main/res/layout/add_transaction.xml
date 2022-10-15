@@ -273,6 +273,7 @@
                     android:id="@+id/customExpense"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:checked="@{transaction.isCustom==1?true:false}"
                     android:fontFamily="@font/interbold"
                     android:paddingStart="10dp"
                     android:text="@string/custom_expense"
