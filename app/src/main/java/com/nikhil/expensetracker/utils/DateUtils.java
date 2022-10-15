@@ -6,7 +6,11 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 public class DateUtils {
@@ -35,6 +39,13 @@ public class DateUtils {
         } else {
             return "";
         }
+    }
+
+    public static String getDay(String date) {
+        return LocalDate.parse(
+                date,
+                DateTimeFormatter.ofPattern("dd-MM-uuuu")
+        ).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
     }
 
 }

@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,16 +30,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.nikhil.expensetracker.activity.AddTransactionActivity;
-import com.nikhil.expensetracker.activity.MultiTransactionActivity;
 import com.nikhil.expensetracker.activity.ReportActivity;
 import com.nikhil.expensetracker.activity.SettingsActivity;
 import com.nikhil.expensetracker.activity.UsernameActivity;
-import com.nikhil.expensetracker.adapters.TransactionListAdapter;
+import com.nikhil.expensetracker.adapters.TransactionMainAdapter;
+import com.nikhil.expensetracker.adapters.TransactionSection;
 import com.nikhil.expensetracker.datahelpers.Database;
 import com.nikhil.expensetracker.databinding.ActivityMainBinding;
 import com.nikhil.expensetracker.datahelpers.SharedPrefHelper;
 import com.nikhil.expensetracker.model.DashboardData;
 import com.nikhil.expensetracker.model.Transaction;
+import com.nikhil.expensetracker.utils.DateUtils;
 import com.nikhil.expensetracker.utils.Util;
 
 import java.lang.ref.WeakReference;
@@ -46,7 +48,10 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,8 +59,9 @@ public class MainActivity extends AppCompatActivity {
     private final String APP_DOWNLOAD_URL = "https://github.com/Nikhiladiga/LcFX/releases/tag/v1.0.0";
 
     public Database database;
-    private TransactionListAdapter transactionListAdapter;
     private List<Transaction> transactions = new ArrayList<>();
+    private List<TransactionSection> transactionSections = new ArrayList<>();
+    private TransactionMainAdapter transactionMainAdapter;
 
     private static WeakReference<MainActivity> mainActivityWeakReference;
 
@@ -66,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> settingsActivity;
     private ActivityResultLauncher<Intent> usernameActivity;
     private ActivityResultLauncher<Intent> reportActivity;
-    private ActivityResultLauncher<Intent> multiEditActivity;
     private ActivityResultLauncher<Intent> singleTransactionActivity;
 
     private RelativeLayout noTransactionsLayer;
@@ -131,12 +136,17 @@ public class MainActivity extends AppCompatActivity {
         //GET total balance
         refreshMainDashboardData();
 
+        //Init data for obtaining sectional data
+        initData(dashboardData.getTransactions());
+
         //Set transactions list adapter and functionality
-        transactionListAdapter = new TransactionListAdapter(this, transactions, singleTransactionActivity);
-        noTransactionsLayer = mBinding.noTransactionsLayer;
         transactionsList = mBinding.transactionList;
-        transactionsList.setAdapter(transactionListAdapter);
+        noTransactionsLayer = mBinding.noTransactionsLayer;
+
+        transactionMainAdapter = new TransactionMainAdapter(transactionSections, getBaseContext(), singleTransactionActivity);
+        transactionsList.setAdapter(transactionMainAdapter);
         transactionsList.setLayoutManager(new LinearLayoutManager(this));
+        transactionsList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
         //Show checkbox indicating multi select mode
         mBinding.multiSelect.setOnClickListener(view -> {
@@ -150,32 +160,32 @@ public class MainActivity extends AppCompatActivity {
             showUnshowCheckBox();
         });
 
-        mBinding.startMultiEdit.setOnClickListener(view -> {
-            Intent intent = new Intent(this, MultiTransactionActivity.class);
-            try {
-                List<Transaction> selectedTransactions = new ArrayList<>();
-
-                //Get transactions which have been selected
-                for (int i = 0; i < transactionListAdapter.getItemCount(); i++) {
-                    System.out.println("IS SELECTED:" + transactions.get(i).isSelected());
-                    if (transactions.get(i).isSelected()) {
-                        selectedTransactions.add(transactions.get(i));
-                    }
-                }
-
-                //Stringify transactions and send it to multi edit activity
-                String selectedTransactionsJSON = new ObjectMapper().
-                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        .writeValueAsString(selectedTransactions);
-
-                intent.putExtra("selectedTransactions", selectedTransactionsJSON);
-                multiEditActivity.launch(intent);
-                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+//        mBinding.startMultiEdit.setOnClickListener(view -> {
+//            Intent intent = new Intent(this, MultiTransactionActivity.class);
+//            try {
+//                List<Transaction> selectedTransactions = new ArrayList<>();
+//
+//                //Get transactions which have been selected
+//                for (int i = 0; i < transactionListAdapter.getItemCount(); i++) {
+//                    System.out.println("IS SELECTED:" + transactions.get(i).isSelected());
+//                    if (transactions.get(i).isSelected()) {
+//                        selectedTransactions.add(transactions.get(i));
+//                    }
+//                }
+//
+//                //Stringify transactions and send it to multi edit activity
+//                String selectedTransactionsJSON = new ObjectMapper().
+//                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+//                        .writeValueAsString(selectedTransactions);
+//
+//                intent.putExtra("selectedTransactions", selectedTransactionsJSON);
+//                multiEditActivity.launch(intent);
+//                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
 
         if (transactions != null && transactions.size() < 1) {
             noTransactionsLayer.setVisibility(View.VISIBLE);
@@ -260,11 +270,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 List<Transaction> filteredItems = transactions.stream().filter(transaction -> transaction.getName().toLowerCase().contains(newText)).collect(Collectors.toList());
+                initData(filteredItems);
 
                 if (filteredItems.size() < 1) {
-                    transactionListAdapter.setFilteredTransactions(new ArrayList<>());
+                    transactionMainAdapter.updateData(new ArrayList<>());
                 } else {
-                    transactionListAdapter.setFilteredTransactions(filteredItems);
+                    transactionMainAdapter.updateData(transactionSections);
                 }
 
                 return true;
@@ -349,6 +360,9 @@ public class MainActivity extends AppCompatActivity {
         showUnshowCheckBox();
 
         DashboardData dashboardData = database.getTransactionsByMonth(currentMonth);
+
+        initData(dashboardData.getTransactions());
+
         transactions.addAll(dashboardData.getTransactions());
         balance = dashboardData.getBalance();
         expense = dashboardData.getExpense();
@@ -361,7 +375,8 @@ public class MainActivity extends AppCompatActivity {
             noTransactionsLayer.setVisibility(View.VISIBLE);
         }
 
-        transactionListAdapter.notifyDataSetChanged();
+        transactionMainAdapter.updateData(transactionSections);
+
         refreshMainDashboardData();
     }
 
@@ -432,24 +447,6 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        //Activity register for multi edit class
-        multiEditActivity = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        boolean success = false;
-                        if (data != null) {
-                            success = data.getBooleanExtra("success", false);
-                        }
-                        System.out.println("MULTI TRANSACTION UPDATE:" + success);
-                        if (success) {
-                            refreshAdapterData();
-                        }
-                    }
-                }
-        );
-
 
         //Activity register for report activity class
         reportActivity = registerForActivityResult(
@@ -492,7 +489,6 @@ public class MainActivity extends AppCompatActivity {
         if (isMultiSelectEnabled) {
             mBinding.multiEditToolbar.setVisibility(View.VISIBLE);
             mBinding.multiEditToolbar.animate().translationY(0).setDuration(300L).start();
-            transactionListAdapter.showCheckBox(true);
             mBinding.dashboardCard.setVisibility(View.GONE);
             mBinding.refreshTransactionList.setPadding(0, mBinding.multiEditToolbar.getHeight(), 0, 0);
             mBinding.header.setVisibility(View.GONE);
@@ -500,12 +496,35 @@ public class MainActivity extends AppCompatActivity {
             if (mBinding.multiEditToolbar.getVisibility() == View.VISIBLE) {
                 mBinding.multiEditToolbar.animate().translationY(-112).setDuration(300L).withEndAction(() -> mBinding.multiEditToolbar.setVisibility(View.GONE)).start();
             }
-            mBinding.multiSelect.setImageResource(R.drawable.ic_selectmultiple);
-            transactionListAdapter.showCheckBox(false);
+            mBinding.multiSelect.setImageResource(R.drawable.ic_baseline_search_24);
             mBinding.dashboardCard.setVisibility(View.VISIBLE);
             mBinding.refreshTransactionList.setPadding(0, 0, 0, 0);
             mBinding.header.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void initData(List<Transaction> currentTransactions) {
+        LinkedHashMap<String, List<Transaction>> transactionConcurrentHashMap = new LinkedHashMap<>();
+        for (Transaction transaction : currentTransactions) {
+            String currentTransactionDate = DateUtils.convertTimestampToDate(transaction.getCreatedAt());
+            //If an array is already present
+            if (transactionConcurrentHashMap.containsKey(currentTransactionDate)) {
+                Objects.requireNonNull(transactionConcurrentHashMap.get(currentTransactionDate)).add(transaction);
+            } else {
+                //If adding element for the first time
+                List<Transaction> transactionsForDate = new ArrayList<>();
+                transactionsForDate.add(transaction);
+                transactionConcurrentHashMap.put(currentTransactionDate, transactionsForDate);
+            }
+        }
+
+        transactionSections.clear();
+
+        for (Map.Entry<String, List<Transaction>> entry : transactionConcurrentHashMap.entrySet()) {
+            TransactionSection transactionSection = new TransactionSection(entry.getKey(), entry.getValue());
+            transactionSections.add(transactionSection);
+        }
+
     }
 
     public static MainActivity getInstance() {

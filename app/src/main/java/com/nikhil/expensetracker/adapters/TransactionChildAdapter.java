@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -24,29 +23,64 @@ import com.nikhil.expensetracker.utils.DateUtils;
 import java.util.List;
 import java.util.Objects;
 
-public class TransactionListAdapter extends RecyclerView.Adapter<TransactionListAdapter.TransactionViewHolder> {
+public class TransactionChildAdapter extends RecyclerView.Adapter<TransactionChildAdapter.TransactionViewHolder> {
 
+    List<Transaction> transactions;
     private boolean isCheckBoxShown = false;
-    private List<Transaction> transactions;
     private Context context;
     private ActivityResultLauncher<Intent> singleTransactionActivity;
 
-    public TransactionListAdapter(@NonNull Context context, List<Transaction> transactions, ActivityResultLauncher<Intent> singleTransactionActivity) {
-        this.context = context;
+    public TransactionChildAdapter(List<Transaction> transactions, Context context, ActivityResultLauncher<Intent> singleTransactionActivity) {
         this.transactions = transactions;
+        this.context = context;
         this.singleTransactionActivity = singleTransactionActivity;
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    public void showCheckBox(boolean isShown) {
-        isCheckBoxShown = isShown;
-        notifyDataSetChanged();
+    @NonNull
+    @Override
+    public TransactionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        View view = layoutInflater.inflate(R.layout.transaction_list_item, parent, false);
+        return new TransactionViewHolder(view);
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    public void setFilteredTransactions(List<Transaction> filteredTransactions) {
-        this.transactions = filteredTransactions;
-        notifyDataSetChanged();
+    @Override
+    public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
+        Transaction transaction = transactions.get(position);
+        if (Objects.equals(transaction.getType(), "CREDIT")) {
+            holder.transactionAmount.setTextColor(Color.GREEN);
+            holder.transactionAmount.setText("+ ₹" + transaction.getAmount().toString());
+        } else {
+            holder.transactionAmount.setTextColor(Color.RED);
+            holder.transactionAmount.setText("- ₹" + transaction.getAmount().toString());
+        }
+
+        holder.categoryEmoji.setText(transaction.getEmoji());
+
+        holder.transactionName.setText(transaction.getName());
+        holder.transactionCategory.setText(transaction.getCategory());
+        holder.transactionDate.setText(DateUtils.convertTimestampToDate(transaction.getCreatedAt()));
+        holder.transactionBank.setText(transaction.getBank());
+
+        holder.parentView.setClickable(true);
+        holder.parentView.setOnClickListener(view -> {
+            Intent intent = new Intent(this.context, SingleTransactionActivity.class);
+            intent.putExtra("id", transactions.get(position).getId());
+            intent.putExtra("type", transactions.get(position).getType());
+            intent.putExtra("name", transactions.get(position).getName());
+            intent.putExtra("amount", transactions.get(position).getAmount());
+            intent.putExtra("category", transactions.get(position).getCategory());
+            intent.putExtra("createdAt", transactions.get(position).getCreatedAt());
+            intent.putExtra("bankName", transactions.get(position).getBank());
+            intent.putExtra("emoji", transactions.get(position).getEmoji());
+            singleTransactionActivity.launch(intent);
+            MainActivity.getInstance().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return transactions.size();
     }
 
     public static class TransactionViewHolder extends RecyclerView.ViewHolder {
@@ -71,68 +105,6 @@ public class TransactionListAdapter extends RecyclerView.Adapter<TransactionList
             isSelected = view.findViewById(R.id.isSelected);
         }
 
-    }
 
-    @NonNull
-    @Override //Method called when view is created for the very first time
-    public TransactionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new TransactionViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_list_item, parent, false));
-    }
-
-    @SuppressLint("SetTextI18n")
-    @Override
-    public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
-        Transaction transaction = transactions.get(position);
-        if (Objects.equals(transaction.getType(), "CREDIT")) {
-            holder.transactionAmount.setTextColor(Color.GREEN);
-            holder.transactionAmount.setText("+ ₹" + transaction.getAmount().toString());
-        } else {
-            holder.transactionAmount.setTextColor(Color.RED);
-            holder.transactionAmount.setText("- ₹" + transaction.getAmount().toString());
-        }
-
-        holder.categoryEmoji.setText(transaction.getEmoji());
-
-        holder.transactionName.setText(transaction.getName());
-        holder.transactionCategory.setText(transaction.getCategory());
-        holder.transactionDate.setText(DateUtils.convertTimestampToDate(transaction.getCreatedAt()));
-        holder.transactionBank.setText(transaction.getBank());
-
-        //Show/unshow checkbox
-        if (isCheckBoxShown) {
-            holder.isSelected.setVisibility(View.VISIBLE);
-        } else {
-            holder.isSelected.setVisibility(View.GONE);
-        }
-
-        holder.isSelected.setOnCheckedChangeListener(null);
-
-        holder.isSelected.setChecked(transactions.get(position).isSelected());
-
-        holder.isSelected.setOnCheckedChangeListener((compoundButton, b) -> {
-            boolean isChecked = !transactions.get(position).isSelected();
-            transactions.get(position).setSelected(isChecked);
-        });
-
-        holder.parentView.setClickable(true);
-        holder.parentView.setOnClickListener(view -> {
-            Intent intent = new Intent(this.context, SingleTransactionActivity.class);
-            intent.putExtra("id", transactions.get(position).getId());
-            intent.putExtra("type", transactions.get(position).getType());
-            intent.putExtra("name", transactions.get(position).getName());
-            intent.putExtra("amount", transactions.get(position).getAmount());
-            intent.putExtra("category", transactions.get(position).getCategory());
-            intent.putExtra("createdAt", transactions.get(position).getCreatedAt());
-            intent.putExtra("bankName", transactions.get(position).getBank());
-            intent.putExtra("emoji", transactions.get(position).getEmoji());
-            singleTransactionActivity.launch(intent);
-            MainActivity.getInstance().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
-        });
-
-    }
-
-    @Override
-    public int getItemCount() {
-        return transactions.size();
     }
 }

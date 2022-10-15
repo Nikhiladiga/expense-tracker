@@ -27,6 +27,10 @@
         <entry key="app/src/main/res/layout/search_view_bg.xml" value="0.346875" />
         <entry key="app/src/main/res/layout/settings_list_item.xml" value="0.33" />
         <entry key="app/src/main/res/layout/transaction_group_item.xml" value="0.34791666666666665" />
+        <entry key="app/src/main/res/layout/transaction_header_item.xml" value="0.284737067122702" />
+        <entry key="app/src/main/res/layout/transaction_list_header_item.xml" value="0.28559213339033773" />
+        <entry key="app/src/main/res/layout/transaction_list_item.xml" value="0.28559213339033773" />
+        <entry key="app/src/main/res/layout/transaction_section_row.xml" value="0.33" />
         <entry key="app/src/main/res/layout/username_input.xml" value="0.346875" />
         <entry key="app/src/main/res/menu/bottom_bar_items.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/menu/bottom_bar_items_left.xml" value="0.284737067122702" />

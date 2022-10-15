@@ -142,14 +142,14 @@ public class Util {
                         }
                     }
 
-                    if (transaction != null) {
-                        System.out.println("-------------------------------------------");
-                        System.out.println("PAYEE NAME:" + transaction.getName());
-                        System.out.println("TRANSACTION CREATED AT:" + transaction.getCreatedAt());
-                        System.out.println("LATEST TRANSACTION DATE:" + latestTransactionDate);
-                        System.out.println("TRANSACTION DATE EQUALS CURRENT MONTH:" + new SimpleDateFormat("MMMM").format(new Date(transaction.getCreatedAt())).equalsIgnoreCase(currentMonth));
-                        System.out.println("-------------------------------------------");
-                    }
+//                    if (transaction != null) {
+//                        System.out.println("-------------------------------------------");
+//                        System.out.println("PAYEE NAME:" + transaction.getName());
+//                        System.out.println("TRANSACTION CREATED AT:" + transaction.getCreatedAt());
+//                        System.out.println("LATEST TRANSACTION DATE:" + latestTransactionDate);
+//                        System.out.println("TRANSACTION DATE EQUALS CURRENT MONTH:" + new SimpleDateFormat("MMMM").format(new Date(transaction.getCreatedAt())).equalsIgnoreCase(currentMonth));
+//                        System.out.println("-------------------------------------------");
+//                    }
 
                     if (transaction != null && transaction.getCreatedAt() != null
                             && transaction.getCreatedAt() > latestTransactionDate

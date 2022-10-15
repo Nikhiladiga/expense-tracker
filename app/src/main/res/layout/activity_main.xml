@@ -17,36 +17,12 @@
         android:elevation="2dp"
         android:visibility="invisible">
 
-        <LinearLayout
+        <com.google.android.flexbox.FlexboxLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <com.google.android.flexbox.FlexboxLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="20dp"
-                app:alignItems="center"
-                app:justifyContent="space_between">
-
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/startMultiEdit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="@color/secondary"
-                    android:text="@string/multi_update"
-                    android:textColor="@color/white" />
-
-                <ImageView
-                    android:id="@+id/clearMultiSelect"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/clear_multi_select"
-                    android:src="@drawable/ic_baseline_close_24" />
-
-
-            </com.google.android.flexbox.FlexboxLayout>
+            android:layout_marginEnd="20dp"
+            app:alignItems="center"
+            app:justifyContent="space_between">
 
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/transactionSearch"
@@ -54,10 +30,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                app:iconifiedByDefault="true"
+                app:iconifiedByDefault="false"
                 app:queryHint="Search Transaction" />
 
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/clearMultiSelect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/clear_multi_select"
+                android:src="@drawable/ic_baseline_close_24" />
+
+
+        </com.google.android.flexbox.FlexboxLayout>
 
 
     </androidx.appcompat.widget.Toolbar>

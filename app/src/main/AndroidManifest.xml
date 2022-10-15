@@ -46,9 +46,6 @@
         <activity
             android:name=".activity.UsernameActivity"
             android:exported="false" />
-        <activity
-            android:name=".activity.MultiTransactionActivity"
-            android:exported="false" />
     </application>
 
 </manifest>
