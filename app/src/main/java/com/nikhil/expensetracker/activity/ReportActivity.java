@@ -1,21 +1,30 @@
 package com.nikhil.expensetracker.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.PopupMenu;
 
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
@@ -24,19 +33,11 @@ import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.adapters.ReportItemsAdapter;
 import com.nikhil.expensetracker.databinding.ActivityReportBinding;
 import com.nikhil.expensetracker.model.ReportData;
-import com.nikhil.expensetracker.utils.StringUtils;
+import com.nikhil.expensetracker.utils.DateUtils;
 
-import java.text.SimpleDateFormat;
-import java.time.Month;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
 
 public class ReportActivity extends AppCompatActivity {
 
@@ -45,6 +46,9 @@ public class ReportActivity extends AppCompatActivity {
     private ReportItemsAdapter reportItemsAdapter;
     private String currentMonth;
 
+    private BarChart horizontalBarChart;
+    ArrayList<BarEntry> entries = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +56,7 @@ public class ReportActivity extends AppCompatActivity {
         setContentView(mBinding.getRoot());
 
         //Get current month
-        Calendar calendar = Calendar.getInstance();
-        currentMonth = new SimpleDateFormat("MMMM").format(calendar.getTime());
+        currentMonth = DateUtils.getCurrentMonth();
         mBinding.currentMonth.setText(currentMonth.toUpperCase(Locale.ROOT));
 
         //Handle adapter for top spent amount
@@ -65,9 +68,68 @@ public class ReportActivity extends AppCompatActivity {
         //Handle no transactions layer
         handleNoTransactionsLayer();
 
-        //Handle expense comparison with previous month
-        handleExpenseComparisonWithPrevMonth();
+        //Handle piechart rendering
+        handleChartRender();
 
+    }
+
+    private void handleChartRender() {
+        horizontalBarChart = mBinding.horizontalBarChart;
+        horizontalBarChart.getDescription().setEnabled(false);
+        horizontalBarChart.setExtraOffsets(5, 10, 5, 5);
+        horizontalBarChart.setDragDecelerationFrictionCoef(0.95f);
+        horizontalBarChart.setHighlightPerTapEnabled(true);
+
+        Typeface typeface = ResourcesCompat.getFont(this, R.font.interbold);
+
+        Legend l = horizontalBarChart.getLegend();
+        l.setEnabled(false);
+
+        ArrayList<String> xAxisLabels = new ArrayList<>();
+
+        entries.clear();
+        for (int i = 0; i < reportDataList.size(); i++) {
+            xAxisLabels.add(reportDataList.get(i).getCategory());
+            entries.add(new BarEntry(i, reportDataList.get(i).getAmount().floatValue()));
+        }
+
+        BarDataSet barDataSet = new BarDataSet(entries, null);
+        barDataSet.setDrawIcons(false);
+
+        XAxis xAxis = horizontalBarChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTypeface(typeface);
+        xAxis.setDrawGridLines(false);
+        xAxis.setGranularity(1f);
+        xAxis.setTextColor(getResources().getColor(R.color.tertiary));
+        xAxis.setLabelCount(7);
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(xAxisLabels));
+
+        YAxis leftAxis = horizontalBarChart.getAxisLeft();
+        leftAxis.setEnabled(false);
+
+        YAxis rightAxis = horizontalBarChart.getAxisRight();
+        rightAxis.setEnabled(false);
+
+        ArrayList<Integer> colors = new ArrayList<>();
+
+        for (int c : ColorTemplate.JOYFUL_COLORS)
+            colors.add(c);
+
+        barDataSet.setColors(colors);
+
+        BarData data = new BarData(barDataSet);
+        data.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return "₹" + value;
+            }
+        });
+        data.setValueTextColor(Color.WHITE);
+        data.setValueTypeface(typeface);
+        data.setValueTextSize(9f);
+        horizontalBarChart.setData(data);
+        horizontalBarChart.invalidate();
     }
 
     private void handleNoTransactionsLayer() {
@@ -93,6 +155,7 @@ public class ReportActivity extends AppCompatActivity {
             getDataByMonth();
             handleNoTransactionsLayer();
             reportItemsAdapter.notifyDataSetChanged();
+            handleChartRender();
             return true;
         });
 
@@ -115,38 +178,6 @@ public class ReportActivity extends AppCompatActivity {
         //Get top n categories by amount spent
         reportDataList.clear();
         reportDataList.addAll(MainActivity.getInstance().database.getTransactionAmountSumByCategory(currentMonth));
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void handleExpenseComparisonWithPrevMonth() {
-        YearMonth thisMonth = YearMonth.now();
-        YearMonth lastMonth = thisMonth.minusMonths(1);
-
-        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM");
-        String currentMonth = thisMonth.format(monthFormatter);
-        String prevMonth = lastMonth.format(monthFormatter);
-
-        Double currentMonthExpense = MainActivity.getInstance().database.getTotalExpenseByMonth(currentMonth);
-        Double prevMonthExpense = MainActivity.getInstance().database.getTotalExpenseByMonth(prevMonth);
-
-        System.out.println("CURRENT MONTH AND EXPENSE :" + currentMonth + " " + currentMonthExpense);
-        System.out.println("PREV MONTH AND EXPENSE :" + prevMonth + " " + prevMonthExpense);
-
-        mBinding.prevMonthExpense.setText("₹" + prevMonthExpense);
-        mBinding.currentMonthExpense.setText("₹" + currentMonthExpense);
-
-        if (Objects.equals(currentMonthExpense, prevMonthExpense)) {
-            mBinding.expenseDifference.setText("You have spent the same amount as last month.");
-            mBinding.expenseDifference.setTextColor(Color.WHITE);
-        } else if (currentMonthExpense < prevMonthExpense) {
-            mBinding.expenseDifference.setText("₹" + Math.floor(Math.abs(prevMonthExpense - currentMonthExpense)) + " less than last month");
-            mBinding.expenseDifference.setTextColor(Color.GREEN);
-        } else {
-            mBinding.expenseDifference.setText("₹" + Math.floor(Math.abs(currentMonthExpense - prevMonthExpense)) + " more than last month");
-            mBinding.expenseDifference.setTextColor(Color.RED);
-        }
-
-
     }
 
     @Override

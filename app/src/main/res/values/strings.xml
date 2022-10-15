@@ -47,4 +47,5 @@
     <string name="you_have_spent_the_most_on">You have spent the most on</string>
     <string name="about_app">About app</string>
     <string name="share_app">Share app</string>
+    <string name="custom_expense">Custom Expense</string>
 </resources>

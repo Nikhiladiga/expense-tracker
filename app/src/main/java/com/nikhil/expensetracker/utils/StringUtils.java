@@ -19,4 +19,8 @@ public class StringUtils {
         return category.equals("Custom");
     }
 
+    public static boolean checkIfCustomTransaction(String type) {
+        return type.equals("DEBIT");
+    }
+
 }

@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
@@ -46,6 +47,12 @@ public class DateUtils {
                 date,
                 DateTimeFormatter.ofPattern("dd-MM-uuuu")
         ).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public static String getCurrentMonth() {
+        Calendar calendar = Calendar.getInstance();
+        return new SimpleDateFormat("MMMM").format(calendar.getTime());
     }
 
 }

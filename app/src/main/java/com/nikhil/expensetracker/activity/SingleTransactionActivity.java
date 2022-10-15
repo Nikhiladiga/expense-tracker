@@ -61,7 +61,8 @@ public class SingleTransactionActivity extends AppCompatActivity {
                 null,
                 null,
                 intent.getStringExtra("bankName"),
-                intent.getStringExtra("emoji")
+                intent.getStringExtra("emoji"),
+                intent.getIntExtra("isCustom", 0)
         );
 
         mBinding.setTransaction(transaction);
@@ -95,6 +96,7 @@ public class SingleTransactionActivity extends AppCompatActivity {
         mBinding.category.setText(transaction.getCategory());
         categoryAdapter.getFilter().filter(null);
         mBinding.category.setOnItemClickListener((adapterView, view, i, l) -> {
+            System.out.println(mBinding.category.getText().toString());
             if (mBinding.category.getText().toString().equals("Custom")) {
                 mBinding.category.setInputType(InputType.TYPE_CLASS_TEXT);
             } else {
@@ -202,7 +204,8 @@ public class SingleTransactionActivity extends AppCompatActivity {
                     createdAt,
                     null,
                     String.valueOf(mBinding.bankName.getText()),
-                    String.valueOf(mBinding.emoji.getText())
+                    String.valueOf(mBinding.emoji.getText()),
+                    mBinding.customExpense.isChecked() ? 1 : 0
             );
 
             mBinding.setEdit(false);

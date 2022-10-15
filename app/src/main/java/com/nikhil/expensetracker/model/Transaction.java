@@ -15,12 +15,12 @@ public class Transaction {
     private Double balance;
     private String bank;
     private String emoji;
-    private boolean isSelected = false;
+    private Integer isCustom = 1;
 
     public Transaction() {
     }
 
-    public Transaction(String id, String type, String name, Double amount, String category, Long createdAt, Long updatedAt, Double balance, String bank, String emoji) {
+    public Transaction(String id, String type, String name, Double amount, String category, Long createdAt, Long updatedAt, Double balance, String bank, String emoji, Integer isCustom) {
         this.id = id;
         this.type = type;
         this.name = name;
@@ -31,6 +31,7 @@ public class Transaction {
         this.balance = balance;
         this.bank = bank;
         this.emoji = emoji;
+        this.isCustom = isCustom;
     }
 
     public String getId() {
@@ -113,12 +114,12 @@ public class Transaction {
         this.emoji = emoji;
     }
 
-    public boolean isSelected() {
-        return isSelected;
+    public Integer isCustom() {
+        return isCustom;
     }
 
-    public void setSelected(boolean selected) {
-        isSelected = selected;
+    public void setCustom(Integer custom) {
+        isCustom = custom;
     }
 
     @NonNull
@@ -135,6 +136,7 @@ public class Transaction {
                 ", balance=" + balance +
                 ", bank='" + bank + '\'' +
                 ", emoji='" + emoji + '\'' +
+                ", isCustom=" + isCustom +
                 '}';
     }
 }

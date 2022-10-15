@@ -98,22 +98,6 @@ public class TransactionListAdapter extends RecyclerView.Adapter<TransactionList
         holder.transactionDate.setText(DateUtils.convertTimestampToDate(transaction.getCreatedAt()));
         holder.transactionBank.setText(transaction.getBank());
 
-        //Show/unshow checkbox
-        if (isCheckBoxShown) {
-            holder.isSelected.setVisibility(View.VISIBLE);
-        } else {
-            holder.isSelected.setVisibility(View.GONE);
-        }
-
-        holder.isSelected.setOnCheckedChangeListener(null);
-
-        holder.isSelected.setChecked(transactions.get(position).isSelected());
-
-        holder.isSelected.setOnCheckedChangeListener((compoundButton, b) -> {
-            boolean isChecked = !transactions.get(position).isSelected();
-            transactions.get(position).setSelected(isChecked);
-        });
-
         holder.parentView.setClickable(true);
         holder.parentView.setOnClickListener(view -> {
             Intent intent = new Intent(this.context, SingleTransactionActivity.class);

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.nikhil.expensetracker.MainActivity;
@@ -57,7 +59,13 @@ public class TransactionChildAdapter extends RecyclerView.Adapter<TransactionChi
 
         holder.categoryEmoji.setText(transaction.getEmoji());
 
+        if (transaction.isCustom() == 1) {
+            @SuppressLint("UseCompatLoadingForDrawables") Drawable drawable = MainActivity.getInstance().getResources().getDrawable(R.drawable.circle);
+            holder.transactionName.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+        }
+
         holder.transactionName.setText(transaction.getName());
+
         holder.transactionCategory.setText(transaction.getCategory());
         holder.transactionDate.setText(DateUtils.convertTimestampToDate(transaction.getCreatedAt()));
         holder.transactionBank.setText(transaction.getBank());
@@ -65,14 +73,15 @@ public class TransactionChildAdapter extends RecyclerView.Adapter<TransactionChi
         holder.parentView.setClickable(true);
         holder.parentView.setOnClickListener(view -> {
             Intent intent = new Intent(this.context, SingleTransactionActivity.class);
-            intent.putExtra("id", transactions.get(position).getId());
-            intent.putExtra("type", transactions.get(position).getType());
-            intent.putExtra("name", transactions.get(position).getName());
-            intent.putExtra("amount", transactions.get(position).getAmount());
-            intent.putExtra("category", transactions.get(position).getCategory());
-            intent.putExtra("createdAt", transactions.get(position).getCreatedAt());
-            intent.putExtra("bankName", transactions.get(position).getBank());
-            intent.putExtra("emoji", transactions.get(position).getEmoji());
+            intent.putExtra("id", transaction.getId());
+            intent.putExtra("type", transaction.getType());
+            intent.putExtra("name", transaction.getName());
+            intent.putExtra("amount", transaction.getAmount());
+            intent.putExtra("category", transaction.getCategory());
+            intent.putExtra("createdAt", transaction.getCreatedAt());
+            intent.putExtra("bankName", transaction.getBank());
+            intent.putExtra("emoji", transaction.getEmoji());
+            intent.putExtra("isCustom", transaction.isCustom());
             singleTransactionActivity.launch(intent);
             MainActivity.getInstance().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
         });

@@ -149,7 +149,6 @@
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/inputBg"
                     android:enabled="@{edit?true:false}"
-                    android:focusable="false"
                     android:inputType="none"
                     android:labelFor="@+id/categoryLayout"
                     android:textSize="12sp"
@@ -249,63 +248,94 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--    Bank name     -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/bankNameLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/bankEmojiLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/amountPaidLayout"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                android:enabled="@{edit?true:false}"
-                android:hint="@string/bank_name"
-                app:boxBackgroundColor="@color/inputBg"
-                app:boxCornerRadiusBottomEnd="10dp"
-                app:boxCornerRadiusBottomStart="10dp"
-                app:boxCornerRadiusTopEnd="10dp"
-                app:boxCornerRadiusTopStart="10dp"
-                app:errorEnabled="true"
-                app:startIconDrawable="@drawable/ic_baseline_attach_money_24">
+                android:layout_below="@id/amountPaidLayout">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/bankName"
+                <!--    Bank name     -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/bankNameLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_below="@id/amountPaidLayout"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginEnd="5dp"
                     android:enabled="@{edit?true:false}"
-                    android:inputType="textCapWords"
-                    android:text="@{transaction.bank}"
-                    android:textSize="12sp" />
+                    android:hint="@string/bank_name"
+                    app:boxBackgroundColor="@color/inputBg"
+                    app:boxCornerRadiusBottomEnd="10dp"
+                    app:boxCornerRadiusBottomStart="10dp"
+                    app:boxCornerRadiusTopEnd="10dp"
+                    app:boxCornerRadiusTopStart="10dp"
+                    app:errorEnabled="true"
+                    app:startIconDrawable="@drawable/ic_baseline_attach_money_24">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/bankName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="@{edit?true:false}"
+                        android:inputType="textCapWords"
+                        android:text="@{transaction.bank}"
+                        android:textSize="12sp" />
 
-            <!--    Emoji     -->
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!--    Emoji     -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/emojiLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/bankNameLayout"
+                    android:layout_marginEnd="30dp"
+                    android:enabled="@{edit?true:false}"
+                    android:hint="@string/emoji"
+                    app:boxBackgroundColor="@color/inputBg"
+                    app:boxCornerRadiusBottomEnd="10dp"
+                    app:boxCornerRadiusBottomStart="10dp"
+                    app:boxCornerRadiusTopEnd="10dp"
+                    app:boxCornerRadiusTopStart="10dp"
+                    app:errorEnabled="true"
+                    app:startIconDrawable="@drawable/ic_baseline_emoji_emotions_24">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/emoji"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="@{edit?true:false}"
+                        android:inputType="textCapWords"
+                        android:text="@{transaction.emoji}"
+                        android:textSize="12sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </com.google.android.flexbox.FlexboxLayout>
+
+            <!--     Custom expense checkbox       -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/emojiLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
+                android:id="@+id/customExpenseLayout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/bankNameLayout"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                android:enabled="@{edit?true:false}"
-                android:hint="@string/emoji"
-                app:boxBackgroundColor="@color/inputBg"
-                app:boxCornerRadiusBottomEnd="10dp"
-                app:boxCornerRadiusBottomStart="10dp"
-                app:boxCornerRadiusTopEnd="10dp"
-                app:boxCornerRadiusTopStart="10dp"
-                app:errorEnabled="true"
-                app:startIconDrawable="@drawable/ic_baseline_emoji_emotions_24">
+                android:layout_below="@id/bankEmojiLayout"
+                android:layout_centerHorizontal="true">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/emoji"
-                    android:layout_width="match_parent"
+                <CheckBox
+                    android:id="@+id/customExpense"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:checked="@{transaction.isCustom==1 ?true:false}"
                     android:enabled="@{edit?true:false}"
-                    android:inputType="textCapWords"
-                    android:text="@{transaction.emoji}"
-                    android:textSize="12sp" />
+                    android:fontFamily="@font/interbold"
+                    android:paddingStart="10dp"
+                    android:text="@string/custom_expense"
+                    android:textColor="@{edit?Color.WHITE:Color.rgb(158,158,158)}"
+                    android:textSize="14sp"
+                    android:visibility="@{StringUtils.checkIfCustomTransaction(transaction.type)?View.VISIBLE:View.GONE}"
+                    tools:ignore="RtlSymmetry" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -314,7 +344,7 @@
                 android:id="@+id/updateTransaction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/emojiLayout"
+                android:layout_below="@+id/customExpenseLayout"
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="10dp"

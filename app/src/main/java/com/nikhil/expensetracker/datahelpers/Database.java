@@ -40,6 +40,7 @@ public class Database extends SQLiteOpenHelper {
     private static final String COL8 = "balance";
     private static final String COL9 = "bank";
     private static final String COL10 = "emoji";
+    private static final String COL11 = "isCustom";
 
     private boolean checkDatabase() {
         SQLiteDatabase checkDB = null;
@@ -104,6 +105,12 @@ public class Database extends SQLiteOpenHelper {
             contentValues.put(COL10, transaction.getEmoji());
         }
 
+        if (transaction.getType().equals("DEBIT")) {
+            contentValues.put(COL11, transaction.isCustom());
+        } else {
+            contentValues.put(COL11, 0);
+        }
+
         Log.i("Expense Tracker", "Added new transaction " + transaction);
 
         database.insert(TABLE_NAME, null, contentValues);
@@ -126,7 +133,8 @@ public class Database extends SQLiteOpenHelper {
                     data.getLong(6),
                     data.getDouble(7),
                     data.getString(8),
-                    data.getString(9)
+                    data.getString(9),
+                    data.getInt(10)
             ));
         }
         database.close();
@@ -151,12 +159,11 @@ public class Database extends SQLiteOpenHelper {
                 + COL7 + "='" + transaction.getUpdatedAt() + "', "
                 + COL8 + "=" + transaction.getBalance() + ", "
                 + COL9 + "='" + transaction.getBank() + "', "
-                + COL10 + "='" + transaction.getEmoji() + "'"
-                + " WHERE id='" + transaction.getId() + "'";
+                + COL10 + "='" + transaction.getEmoji() + "',"
+                + COL11 + "=" + transaction.isCustom() +
+                " WHERE id='" + transaction.getId() + "'";
 
         Log.i("Expense Tracker", "Updated transaction " + transaction);
-
-        System.out.println("QUERY:" + query);
         sqLiteDatabase.execSQL(query);
         sqLiteDatabase.close();
     }
@@ -179,7 +186,8 @@ public class Database extends SQLiteOpenHelper {
                         data.getLong(6),
                         data.getDouble(7),
                         data.getString(8),
-                        data.getString(9)
+                        data.getString(9),
+                        data.getInt(10)
                 ));
             }
         }
@@ -218,7 +226,6 @@ public class Database extends SQLiteOpenHelper {
     public void deleteAllTransactions() {
         SQLiteDatabase database = this.getWritableDatabase();
         String query = "DELETE FROM " + TABLE_NAME;
-        System.out.println(query);
         database.execSQL(query);
         database.close();
     }
@@ -226,7 +233,6 @@ public class Database extends SQLiteOpenHelper {
     public Long getLatestTransactionDate() {
         SQLiteDatabase database = this.getWritableDatabase();
         String query = "SELECT createdAt FROM " + TABLE_NAME + " ORDER BY createdAt DESC LIMIT 1";
-        System.out.println(query);
         @SuppressLint("Recycle")
         Cursor cursor = database.rawQuery(query, null);
         cursor.moveToFirst();
@@ -238,7 +244,6 @@ public class Database extends SQLiteOpenHelper {
             e.printStackTrace();
         }
 
-        System.out.println("LATEST TRANSACTION DATE:" + latestDate);
         database.close();
         if (latestDate != null) {
             return latestDate;
@@ -251,7 +256,6 @@ public class Database extends SQLiteOpenHelper {
     public Double getTotalBalance() {
         SQLiteDatabase database = this.getWritableDatabase();
         String query = "SELECT SUM(CASE WHEN type='CREDIT' THEN amount WHEN type='DEBIT' THEN -amount END) AS totalAmount FROM " + TABLE_NAME;
-        System.out.println(query);
         Cursor cursor = database.rawQuery(query, null);
         cursor.moveToFirst();
         database.close();
@@ -263,16 +267,12 @@ public class Database extends SQLiteOpenHelper {
         ConcurrentHashMap<String, Long> monthStartEndTs = Util.getMonthStartAndMonthEndTimestamp(month);
         SQLiteDatabase database = this.getReadableDatabase();
         String query = "SELECT category,createdAt,SUM(amount) AS total FROM " + TABLE_NAME + " WHERE type='DEBIT' AND createdAt >" + monthStartEndTs.get("start") + " AND createdAt <" + monthStartEndTs.get("end") + " GROUP BY category ORDER BY total DESC,createdAt DESC LIMIT 5";
-        System.out.println("QUERY:" + query);
         @SuppressLint("Recycle") Cursor data = database.rawQuery(query, null);
         for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext()) {
             reportDataList.add(new ReportData(data.getString(0), data.getDouble(2)));
         }
         database.close();
         return reportDataList;
-    }
-
-    public void deleteMultipleTransactions(List<String> ids) {
     }
 
     public Double getTotalExpenseByMonth(String month) {
@@ -284,5 +284,15 @@ public class Database extends SQLiteOpenHelper {
         data.moveToFirst();
         database.close();
         return data.getDouble(0);
+    }
+
+    public double getTotalCustomExpenseByMonth(String currentMonth) {
+        ConcurrentHashMap<String, Long> monthStartEndTs = Util.getMonthStartAndMonthEndTimestamp(currentMonth);
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        String query = "SELECT SUM(amount) AS total FROM " + TABLE_NAME + " WHERE type='DEBIT' AND createdAt >" + monthStartEndTs.get("start") + " AND createdAt <" + monthStartEndTs.get("end") + " AND isCustom=1";
+        @SuppressLint("Recycle") Cursor result = sqLiteDatabase.rawQuery(query, null);
+        result.moveToFirst();
+        sqLiteDatabase.close();
+        return result.getDouble(0);
     }
 }

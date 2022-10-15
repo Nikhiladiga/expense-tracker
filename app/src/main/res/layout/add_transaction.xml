@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout>
+<layout xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -22,7 +22,6 @@
 
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/formBg">
@@ -115,41 +114,13 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--    Date    -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/dateLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/categoryLayout"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                android:hint="@string/date"
-                app:boxBackgroundColor="@color/inputBg"
-                app:boxCornerRadiusBottomEnd="10dp"
-                app:boxCornerRadiusBottomStart="10dp"
-                app:boxCornerRadiusTopEnd="10dp"
-                app:boxCornerRadiusTopStart="10dp"
-                app:errorEnabled="true"
-                app:startIconDrawable="@drawable/ic_round_calendar_today_24">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="date"
-                    android:text="@{DateUtils.convertTimestampToDate(transaction.createdAt)}"
-                    android:textSize="12sp" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
             <!--    Payee name  -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/payeeNameLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/dateLayout"
+                android:layout_below="@id/categoryLayout"
                 android:layout_marginStart="30dp"
                 android:layout_marginEnd="30dp"
                 android:hint="@string/payee_name"
@@ -171,13 +142,41 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!--    Date    -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/dateLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/payeeNameLayout"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                android:hint="@string/date"
+                app:boxBackgroundColor="@color/inputBg"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusTopStart="10dp"
+                app:errorEnabled="true"
+                app:startIconDrawable="@drawable/ic_round_calendar_today_24">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="date"
+                    android:text="@{DateUtils.convertTimestampToDate(transaction.createdAt)}"
+                    android:textSize="12sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!--    Amount paid     -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/amountPaidLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/payeeNameLayout"
+                android:layout_below="@id/dateLayout"
                 android:layout_marginStart="30dp"
                 android:layout_marginEnd="30dp"
                 android:hint="@string/amount_paid"
@@ -201,59 +200,85 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--    Bank name     -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/bankNameLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/bankEmojiLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/amountPaidLayout"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                android:hint="@string/bank_name"
-                app:boxBackgroundColor="@color/inputBg"
-                app:boxCornerRadiusBottomEnd="10dp"
-                app:boxCornerRadiusBottomStart="10dp"
-                app:boxCornerRadiusTopEnd="10dp"
-                app:boxCornerRadiusTopStart="10dp"
-                app:errorEnabled="true"
-                app:startIconDrawable="@drawable/ic_baseline_attach_money_24">
+                android:layout_below="@id/amountPaidLayout">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/bankName"
+                <!--    Bank name     -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/bankNameLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapWords"
-                    android:text="@={transaction.bank}"
-                    android:textSize="12sp" />
+                    android:layout_marginStart="30dp"
+                    android:layout_marginEnd="5dp"
+                    android:hint="@string/bank_name"
+                    app:boxBackgroundColor="@color/inputBg"
+                    app:boxCornerRadiusBottomEnd="10dp"
+                    app:boxCornerRadiusBottomStart="10dp"
+                    app:boxCornerRadiusTopEnd="10dp"
+                    app:boxCornerRadiusTopStart="10dp"
+                    app:errorEnabled="true"
+                    app:startIconDrawable="@drawable/ic_baseline_attach_money_24">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/bankName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords"
+                        android:text="@={transaction.bank}"
+                        android:textSize="12sp" />
 
-            <!--    Emoji     -->
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!--    Emoji     -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/emojiLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="30dp"
+                    android:hint="@string/emoji"
+                    app:boxBackgroundColor="@color/inputBg"
+                    app:boxCornerRadiusBottomEnd="10dp"
+                    app:boxCornerRadiusBottomStart="10dp"
+                    app:boxCornerRadiusTopEnd="10dp"
+                    app:boxCornerRadiusTopStart="10dp"
+                    app:errorEnabled="true"
+                    app:startIconDrawable="@drawable/ic_baseline_emoji_emotions_24">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/emoji"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords"
+                        android:text="@={transaction.emoji}"
+                        android:textSize="12sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </com.google.android.flexbox.FlexboxLayout>
+
+            <!--     Custom expense checkbox       -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/emojiLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
+                android:id="@+id/customExpenseLayout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/bankNameLayout"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                android:hint="@string/emoji"
-                app:boxBackgroundColor="@color/inputBg"
-                app:boxCornerRadiusBottomEnd="10dp"
-                app:boxCornerRadiusBottomStart="10dp"
-                app:boxCornerRadiusTopEnd="10dp"
-                app:boxCornerRadiusTopStart="10dp"
-                app:errorEnabled="true"
-                app:startIconDrawable="@drawable/ic_baseline_emoji_emotions_24">
+                android:layout_below="@id/bankEmojiLayout"
+                android:layout_centerHorizontal="true">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/emoji"
-                    android:layout_width="match_parent"
+                <CheckBox
+                    android:id="@+id/customExpense"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapWords"
-                    android:text="@={transaction.emoji}"
-                    android:textSize="12sp" />
+                    android:fontFamily="@font/interbold"
+                    android:paddingStart="10dp"
+                    android:text="@string/custom_expense"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    tools:ignore="RtlSymmetry" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -262,7 +287,7 @@
                 android:id="@+id/addTransaction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/emojiLayout"
+                android:layout_below="@+id/customExpenseLayout"
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="10dp"

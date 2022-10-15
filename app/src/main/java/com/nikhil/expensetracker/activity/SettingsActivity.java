@@ -51,6 +51,7 @@ public class SettingsActivity extends AppCompatActivity implements CustomDialog.
         settingsOpt.add("Month Start Day");
         settingsOpt.add("Balance Limit");
         settingsOpt.add("Expense Limit");
+        settingsOpt.add("Custom Expense");
         settingsOpt.add("Total Balance");
         settingsOpt.add("Reset Data");
         settingsListAdapter = new SettingsListAdapter(this, settingsOpt, getSupportFragmentManager());

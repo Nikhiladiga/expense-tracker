@@ -108,8 +108,7 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.left_menu, mBinding.leftMenu.getMenu());
 
         //GET current month
-        Calendar calendar = Calendar.getInstance();
-        currentMonth = new SimpleDateFormat("MMMM").format(calendar.getTime());
+        currentMonth = DateUtils.getCurrentMonth();
         mBinding.currentMonth.setText(currentMonth);
 
         //Set months in dropdown
@@ -159,33 +158,6 @@ public class MainActivity extends AppCompatActivity {
             isMultiSelectEnabled = false;
             showUnshowCheckBox();
         });
-
-//        mBinding.startMultiEdit.setOnClickListener(view -> {
-//            Intent intent = new Intent(this, MultiTransactionActivity.class);
-//            try {
-//                List<Transaction> selectedTransactions = new ArrayList<>();
-//
-//                //Get transactions which have been selected
-//                for (int i = 0; i < transactionListAdapter.getItemCount(); i++) {
-//                    System.out.println("IS SELECTED:" + transactions.get(i).isSelected());
-//                    if (transactions.get(i).isSelected()) {
-//                        selectedTransactions.add(transactions.get(i));
-//                    }
-//                }
-//
-//                //Stringify transactions and send it to multi edit activity
-//                String selectedTransactionsJSON = new ObjectMapper().
-//                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-//                        .writeValueAsString(selectedTransactions);
-//
-//                intent.putExtra("selectedTransactions", selectedTransactionsJSON);
-//                multiEditActivity.launch(intent);
-//                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
-//
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        });
 
         if (transactions != null && transactions.size() < 1) {
             noTransactionsLayer.setVisibility(View.VISIBLE);
@@ -315,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
         if (SharedPrefHelper.getCategories() == null) {
             List<String> categories = new ArrayList<>();
             categories.add("Food");
+            categories.add("Grocery");
             categories.add("Entertainment");
             categories.add("Investment");
             categories.add("Sports");

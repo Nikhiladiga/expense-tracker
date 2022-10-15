@@ -37,13 +37,12 @@ android {
 
 dependencies {
 
-    implementation 'com.github.luizgrp:SectionedRecyclerViewAdapter:v3.2.0'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    implementation 'com.github.luizgrp:SectionedRecyclerViewAdapter:v3.2.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.11.1'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
-    implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.6.1'
