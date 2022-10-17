@@ -2,7 +2,9 @@ package com.nikhil.expensetracker.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
@@ -11,11 +13,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.PopupMenu;
 
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.LegendEntry;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -24,16 +25,22 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.adapters.ReportItemsAdapter;
+import com.nikhil.expensetracker.adapters.TransactionTableAdapter;
 import com.nikhil.expensetracker.databinding.ActivityReportBinding;
 import com.nikhil.expensetracker.model.ReportData;
 import com.nikhil.expensetracker.model.Transaction;
+import com.nikhil.expensetracker.model.TransactionRow;
 import com.nikhil.expensetracker.utils.DateUtils;
 
 import java.util.ArrayList;
@@ -50,14 +57,16 @@ public class ReportActivity extends AppCompatActivity {
 
     //Data for charts
     private final List<ReportData> topExpenseCategoriesByMonth = new ArrayList<>();
+    private final List<TransactionRow> transactionRows = new ArrayList<>();
     private final LinkedHashMap<String, Double> expenseTimeLineByMonth = new LinkedHashMap<>();
 
+    //Adapters
     private ReportItemsAdapter reportItemsAdapter;
+    private TransactionTableAdapter transactionTableAdapter;
+
     private String currentMonth;
 
-    private BarChart barChart;
-    private LineChart lineChart;
-
+    //Chart entry lists
     ArrayList<BarEntry> barChartEntries = new ArrayList<>();
     ArrayList<Entry> lineChartEntries = new ArrayList<>();
 
@@ -70,6 +79,9 @@ public class ReportActivity extends AppCompatActivity {
         //Get current month
         currentMonth = DateUtils.getCurrentMonth();
         mBinding.currentMonth.setText(currentMonth.toUpperCase(Locale.ROOT));
+
+        //Get data
+        getDataByMonth();
 
         //Handle adapter for top spent amount
         handleReportAdapter();
@@ -86,12 +98,21 @@ public class ReportActivity extends AppCompatActivity {
         //Handle linechart rendering
         handleLineChartRender();
 
+        //Handle expense summary recycler adapter
+        handleExpenseSummaryRecyclerView();
+
+    }
+
+    private void handleExpenseSummaryRecyclerView() {
+        mBinding.expenseSummarRecyclerView.setHasFixedSize(true);
+        mBinding.expenseSummarRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        System.out.println("TRANSACTION ROWS:" + transactionRows);
+        transactionTableAdapter = new TransactionTableAdapter(transactionRows, this);
+        mBinding.expenseSummarRecyclerView.setAdapter(transactionTableAdapter);
+        mBinding.expenseSummarRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
     private void handleLineChartRender() {
-
-
-        System.out.println("EXPENSE MAP:" + expenseTimeLineByMonth);
 
         ArrayList<String> xAxisLabels = new ArrayList<>();
 
@@ -139,8 +160,8 @@ public class ReportActivity extends AppCompatActivity {
                 return "₹" + value;
             }
         });
-        mBinding.barChart.animateY(1500);
-        mBinding.barChart.animateX(1500);
+        mBinding.lineChart.animateY(1500);
+        mBinding.lineChart.animateX(1500);
         mBinding.lineChart.setData(lineData);
         mBinding.lineChart.getDescription().setEnabled(false);
         mBinding.lineChart.invalidate();
@@ -148,6 +169,7 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     private void handleBarChartRender() {
+        BarChart barChart = mBinding.barChart;
         barChart = mBinding.barChart;
         barChart.getDescription().setEnabled(false);
         barChart.setExtraOffsets(5, 10, 5, 5);
@@ -203,8 +225,8 @@ public class ReportActivity extends AppCompatActivity {
         data.setValueTypeface(typeface);
         data.setValueTextSize(9f);
         barChart.setData(data);
-        mBinding.barChart.animateY(1500);
-        mBinding.barChart.animateX(1500);
+        barChart.animateY(1500);
+        barChart.animateX(1500);
         barChart.invalidate();
     }
 
@@ -231,6 +253,7 @@ public class ReportActivity extends AppCompatActivity {
             getDataByMonth();
             handleNoTransactionsLayer();
             reportItemsAdapter.notifyDataSetChanged();
+            transactionTableAdapter.update(transactionRows);
             handleBarChartRender();
             handleLineChartRender();
             return true;
@@ -243,8 +266,6 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     private void handleReportAdapter() {
-        getDataByMonth();
-
         //Create adapter and set values
         reportItemsAdapter = new ReportItemsAdapter(this, topExpenseCategoriesByMonth);
         mBinding.topAmountSpentByCategoriesList.setLayoutManager(new LinearLayoutManager(this));
@@ -256,6 +277,7 @@ public class ReportActivity extends AppCompatActivity {
         //Clear previous data
         topExpenseCategoriesByMonth.clear();
         expenseTimeLineByMonth.clear();
+        transactionRows.clear();
 
         // Get top n categories by amount spent
         topExpenseCategoriesByMonth.addAll(MainActivity.getInstance().database.getTransactionAmountSumByCategory(currentMonth));
@@ -266,6 +288,7 @@ public class ReportActivity extends AppCompatActivity {
         //Filter values to include only expenses
         transactions = transactions.stream().filter(transaction -> transaction.getType().equals("DEBIT")).collect(Collectors.toList());
 
+        //Add data for linechart
         for (int i = transactions.size() - 1; i >= 0; i--) {
             String transactionDate = DateUtils.convertTimestampToDate(transactions.get(i).getCreatedAt());
             Transaction transaction = transactions.get(i);
@@ -276,7 +299,28 @@ public class ReportActivity extends AppCompatActivity {
             }
         }
 
+        //Add data for expense summary table
+        LinkedHashMap<String, Double> allCategoriesExpense = new LinkedHashMap<>();
+        float sum = 0;
+        for (int i = 0; i < transactions.size(); i++) {
+            Transaction transaction = transactions.get(i);
+            String category = transaction.getCategory();
+            if (allCategoriesExpense.containsKey(category)) {
+                allCategoriesExpense.put(category, allCategoriesExpense.get(category) + transaction.getAmount());
+            } else {
+                allCategoriesExpense.put(category, transaction.getAmount());
+            }
+            sum += transaction.getAmount();
+        }
+
+        for (Map.Entry<String, Double> entry : allCategoriesExpense.entrySet()) {
+            transactionRows.add(new TransactionRow(entry.getKey(), entry.getValue(), (entry.getValue().floatValue() * 100.0f) / sum));
+        }
+
+        transactionRows.sort(TransactionRow::compare);
+
     }
+
 
     @Override
     public void finish() {

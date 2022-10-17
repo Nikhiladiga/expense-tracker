@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:showDividers="middle"
+    android:shrinkColumns="*"
+    android:stretchColumns="*"
+    >
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/tableRowCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/interregular"
+            android:padding="5dp"
+            android:text="Food"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tableRowAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/interregular"
+            android:padding="5dp"
+            android:text="₹3000"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tableRowPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/interregular"
+            android:padding="5dp"
+            android:text="30%"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+    </TableRow>
+
+</TableLayout>

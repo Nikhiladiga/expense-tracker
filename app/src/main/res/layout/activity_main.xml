@@ -17,6 +17,7 @@
         android:elevation="2dp"
         android:visibility="invisible">
 
+        <!--    Heading    -->
         <com.google.android.flexbox.FlexboxLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,7 +44,7 @@
 
         </com.google.android.flexbox.FlexboxLayout>
 
-
+        <!--    Toolbar    -->
     </androidx.appcompat.widget.Toolbar>
 
     <!--  Header with title and calendar icon  -->
@@ -81,7 +82,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="20dp"
                 android:contentDescription="@string/multi_select"
-                android:src="@drawable/ic_selectmultiple" />
+                android:src="@drawable/ic_baseline_search_24" />
 
             <ImageView
                 android:id="@+id/currentMonthIcon"

@@ -14,7 +14,7 @@
     <color name="green">#70FF00</color>
 
 
-    <!--    experimental-->
+    <color name="markerBg">#3D3D3D</color>
     <color name="formBg">#101010</color>
     <color name="inputBg">#171717</color>
     <color name="hintBg">#DBDBDB</color>
