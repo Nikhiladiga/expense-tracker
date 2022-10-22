@@ -5,7 +5,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nikhil.expensetracker.MainActivity;
+
+import java.util.List;
 
 public class SharedPrefHelper {
 
@@ -21,7 +27,6 @@ public class SharedPrefHelper {
 
     public static void setUsername(String username, Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        System.out.println("SHAREDPREF:" + sp);
         @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sp.edit();
         editor.putString("username", username);
         editor.apply();
@@ -65,5 +70,21 @@ public class SharedPrefHelper {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("monthStartDay", monthStartDay);
         editor.apply();
+    }
+
+    public static void addCategory(String category) {
+        String oldJsonString = getCategories();
+        ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            List<String> categories = objectMapper.readValue(oldJsonString, new TypeReference<List<String>>() {
+            });
+            categories.add(category);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            String newJsonString = objectMapper.writeValueAsString(categories);
+            editor.putString("categories", newJsonString);
+            editor.apply();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 }

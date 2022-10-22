@@ -29,6 +29,7 @@ import com.nikhil.expensetracker.utils.CustomDialog;
 import com.nikhil.expensetracker.utils.DateUtils;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class SettingsListAdapter extends RecyclerView.Adapter<SettingsListAdapter.SettingsViewHolder> {
@@ -86,7 +87,7 @@ public class SettingsListAdapter extends RecyclerView.Adapter<SettingsListAdapte
                 holder.itemCard.setStrokeColor(Color.YELLOW);
                 holder.itemCard.setStrokeWidth(10);
                 holder.itemTitle.setText(item);
-                holder.itemValue.setText("₹" + Math.floor(MainActivity.getInstance().database.getTotalCustomExpenseByMonth(DateUtils.getCurrentMonth()) * 100) / 100);
+                holder.itemValue.setText("₹" + Math.floor(MainActivity.getInstance().database.getTotalCustomExpenseByTimeframe(null, DateUtils.getCurrentMonth()) * 100) / 100);
                 break;
             default:
                 break;

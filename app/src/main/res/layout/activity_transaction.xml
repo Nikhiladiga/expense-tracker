@@ -307,7 +307,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:enabled="@{edit?true:false}"
-                        android:inputType="textCapWords"
+                        android:inputType="textShortMessage"
                         android:text="@{transaction.emoji}"
                         android:textSize="12sp" />
 

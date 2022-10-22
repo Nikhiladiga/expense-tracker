@@ -29,6 +29,7 @@ import com.nikhil.expensetracker.databinding.ActivityTransactionBinding;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.utils.DateUtils;
 import com.nikhil.expensetracker.utils.StringUtils;
+import com.nikhil.expensetracker.utils.Util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -183,11 +184,6 @@ public class SingleTransactionActivity extends AppCompatActivity {
             Long createdAt;
             Long currentTransactionTs = intent.getLongExtra("createdAt", 0);
 
-            System.out.println("CURRENT TRANSACTION TIMESTAMP:" + currentTransactionTs);
-
-            System.out.println("ACTIVITY DATE:" + mBinding.date.getText());
-            System.out.println("CURRENT TS DATE:" + DateUtils.convertTimestampToDate(currentTransactionTs));
-
             if (Objects.requireNonNull(mBinding.date.getText()).toString().equalsIgnoreCase(DateUtils.convertTimestampToDate(currentTransactionTs))) {
                 createdAt = currentTransactionTs;
             } else {
@@ -210,6 +206,7 @@ public class SingleTransactionActivity extends AppCompatActivity {
 
             mBinding.setEdit(false);
             MainActivity.getInstance().database.updateTransactionById(transaction);
+            Util.saveCategory(transaction.getCategory());
             Toast.makeText(this, "Transaction details updated", Toast.LENGTH_SHORT).show();
             MainActivity.getInstance().refreshAdapterData();
 

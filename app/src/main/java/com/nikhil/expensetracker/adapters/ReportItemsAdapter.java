@@ -37,7 +37,6 @@ public class ReportItemsAdapter extends RecyclerView.Adapter<ReportItemsAdapter.
     @Override
     public void onBindViewHolder(@NonNull ReportItemViewHolder holder, int position) {
         ReportData reportData = reportDataList.get(position);
-        System.out.println(reportData);
         holder.categoryTitle.setText(reportData.getCategory());
         holder.categoryAmount.setText("₹" + reportData.getAmount());
     }

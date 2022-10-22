@@ -48,4 +48,9 @@
     <string name="about_app">About app</string>
     <string name="share_app">Share app</string>
     <string name="custom_expense">Custom Expense</string>
+    <string name="import_data">Import Data</string>
+    <string name="close_filter">Close filter</string>
+    <string name="apply_filter">Apply filter</string>
+    <string name="year">Year</string>
+    <string name="clear_filter">Clear filter</string>
 </resources>

@@ -65,7 +65,6 @@ public class TransactionMainAdapter extends RecyclerView.Adapter<TransactionMain
 
     @SuppressLint("NotifyDataSetChanged")
     public void updateData(List<TransactionSection> transactionSections) {
-        System.out.println("TRANSACTION SECTIONS:" + transactionSections);
         sections = transactionSections;
         notifyDataSetChanged();
     }

@@ -28,7 +28,6 @@ public class DateUtils {
             Date date = formatter.parse(strDate);
             return new Timestamp(Objects.requireNonNull(date).getTime());
         } catch (ParseException e) {
-            System.out.println("Exception :" + e);
             return null;
         }
     }

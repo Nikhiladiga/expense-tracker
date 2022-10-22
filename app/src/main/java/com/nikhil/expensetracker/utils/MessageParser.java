@@ -11,8 +11,9 @@ public class MessageParser {
         } else if (bank.toLowerCase().contains("hdfc")) {
             return handleHdfcBankTransactionMessage(message, createdAt);
         } else if (bank.toLowerCase().contains("sbi")) {
-            System.out.println("SBI TRANSACTION MESSAGE RECEIVED");
             return handleSbiTransactionMessage(message, createdAt);
+        } else if (bank.toLowerCase().contains("icici")) {
+            return handleIciciTransactionMessage(message, createdAt);
         } else {
             return null;
         }
@@ -150,7 +151,6 @@ public class MessageParser {
             transaction.setCreatedAt(createdAt);
             transaction.setCategory("General");
 
-            System.out.println("SBI TRANSACTION:" + transaction);
             return transaction;
 
         } catch (Exception e) {
@@ -177,14 +177,34 @@ public class MessageParser {
                 String payeeNameSuffixSeparator = "@";
                 int payeeNameSepPrefixPos = message.indexOf(payeeNamePrefixSeparator);
                 int payeeNameSepSuffixPos = message.indexOf(payeeNameSuffixSeparator);
-                transaction.setName(message.substring(payeeNameSepPrefixPos + 3, payeeNameSepSuffixPos).trim());
+                try {
+                    transaction.setName(message.substring(payeeNameSepPrefixPos + 3, payeeNameSepSuffixPos).trim());
+                } catch (StringIndexOutOfBoundsException e) {
+                    transaction.setName("Unknown");
+                }
 
                 //Get amount debited
-                String amountDebitedPrefixSeparator = "Rs ";
-                String amountDebitedSuffixSeparator = "debited";
-                int amountDebitedSepPrefixPos = message.indexOf(amountDebitedPrefixSeparator);
-                int amountDebitedSepSuffixPos = message.indexOf(amountDebitedSuffixSeparator);
-                transaction.setAmount(Double.valueOf(message.substring(amountDebitedSepPrefixPos + 3, amountDebitedSepSuffixPos)));
+                if (message.contains("Rs.")) {
+                    String amountDebitedPrefixSeparator = "Rs. ";
+                    String amountDebitedSuffixSeparator = "debited";
+                    int amountDebitedSepPrefixPos = message.indexOf(amountDebitedPrefixSeparator);
+                    int amountDebitedSepSuffixPos = message.indexOf(amountDebitedSuffixSeparator);
+                    transaction.setAmount(Double.valueOf(message.substring(amountDebitedSepPrefixPos + 3, amountDebitedSepSuffixPos)));
+                } else if (message.contains("Rs")) {
+                    String amountDebitedPrefixSeparator = "Rs ";
+                    String amountDebitedSuffixSeparator = "debited";
+                    int amountDebitedSepPrefixPos = message.indexOf(amountDebitedPrefixSeparator);
+                    int amountDebitedSepSuffixPos = message.indexOf(amountDebitedSuffixSeparator);
+                    transaction.setAmount(Double.valueOf(message.substring(amountDebitedSepPrefixPos + 3, amountDebitedSepSuffixPos)));
+                } else if (message.contains("INR")) {
+                    String amountDebitedPrefixSeparator = "INR ";
+                    String amountDebitedSuffixSeparator = "debited";
+                    int amountDebitedSepPrefixPos = message.indexOf(amountDebitedPrefixSeparator);
+                    int amountDebitedSepSuffixPos = message.indexOf(amountDebitedSuffixSeparator);
+                    StringBuilder stringBuilder = new StringBuilder(message.substring(amountDebitedSepPrefixPos + 4, amountDebitedSepSuffixPos));
+                    stringBuilder.deleteCharAt(stringBuilder.indexOf(","));
+                    transaction.setAmount(Double.valueOf(stringBuilder.toString()));
+                }
 
 
             } else if (message.contains("credited to")) {
@@ -195,11 +215,73 @@ public class MessageParser {
                 String payeeNameSuffixSeparator = "@";
                 int payeeNameSepPrefixPos = message.indexOf(payeeNamePrefixSeparator);
                 int payeeNameSepSuffixPos = message.indexOf(payeeNameSuffixSeparator);
-                transaction.setName(message.substring(payeeNameSepPrefixPos + 3, payeeNameSepSuffixPos).trim());
+                try {
+                    transaction.setName(message.substring(payeeNameSepPrefixPos + 3, payeeNameSepSuffixPos).trim());
+                } catch (StringIndexOutOfBoundsException e) {
+                    System.out.println(message);
+                }
 
                 //Get amount credited
                 String amountCreditedPrefixSeparator = "Rs. ";
                 String amountCreditedSuffixSeparator = "credited";
+                int amountCreditedSepPrefixPos = message.indexOf(amountCreditedPrefixSeparator);
+                int amountCreditedSepSuffixPos = message.indexOf(amountCreditedSuffixSeparator);
+                transaction.setAmount(Double.valueOf(message.substring(amountCreditedSepPrefixPos + 4, amountCreditedSepSuffixPos)));
+            }
+
+            //Fill transaction date and time
+            transaction.setCreatedAt(createdAt);
+            transaction.setCategory("General");
+
+            return transaction;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static Transaction handleIciciTransactionMessage(String message, Long createdAt) {
+        try {
+            Transaction transaction = new Transaction();
+
+            //Set bank name
+            transaction.setBank("ICICI Bank");
+
+            //Set transaction id
+            transaction.setId(Generators.timeBasedGenerator().generate().toString());
+
+            if (message.contains("debited for")) {
+                transaction.setType("DEBIT");
+
+                //Get payee name
+                String payeeNamePrefixSeparator = ";";
+                String payeeNameSuffixSeparator = "credited";
+                int payeeNameSepPrefixPos = message.indexOf(payeeNamePrefixSeparator);
+                int payeeNameSepSuffixPos = message.indexOf(payeeNameSuffixSeparator);
+                transaction.setName(message.substring(payeeNameSepPrefixPos + 1, payeeNameSepSuffixPos).trim());
+
+                //Get amount debited
+                String amountDebitedPrefixSeparator = "Rs ";
+                String amountDebitedSuffixSeparator = "on";
+                int amountDebitedSepPrefixPos = message.indexOf(amountDebitedPrefixSeparator);
+                int amountDebitedSepSuffixPos = message.indexOf(amountDebitedSuffixSeparator);
+                transaction.setAmount(Double.valueOf(message.substring(amountDebitedSepPrefixPos + 3, amountDebitedSepSuffixPos)));
+
+
+            } else if (message.contains("credited with")) {
+                transaction.setType("CREDIT");
+
+                //Set name as unknown
+                String payeeNamePrefixSeparator = "from ";
+                String payeeNameSuffixSeparator = ". ";
+                int payeeNameSepPrefixPos = message.indexOf(payeeNamePrefixSeparator);
+                int payeeNameSepSuffixPos = message.indexOf(payeeNameSuffixSeparator);
+                transaction.setName(message.substring(payeeNameSepPrefixPos + 5, payeeNameSepSuffixPos).trim());
+
+                //Get amount credited
+                String amountCreditedPrefixSeparator = "Rs ";
+                String amountCreditedSuffixSeparator = "on";
                 int amountCreditedSepPrefixPos = message.indexOf(amountCreditedPrefixSeparator);
                 int amountCreditedSepSuffixPos = message.indexOf(amountCreditedSuffixSeparator);
                 transaction.setAmount(Double.valueOf(message.substring(amountCreditedSepPrefixPos + 4, amountCreditedSepSuffixPos)));

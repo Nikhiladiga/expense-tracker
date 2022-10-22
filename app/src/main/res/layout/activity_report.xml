@@ -5,7 +5,90 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/secondary"
+    android:animateLayoutChanges="true"
     tools:context=".activity.ReportActivity">
+
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/filterBar"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="@color/black"
+        android:elevation="1dp"
+        android:visibility="invisible"
+        app:flexDirection="column">
+
+        <ImageView
+            android:id="@+id/closeFilter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:contentDescription="@string/close_filter"
+            android:src="@drawable/ic_baseline_close_24"
+            app:layout_alignSelf="flex_end" />
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="265dp"
+            app:alignItems="center"
+            app:flexDirection="column"
+            app:justifyContent="space_evenly">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="30dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/interbold"
+                    android:text="@string/year"
+                    android:textColor="@color/white" />
+
+                <Spinner
+                    android:id="@+id/yearSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="30dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/interbold"
+                    android:text="@string/month"
+                    android:textColor="@color/white" />
+
+                <Spinner
+                    android:id="@+id/monthSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <Button
+                android:id="@+id/filterTransactionBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                android:text="@string/apply_filter" />
+
+
+        </com.google.android.flexbox.FlexboxLayout>
+
+    </com.google.android.flexbox.FlexboxLayout>
 
     <!--    Heading-->
     <com.google.android.flexbox.FlexboxLayout
@@ -36,7 +119,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/month"
             android:padding="10dp"
-            android:src="@drawable/ic_round_calendar_today_24" />
+            android:src="@drawable/ic_baseline_filter_alt_24" />
 
     </com.google.android.flexbox.FlexboxLayout>
 
@@ -116,12 +199,12 @@
                 android:id="@+id/barChart"
                 android:layout_width="match_parent"
                 android:layout_height="400dp"
-                android:visibility="gone"
                 android:layout_below="@id/dashboardCard"
                 android:layout_centerHorizontal="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginBottom="50dp" />
+                android:layout_marginBottom="50dp"
+                android:visibility="gone" />
 
             <!--      Expense timeline linechart heading      -->
             <TextView
@@ -164,12 +247,11 @@
                 android:id="@+id/expenseSummaryTable"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/expenseSummaryHeading"
                 android:layout_marginStart="30dp"
                 android:layout_marginEnd="30dp"
-                android:layout_below="@id/expenseSummaryHeading"
                 android:shrinkColumns="*"
-                android:stretchColumns="*"
-                >
+                android:stretchColumns="*">
 
                 <TableRow
                     android:background="@color/black"

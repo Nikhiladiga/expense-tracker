@@ -9,4 +9,12 @@
         android:title="@string/share_app"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:visible="false"
+        android:id="@+id/importData"
+        android:contentDescription="@string/import_data"
+        android:icon="@drawable/ic_baseline_import_export_24"
+        android:title="@string/import_data"
+        app:showAsAction="ifRoom" />
+
 </menu>

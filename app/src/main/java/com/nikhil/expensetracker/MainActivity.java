@@ -16,20 +16,24 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.nikhil.expensetracker.activity.AddTransactionActivity;
+import com.nikhil.expensetracker.activity.ImportTransactionActivity;
 import com.nikhil.expensetracker.activity.ReportActivity;
 import com.nikhil.expensetracker.activity.SettingsActivity;
 import com.nikhil.expensetracker.activity.UsernameActivity;
@@ -46,10 +50,13 @@ import com.nikhil.expensetracker.utils.Util;
 import java.lang.ref.WeakReference;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.time.Month;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -60,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     public Database database;
     private List<Transaction> transactions = new ArrayList<>();
-    private List<TransactionSection> transactionSections = new ArrayList<>();
+    private final List<TransactionSection> transactionSections = new ArrayList<>();
     private TransactionMainAdapter transactionMainAdapter;
 
     private static WeakReference<MainActivity> mainActivityWeakReference;
@@ -73,11 +80,15 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> usernameActivity;
     private ActivityResultLauncher<Intent> reportActivity;
     private ActivityResultLauncher<Intent> singleTransactionActivity;
+    private ActivityResultLauncher<Intent> importTransactionActivity;
 
     private RelativeLayout noTransactionsLayer;
     private RecyclerView transactionsList;
 
     private String currentMonth;
+    private Integer currentYear;
+    private String currentCategory;
+
     private Double balance = (double) 0;
     private Double expense = (double) 0;
 
@@ -111,23 +122,11 @@ public class MainActivity extends AppCompatActivity {
         currentMonth = DateUtils.getCurrentMonth();
         mBinding.currentMonth.setText(currentMonth);
 
-        //Set months in dropdown
-        PopupMenu popupMenu = new PopupMenu(this, mBinding.currentMonthIcon);
-        popupMenu.inflate(R.menu.months);
-        popupMenu.setOnMenuItemClickListener(menuItem -> {
-            currentMonth = menuItem.getTitle().toString();
-            mBinding.currentMonth.setText(currentMonth);
-            refreshAdapterData();
-            return true;
-        });
-
-        //Show month dropdown on icon click
-        mBinding.currentMonthIcon.setOnClickListener(view -> {
-            popupMenu.show();
-        });
+        //Set filter data (years,months,categories)
+        handleFilterData();
 
         //Get transactions,balance and expense for this month from database
-        DashboardData dashboardData = database.getTransactionsByMonth(currentMonth);
+        DashboardData dashboardData = database.getTransactionsByTimeframe(currentYear, currentMonth, null);
         transactions = dashboardData.getTransactions();
         balance = dashboardData.getBalance();
         expense = dashboardData.getExpense();
@@ -138,35 +137,42 @@ public class MainActivity extends AppCompatActivity {
         //Init data for obtaining sectional data
         initData(dashboardData.getTransactions());
 
-        //Set transactions list adapter and functionality
-        transactionsList = mBinding.transactionList;
-        noTransactionsLayer = mBinding.noTransactionsLayer;
-
-        transactionMainAdapter = new TransactionMainAdapter(transactionSections, getBaseContext(), singleTransactionActivity);
-        transactionsList.setAdapter(transactionMainAdapter);
-        transactionsList.setLayoutManager(new LinearLayoutManager(this));
-        transactionsList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        //Set transaction recyclerview with list adapter and functionality
+        setTransactionRecyclerView();
 
         //Show checkbox indicating multi select mode
-        mBinding.multiSelect.setOnClickListener(view -> {
-            isMultiSelectEnabled = !isMultiSelectEnabled;
-            showUnshowCheckBox();
-        });
+        handleSearchToolbar();
 
-        //Close toolbar and undo edit mode on close btn click
-        mBinding.clearMultiSelect.setOnClickListener(view -> {
+        //Handle no transactions layer
+        handleNoTransactionsLayer();
+
+        //Handle bottom bar
+        handleBottomBar();
+
+        //Handle transaction refresh
+        handleTransactionsRefresh();
+
+        checkSmsPermissions();
+    }
+
+    private void handleTransactionsRefresh() {
+        //Refresh transaction list
+        mBinding.refreshTransactionList.setOnRefreshListener(() -> {
+            Util.readAllSms(currentMonth);
+            mBinding.refreshTransactionList.setRefreshing(false);
+            Snackbar.make(
+                            mBinding.transactionList,
+                            "Transactions have been refreshed",
+                            Snackbar.LENGTH_SHORT
+                    ).setBackgroundTint(Color.BLACK)
+                    .setTextColor(Color.WHITE)
+                    .show();
             isMultiSelectEnabled = false;
-            showUnshowCheckBox();
+            showUnshowToolbar();
         });
+    }
 
-        if (transactions != null && transactions.size() < 1) {
-            noTransactionsLayer.setVisibility(View.VISIBLE);
-            transactionsList.setVisibility(View.GONE);
-        } else {
-            noTransactionsLayer.setVisibility(View.GONE);
-            transactionsList.setVisibility(View.VISIBLE);
-        }
-
+    private void handleBottomBar() {
         //Add transaction btn
         FloatingActionButton addTransactionBtn = mBinding.addTransactionBtn;
         addTransactionBtn.setOnClickListener((view) -> {
@@ -208,26 +214,40 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(Intent.createChooser(intent, "Share using"));
                     break;
 
+                case R.id.importData:
+                    Intent intent1 = new Intent(this, ImportTransactionActivity.class);
+                    reportActivity.launch(intent1);
+                    overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down);
+                    break;
+
                 default:
                     break;
             }
             return true;
         });
 
+    }
 
-        //Refresh transaction list
-        mBinding.refreshTransactionList.setOnRefreshListener(() -> {
-            Util.readAllSms(currentMonth);
-            mBinding.refreshTransactionList.setRefreshing(false);
-            Snackbar.make(
-                            mBinding.transactionList,
-                            "Transactions have been refreshed",
-                            Snackbar.LENGTH_SHORT
-                    ).setBackgroundTint(Color.BLACK)
-                    .setTextColor(Color.WHITE)
-                    .show();
+    private void handleNoTransactionsLayer() {
+        if (transactions != null && transactions.size() < 1) {
+            noTransactionsLayer.setVisibility(View.VISIBLE);
+            transactionsList.setVisibility(View.GONE);
+        } else {
+            noTransactionsLayer.setVisibility(View.GONE);
+            transactionsList.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void handleSearchToolbar() {
+        mBinding.multiSelect.setOnClickListener(view -> {
+            isMultiSelectEnabled = !isMultiSelectEnabled;
+            showUnshowToolbar();
+        });
+
+        //Close toolbar and undo edit mode on close btn click
+        mBinding.clearMultiSelect.setOnClickListener(view -> {
             isMultiSelectEnabled = false;
-            showUnshowCheckBox();
+            showUnshowToolbar();
         });
 
         //Searchview for transaction filtering
@@ -253,8 +273,113 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
 
-        checkSmsPermissions();
+    private void setTransactionRecyclerView() {
+        transactionsList = mBinding.transactionList;
+        noTransactionsLayer = mBinding.noTransactionsLayer;
+
+        transactionMainAdapter = new TransactionMainAdapter(transactionSections, getBaseContext(), singleTransactionActivity);
+        transactionsList.setAdapter(transactionMainAdapter);
+        transactionsList.setLayoutManager(new LinearLayoutManager(this));
+        transactionsList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+    }
+
+    private void handleFilterData() {
+        ArrayAdapter<String> monthsAdapter = new ArrayAdapter<>(
+                this,
+                com.google.android.material.R.layout.support_simple_spinner_dropdown_item,
+                getResources().getStringArray(R.array.months)
+        );
+
+        List<Integer> yearList = new ArrayList<>();
+        for (int i = 2022; i < 2030; i++) {
+            yearList.add(i);
+        }
+
+        ArrayAdapter<Integer> yearAdapter = new ArrayAdapter<>(
+                this,
+                com.google.android.material.R.layout.support_simple_spinner_dropdown_item,
+                yearList
+        );
+
+        List<String> categories = new ArrayList<>();
+        try {
+            categories = new ObjectMapper()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .readValue(SharedPrefHelper.getCategories(), new TypeReference<List<String>>() {
+                    });
+            categories.add(0, "All");
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(
+                this,
+                com.google.android.material.R.layout.support_simple_spinner_dropdown_item,
+                categories
+        );
+
+        monthsAdapter.setDropDownViewResource(com.google.android.material.R.layout.support_simple_spinner_dropdown_item);
+        mBinding.monthSpinner.setAdapter(monthsAdapter);
+        Month month = Month.valueOf(currentMonth.toUpperCase(Locale.ROOT));
+        int monthIndex = month.getValue();
+        mBinding.monthSpinner.setSelection(monthIndex);
+
+        yearAdapter.setDropDownViewResource(com.google.android.material.R.layout.support_simple_spinner_dropdown_item);
+        mBinding.yearSpinner.setAdapter(yearAdapter);
+        Year year = Year.now();
+        int yearIndex = 0;
+        for (int i = 0; i < yearList.size(); i++) {
+            if (year.getValue() == yearList.get(i)) {
+                yearIndex = i;
+            }
+        }
+        mBinding.yearSpinner.setSelection(yearIndex);
+
+        categoryAdapter.setDropDownViewResource(com.google.android.material.R.layout.support_simple_spinner_dropdown_item);
+        mBinding.categorySpinner.setAdapter(categoryAdapter);
+
+        mBinding.filterIcon.setOnClickListener(view -> {
+            mBinding.filterBar.setVisibility(View.VISIBLE);
+        });
+
+        mBinding.closeFilter.setOnClickListener(view -> {
+            mBinding.filterBar.setVisibility(View.GONE);
+        });
+
+        mBinding.filterTransactionBtn.setOnClickListener(view -> {
+            currentYear = (int) mBinding.yearSpinner.getSelectedItem();
+            currentMonth = mBinding.monthSpinner.getSelectedItem().toString();
+            if (mBinding.categorySpinner.getSelectedItem().toString().equals("All")) {
+                currentCategory = null;
+            } else {
+                currentCategory = mBinding.categorySpinner.getSelectedItem().toString();
+            }
+            mBinding.filterBar.setVisibility(View.GONE);
+            refreshAdapterData();
+            mBinding.currentMonth.setText(currentMonth);
+        });
+
+        mBinding.clearFilterBtn.setOnClickListener(view -> {
+            currentYear = Year.now().getValue();
+            int yIndex = 0;
+            for (int i = 0; i < yearList.size(); i++) {
+                if (year.getValue() == yearList.get(i)) {
+                    yIndex = i;
+                }
+            }
+            currentMonth = DateUtils.getCurrentMonth();
+            currentCategory = null;
+
+            mBinding.yearSpinner.setSelection(yIndex);
+            mBinding.monthSpinner.setSelection(Month.valueOf(currentMonth.toUpperCase(Locale.ROOT)).getValue());
+            mBinding.categorySpinner.setSelection(0);
+            mBinding.filterBar.setVisibility(View.GONE);
+            refreshAdapterData();
+            mBinding.currentMonth.setText(currentMonth);
+        });
+
     }
 
     @Override
@@ -330,9 +455,9 @@ public class MainActivity extends AppCompatActivity {
     public void refreshAdapterData() {
         transactions.clear();
         isMultiSelectEnabled = false;
-        showUnshowCheckBox();
+        showUnshowToolbar();
 
-        DashboardData dashboardData = database.getTransactionsByMonth(currentMonth);
+        DashboardData dashboardData = database.getTransactionsByTimeframe(currentYear, currentMonth, currentCategory);
 
         initData(dashboardData.getTransactions());
 
@@ -429,7 +554,26 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        //Single transaction activity
         singleTransactionActivity = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        boolean success = false;
+                        if (data != null) {
+                            success = data.getBooleanExtra("success", false);
+                        }
+                        if (success) {
+                            refreshAdapterData();
+                        }
+                    }
+                }
+
+        );
+
+        //Import transaction activity
+        importTransactionActivity = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
@@ -458,7 +602,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showUnshowCheckBox() {
+    private void showUnshowToolbar() {
         if (isMultiSelectEnabled) {
             mBinding.multiEditToolbar.setVisibility(View.VISIBLE);
             mBinding.multiEditToolbar.animate().translationY(0).setDuration(300L).start();

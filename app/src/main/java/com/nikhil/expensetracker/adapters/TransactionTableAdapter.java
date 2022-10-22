@@ -41,7 +41,6 @@ public class TransactionTableAdapter extends RecyclerView.Adapter<TransactionTab
         holder.tableRowCategory.setText(transactionRow.getCategory());
         holder.tableRowAmount.setText("₹" + transactionRow.getAmount());
         holder.tableRowPercent.setText(transactionRow.getContribution() + "%");
-
     }
 
     @Override

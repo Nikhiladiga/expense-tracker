@@ -28,6 +28,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.databinding.AddTransactionBinding;
+import com.nikhil.expensetracker.datahelpers.SharedPrefHelper;
 import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.utils.DateUtils;
 import com.nikhil.expensetracker.utils.StringUtils;
@@ -157,6 +158,7 @@ public class AddTransactionActivity extends AppCompatActivity {
 
                 //Save transaction to database
                 MainActivity.getInstance().database.addTransaction(transaction);
+                Util.saveCategory(transaction.getCategory());
                 Toast.makeText(this, "Transaction added!", Toast.LENGTH_SHORT).show();
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("success", "true");

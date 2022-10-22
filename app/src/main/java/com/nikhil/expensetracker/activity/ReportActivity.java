@@ -2,21 +2,19 @@ package com.nikhil.expensetracker.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.util.Pair;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.PopupMenu;
+import android.widget.ArrayAdapter;
 
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.LegendEntry;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -25,14 +23,11 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
-import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.nikhil.expensetracker.MainActivity;
 import com.nikhil.expensetracker.R;
 import com.nikhil.expensetracker.adapters.ReportItemsAdapter;
@@ -43,12 +38,18 @@ import com.nikhil.expensetracker.model.Transaction;
 import com.nikhil.expensetracker.model.TransactionRow;
 import com.nikhil.expensetracker.utils.DateUtils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Month;
+import java.time.Year;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 public class ReportActivity extends AppCompatActivity {
@@ -65,6 +66,9 @@ public class ReportActivity extends AppCompatActivity {
     private TransactionTableAdapter transactionTableAdapter;
 
     private String currentMonth;
+    private Integer currentYear;
+
+    private Boolean noTransactionsPresent;
 
     //Chart entry lists
     ArrayList<BarEntry> barChartEntries = new ArrayList<>();
@@ -81,7 +85,7 @@ public class ReportActivity extends AppCompatActivity {
         mBinding.currentMonth.setText(currentMonth.toUpperCase(Locale.ROOT));
 
         //Get data
-        getDataByMonth();
+        getReportData();
 
         //Handle adapter for top spent amount
         handleReportAdapter();
@@ -106,7 +110,6 @@ public class ReportActivity extends AppCompatActivity {
     private void handleExpenseSummaryRecyclerView() {
         mBinding.expenseSummarRecyclerView.setHasFixedSize(true);
         mBinding.expenseSummarRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        System.out.println("TRANSACTION ROWS:" + transactionRows);
         transactionTableAdapter = new TransactionTableAdapter(transactionRows, this);
         mBinding.expenseSummarRecyclerView.setAdapter(transactionTableAdapter);
         mBinding.expenseSummarRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -231,7 +234,8 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     private void handleNoTransactionsLayer() {
-        if (topExpenseCategoriesByMonth.size() < 1) {
+        noTransactionsPresent = this.topExpenseCategoriesByMonth.size() < 1;
+        if (noTransactionsPresent) {
             mBinding.spentMostHeader.setVisibility(View.GONE);
             mBinding.noReportsAvailable.setVisibility(View.VISIBLE);
             mBinding.topAmountSpentByCategoriesList.setVisibility(View.GONE);
@@ -244,25 +248,62 @@ public class ReportActivity extends AppCompatActivity {
 
     @SuppressLint("NotifyDataSetChanged")
     private void handleMonthsPopup() {
-        //Set months in dropdown
-        PopupMenu popupMenu = new PopupMenu(this, mBinding.currentMonthIcon);
-        popupMenu.inflate(R.menu.months);
-        popupMenu.setOnMenuItemClickListener(menuItem -> {
-            currentMonth = menuItem.getTitle().toString();
-            mBinding.currentMonth.setText(currentMonth);
-            getDataByMonth();
+        ArrayAdapter<String> monthsAdapter = new ArrayAdapter<>(
+                this,
+                com.google.android.material.R.layout.support_simple_spinner_dropdown_item,
+                getResources().getStringArray(R.array.months)
+        );
+
+        List<Integer> yearList = new ArrayList<>();
+        for (int i = 2022; i < 2030; i++) {
+            yearList.add(i);
+        }
+
+        ArrayAdapter<Integer> yearAdapter = new ArrayAdapter<>(
+                this,
+                com.google.android.material.R.layout.support_simple_spinner_dropdown_item,
+                yearList
+        );
+
+        monthsAdapter.setDropDownViewResource(com.google.android.material.R.layout.support_simple_spinner_dropdown_item);
+        mBinding.monthSpinner.setAdapter(monthsAdapter);
+        Month month = Month.valueOf(currentMonth.toUpperCase(Locale.ROOT));
+        int monthIndex = month.getValue();
+        mBinding.monthSpinner.setSelection(monthIndex - 1);
+
+        yearAdapter.setDropDownViewResource(com.google.android.material.R.layout.support_simple_spinner_dropdown_item);
+        mBinding.yearSpinner.setAdapter(yearAdapter);
+        Year year = Year.now();
+        int yearIndex = 0;
+        for (int i = 0; i < yearList.size(); i++) {
+            if (year.getValue() == yearList.get(i)) {
+                yearIndex = i;
+            }
+        }
+        mBinding.yearSpinner.setSelection(yearIndex);
+        MainActivity.getInstance().database.getTransactionsByTimeframe(currentYear, currentMonth, null);
+
+        mBinding.currentMonthIcon.setOnClickListener(view -> {
+            mBinding.filterBar.setVisibility(View.VISIBLE);
+        });
+
+        mBinding.closeFilter.setOnClickListener(view -> {
+            mBinding.filterBar.setVisibility(View.GONE);
+        });
+
+        mBinding.filterTransactionBtn.setOnClickListener(view -> {
+            currentMonth = mBinding.monthSpinner.getSelectedItem().toString();
+            currentYear = (int) mBinding.yearSpinner.getSelectedItem();
+            getReportData();
             handleNoTransactionsLayer();
             reportItemsAdapter.notifyDataSetChanged();
             transactionTableAdapter.update(transactionRows);
             handleBarChartRender();
             handleLineChartRender();
-            return true;
+            mBinding.filterBar.animate().translationY(0).setDuration(300L).start();
+            mBinding.filterBar.setVisibility(View.GONE);
         });
 
-        //Show month dropdown on icon click
-        mBinding.currentMonthIcon.setOnClickListener(view -> {
-            popupMenu.show();
-        });
     }
 
     private void handleReportAdapter() {
@@ -272,7 +313,7 @@ public class ReportActivity extends AppCompatActivity {
         mBinding.topAmountSpentByCategoriesList.setAdapter(reportItemsAdapter);
     }
 
-    private void getDataByMonth() {
+    private void getReportData() {
 
         //Clear previous data
         topExpenseCategoriesByMonth.clear();
@@ -280,10 +321,10 @@ public class ReportActivity extends AppCompatActivity {
         transactionRows.clear();
 
         // Get top n categories by amount spent
-        topExpenseCategoriesByMonth.addAll(MainActivity.getInstance().database.getTransactionAmountSumByCategory(currentMonth));
+        topExpenseCategoriesByMonth.addAll(MainActivity.getInstance().database.getTransactionAmountSumByCategory(currentYear, currentMonth));
 
         //Get transaction timeline data
-        List<Transaction> transactions = MainActivity.getInstance().database.getTransactionsByMonth(currentMonth).getTransactions();
+        List<Transaction> transactions = MainActivity.getInstance().database.getTransactionsByTimeframe(currentYear, currentMonth, null).getTransactions();
 
         //Filter values to include only expenses
         transactions = transactions.stream().filter(transaction -> transaction.getType().equals("DEBIT")).collect(Collectors.toList());
@@ -320,7 +361,6 @@ public class ReportActivity extends AppCompatActivity {
         transactionRows.sort(TransactionRow::compare);
 
     }
-
 
     @Override
     public void finish() {

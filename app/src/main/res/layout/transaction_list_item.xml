@@ -1,101 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.flexbox.FlexboxLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/black"
-    android:padding="10dp"
-    app:alignItems="center"
-    app:flexDirection="row"
-    app:justifyContent="space_between">
-
-    <CheckBox
-        android:id="@+id/isSelected"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:buttonTint="@color/primary"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/transactionImg"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:text="🍔"
-        android:textSize="25sp"
-        tools:ignore="ContentDescription" />
+    android:backgroundTint="@color/black"
+    android:layout_height="wrap_content">
 
     <com.google.android.flexbox.FlexboxLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
         app:alignItems="center"
+        app:flexDirection="row"
         app:justifyContent="space_between">
 
-        <LinearLayout
+        <CheckBox
+            android:id="@+id/isSelected"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/primary"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/transactionImg"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="🍔"
+            android:textSize="25sp"
+            tools:ignore="ContentDescription" />
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            app:alignItems="center"
+            app:justifyContent="space_between">
 
-            <TextView
-                android:id="@+id/transactionName"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawablePadding="7dp"
-                android:fontFamily="@font/interextrabold"
-                android:maxLines="3"
-                android:text="ACCESS RESEARCH LABS"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/transactionCategory"
+                <TextView
+                    android:id="@+id/transactionName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="7dp"
+                    android:fontFamily="@font/interextrabold"
+                    android:maxLines="3"
+                    android:text="ACCESS RESEARCH LABS"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/transactionCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/intersemibold"
+                    android:text="Food"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/transactionBank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/intermedium"
+                    android:text="Axis Bank"
+                    android:textColor="@color/tertiary"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/intersemibold"
-                android:text="Food"
-                android:textColor="@color/white"
-                android:textSize="12sp" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/transactionBank"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/intermedium"
-                android:text="Axis Bank"
-                android:textColor="@color/tertiary"
-                android:textSize="11sp" />
+                <TextView
+                    android:id="@+id/transactionAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/interextrabold"
+                    android:text="+ ₹96000"
+                    android:textColor="@color/red"
+                    android:textSize="14sp" />
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/transactionAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/interextrabold"
-                android:text="+ ₹96000"
-                android:textColor="@color/red"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/transactionDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/intermedium"
-                android:text="23/9/2022"
-                android:textColor="@color/tertiary"
-                android:textSize="11sp" />
+                <TextView
+                    android:id="@+id/transactionDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/intermedium"
+                    android:text="23/9/2022"
+                    android:textColor="@color/tertiary"
+                    android:textSize="11sp" />
 
 
-        </LinearLayout>
+            </LinearLayout>
+
+        </com.google.android.flexbox.FlexboxLayout>
 
     </com.google.android.flexbox.FlexboxLayout>
-
-</com.google.android.flexbox.FlexboxLayout>
+</com.google.android.material.card.MaterialCardView>
